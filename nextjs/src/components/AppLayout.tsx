@@ -5,12 +5,11 @@ import {usePathname, useRouter} from 'next/navigation';
 import {
     Home,
     User,
-    Building2,
     Menu,
     X,
     ChevronDown,
     LogOut,
-    Key, Files, ListTodo, LucideListTodo,
+    Key, Files, LucideListTodo,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
