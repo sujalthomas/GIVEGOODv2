@@ -149,6 +149,10 @@ This project is licensed under the Apache License - see the LICENSE file for det
 
 If you find this template helpful, please consider giving it a star ⭐️
 
+Or buy me a coffee!
+
+- [BuyMeACoffee](https://buymeacoffee.com)
+
 My socials:
 
 - [Twitter](https://twitter.com/Razikus_)
