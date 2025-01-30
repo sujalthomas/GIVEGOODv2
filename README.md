@@ -2,6 +2,14 @@
 
 A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind CSS. This template provides everything you need to quickly launch your SaaS product, including authentication, user management, file storage, and more.
 
+## LIVE DEMO
+
+Demo is here - https://basicsass.razikus.com
+
+## Deployment video
+
+Video is here - https://www.youtube.com/watch?v=kzbXavLndmE
+
 ## 🚀 Features
 
 - **Authentication**
