@@ -52,6 +52,7 @@ export class SassClient {
     }
 
     async uploadFile(myId: string, filename: string, file: File) {
+        filename = filename.replace(/[^0-9a-zA-Z!\-_.*'()]/g, '_');
         filename = myId + "/" + filename
         return this.client.storage.from('files').upload(filename, file);
     }
