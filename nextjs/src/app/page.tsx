@@ -9,40 +9,40 @@ export default function Home() {
 
   const features = [
     {
-      icon: Users,
-      title: 'Multi-Tenancy',
-      description: 'Built-in organization management with role-based access control and team collaboration features',
-      color: 'text-blue-600'
-    },
-    {
       icon: Shield,
-      title: 'Enterprise Security',
-      description: 'Secure authentication with email/password, MFA, and SSO support for major providers',
+      title: 'Robust Authentication',
+      description: 'Secure login with email/password, Multi-Factor Authentication, and SSO providers',
       color: 'text-green-600'
     },
     {
-      icon: Key,
-      title: 'API Integration',
-      description: 'Generate and manage API keys for secure programmatic access to your services',
-      color: 'text-purple-600'
-    },
-    {
-      icon: Globe,
-      title: 'Global Scale',
-      description: 'Built to scale globally with edge functions and distributed architecture',
+      icon: Database,
+      title: 'File Management',
+      description: 'Built-in file storage with secure sharing, downloads, and granular permissions',
       color: 'text-orange-600'
     },
     {
-      icon: Database,
-      title: 'Data Control',
-      description: 'Advanced data management with row-level security and real-time capabilities',
+      icon: Users,
+      title: 'User Settings',
+      description: 'Complete user management with password updates, MFA setup, and profile controls',
       color: 'text-red-600'
     },
     {
       icon: Clock,
-      title: 'Quick Setup',
-      description: 'Get started in minutes with our comprehensive documentation and guides',
+      title: 'Task Management',
+      description: 'Built-in todo system with real-time updates and priority management',
       color: 'text-teal-600'
+    },
+    {
+      icon: Globe,
+      title: 'Legal Documents',
+      description: 'Pre-configured privacy policy, terms of service, and refund policy pages',
+      color: 'text-purple-600'
+    },
+    {
+      icon: Key,
+      title: 'Cookie Consent',
+      description: 'GDPR-compliant cookie consent system with customizable preferences',
+      color: 'text-blue-600'
     }
   ];
 
@@ -103,8 +103,7 @@ export default function Home() {
                 <span className="block text-primary-600">In 5 minutes</span>
               </h1>
               <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
-                Launch your SaaS product in days, not months. Complete with authentication,
-                multi-tenancy, and enterprise-grade security built right in.
+                Launch your SaaS product in days, not months. Complete with authentication and enterprise-grade security built right in.
               </p>
               <div className="mt-10 flex gap-4 justify-center">
 
