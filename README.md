@@ -151,7 +151,7 @@ If you find this template helpful, please consider giving it a star ⭐️
 
 Or buy me a coffee!
 
-- [BuyMeACoffee](https://buymeacoffee.com)
+- [BuyMeACoffee](https://buymeacoffee.com/razikus)
 
 My socials:
 
