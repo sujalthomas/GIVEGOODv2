@@ -6,21 +6,17 @@ A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind C
 
 Demo is here - https://basicsass.razikus.com
 
-## Need Multitenancy, Billing (Paddle) and Role Based Access Control?
-
-I have paid template as well available here:
-
-https://sasstemplate.razikus.com
-
-Basically it's the same template but with Paddle + organisations API keys + multiple organisations + Role Based Access Control
-
-For code GITHUB you can get -50% off
-
-https://razikus.gumroad.com/l/supatemplate/GITHUB
 
 ## Deployment video
 
 Video is here - https://www.youtube.com/watch?v=kzbXavLndmE
+
+
+## SupaNuggets
+
+On top of this template I'm building a SupaNuggets series - 50 mini apps
+
+https://supanuggets.razikus.com - grab your copy for free :) (Pay As You Want model)
 
 ## 🚀 Features
 
@@ -152,6 +148,19 @@ Change the theme by updating the `NEXT_PUBLIC_THEME` environment variable.
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+
+## Need Multitenancy, Billing (Paddle) and Role Based Access Control?
+
+I have paid template as well available here:
+
+https://sasstemplate.razikus.com
+
+Basically it's the same template but with Paddle + organisations API keys + multiple organisations + Role Based Access Control
+
+For code GITHUB you can get -50% off
+
+https://razikus.gumroad.com/l/supatemplate/GITHUB
 
 ## 📝 License
 
