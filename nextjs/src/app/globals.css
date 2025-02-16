@@ -152,6 +152,44 @@
     --color-accent-900: #6f2b22;
 }
 
+.theme-sass3 {
+    /* Primary colors - Ocean Blues */
+    --color-primary-50: #f0f9ff;
+    --color-primary-100: #e0f7ff;
+    --color-primary-200: #b9ecff;
+    --color-primary-300: #7dd5f5;
+    --color-primary-400: #38b7e8;
+    --color-primary-500: #0c98d0;
+    --color-primary-600: #0887c2;
+    --color-primary-700: #0670a3;
+    --color-primary-800: #065b86;
+    --color-primary-900: #074563;
+
+    /* Secondary colors - Sandy Neutrals */
+    --color-secondary-50: #fdfcfb;
+    --color-secondary-100: #f8f6f4;
+    --color-secondary-200: #f0ece7;
+    --color-secondary-300: #e2dcd4;
+    --color-secondary-400: #cbc3b9;
+    --color-secondary-500: #afa497;
+    --color-secondary-600: #8c8278;
+    --color-secondary-700: #6e665e;
+    --color-secondary-800: #504b45;
+    --color-secondary-900: #353230;
+
+    /* Accent colors - Coral Sunset */
+    --color-accent-50: #fff5f2;
+    --color-accent-100: #ffe6e0;
+    --color-accent-200: #ffc9bc;
+    --color-accent-300: #ffa592;
+    --color-accent-400: #ff7a61;
+    --color-accent-500: #ff5341;
+    --color-accent-600: #eb3a28;
+    --color-accent-700: #d12a1a;
+    --color-accent-800: #b22417;
+    --color-accent-900: #8f1e15;
+}
+
 .theme-purple {
     --color-primary-50: #faf5ff;
     --color-primary-100: #f3e8ff;

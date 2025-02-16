@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   let theme = process.env.NEXT_PUBLIC_THEME
   if(!theme) {
-    theme = "theme-sass2"
+    theme = "theme-sass3"
   }
   const gaID = process.env.NEXT_PUBLIC_GOOGLE_TAG;
   return (
