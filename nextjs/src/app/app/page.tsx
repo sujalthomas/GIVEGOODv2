@@ -59,7 +59,7 @@ export default function DashboardContent() {
                         </Link>
 
                         <Link
-                            href="/app/example"
+                            href="/app/table"
                             className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             <div className="p-2 bg-primary-50 rounded-full">
