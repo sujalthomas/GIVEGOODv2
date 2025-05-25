@@ -1,12 +1,8 @@
-create schema if not exists "authenticative";
-
-set check_function_bodies = off;
-
-CREATE OR REPLACE FUNCTION authenticative.is_user_authenticated()
- RETURNS boolean
- LANGUAGE sql
- SECURITY DEFINER
-AS $function$
+CREATE OR REPLACE FUNCTION auth.is_user_authenticated()
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
   SELECT array[(select auth.jwt()->>'aal')] <@ (
     SELECT
       CASE
@@ -17,6 +13,4 @@ AS $function$
     WHERE (auth.uid() = user_id)
     AND status = 'verified'
   );
-$function$
-;
-
+$$;

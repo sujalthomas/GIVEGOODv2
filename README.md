@@ -11,6 +11,11 @@ Demo is here - https://basicsass.razikus.com
 
 Video is here - https://www.youtube.com/watch?v=kzbXavLndmE
 
+## Migration from auth schema
+
+According to this - https://github.com/Razikus/supabase-nextjs-template/issues/4
+
+We are no longer able to modify auth schema. I modified original migrations to rename it to custom schema. If you need to migrate from older version - check supabase/migrations_for_old/20250525183944_auth_removal.sql
 
 ## SupaNuggets
 

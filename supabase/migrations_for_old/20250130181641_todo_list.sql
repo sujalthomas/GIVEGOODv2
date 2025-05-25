@@ -67,7 +67,7 @@ on "public"."todo_list"
 as permissive
 for all
 to authenticated
-using ((authenticative.is_user_authenticated() AND (owner = auth.uid())));
+using ((auth.is_user_authenticated() AND (owner = auth.uid())));
 
 
 
