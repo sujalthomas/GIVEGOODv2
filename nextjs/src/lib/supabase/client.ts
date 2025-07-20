@@ -13,3 +13,12 @@ export async function createSPASassClient() {
     const client = createSPAClient();
     return new SassClient(client, ClientType.SPA);
 }
+
+export async function createSPASassClientAuthenticated() {
+    const client = createSPAClient();
+    const user = await client.auth.getSession();
+    if (!user.data || !user.data.session) {
+        window.location.href = '/auth/login';
+    }
+    return new SassClient(client, ClientType.SPA);
+}
