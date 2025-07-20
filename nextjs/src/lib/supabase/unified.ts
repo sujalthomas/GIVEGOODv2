@@ -43,7 +43,7 @@ export class SassClient {
 
     async logout() {
         const { error } = await this.client.auth.signOut({
-            scope: 'global',
+            scope: 'local',
         });
         if (error) throw error;
         if(this.clientType === ClientType.SPA) {
