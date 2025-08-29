@@ -6,6 +6,14 @@ A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind C
 
 Demo is here - https://basicsass.razikus.com
 
+## Self promo
+Hey, don't be a code printer in AI era. Check my book
+```
+http://razikus.gumroad.com/l/dirtycode - live now!
+https://www.amazon.com/dp/B0FNR716CF - live from 01.09
+https://books.apple.com/us/book/dirty-code-but-works/id6751538660 - live from 01.09
+https://play.google.com/store/books/details?id=5UWBEQAAQBAJ - live from 01.09
+```
 
 ## Deployment video
 
