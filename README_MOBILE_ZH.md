@@ -4,6 +4,12 @@
 
 一个生产就绪的移动 SaaS 模板，使用 React Native、Expo 和 Supabase 构建。此模板提供了一个完整的移动应用程序，具有身份验证、文件管理、任务管理和国际化支持。
 
+
+## Video
+[![观看视频](https://img.youtube.com/vi/qcASa0Ywsy4/maxresdefault.jpg)](https://youtube.com/shorts/qcASa0Ywsy4?feature=share)
+
+
+
 ## 📱 平台支持
 
 - **iOS** - 完整原生支持

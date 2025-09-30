@@ -2,6 +2,10 @@
 
 A production-ready mobile SaaS template built with React Native, Expo, and Supabase. This template provides a complete mobile application with authentication, file management, task management, and internationalization support.
 
+## Video
+[![Watch the video](https://img.youtube.com/vi/qcASa0Ywsy4/maxresdefault.jpg)](https://youtube.com/shorts/qcASa0Ywsy4?feature=share)
+
+
 ## 📱 Platform Support
 
 - **iOS** - Full native support
