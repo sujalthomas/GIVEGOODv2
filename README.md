@@ -1,6 +1,10 @@
-# Supabase Next.js SaaS Template
+# Supabase Full-Stack SaaS Template
 
 A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind CSS. This template provides everything you need to quickly launch your SaaS product, including authentication, user management, file storage, and more.
+
+
+> **🎉 NEW: Mobile App Now Available!** Check out [README_MOBILE.md](./README_MOBILE.md) for the complete React Native + Expo mobile app that shares the same Supabase backend!
+
 
 ## LIVE DEMO
 
