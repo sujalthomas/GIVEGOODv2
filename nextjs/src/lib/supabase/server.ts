@@ -6,7 +6,7 @@ import {Database} from "@/lib/types";
 export async function createSSRClient() {
     const cookieStore = await cookies()
 
-    return createServerClient<Database>(
+    return createServerClient<Database, "public", Database["public"]>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
@@ -34,5 +34,7 @@ export async function createSSRClient() {
 
 export async function createSSRSassClient() {
     const client = await createSSRClient();
-    return new SassClient(client, ClientType.SERVER);
+    // This must be some bug that SupabaseClient is not properly recognized, so must be ignored
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return new SassClient(client as any, ClientType.SERVER);
 }

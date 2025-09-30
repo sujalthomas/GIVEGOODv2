@@ -4,13 +4,14 @@ import {Database} from "@/lib/types";
 export enum ClientType {
     SERVER = 'server',
     SPA = 'spa'
+
 }
 
 export class SassClient {
-    private client: SupabaseClient<Database>;
+    private client: SupabaseClient<Database, "public", "public">;
     private clientType: ClientType;
 
-    constructor(client: SupabaseClient, clientType: ClientType) {
+    constructor(client: SupabaseClient<Database, "public", "public">, clientType: ClientType) {
         this.client = client;
         this.clientType = clientType;
 
@@ -86,11 +87,11 @@ export class SassClient {
         return this.client.from('todo_list').insert(row)
     }
 
-    async removeTask (id: string) {
+    async removeTask (id: number) {
         return this.client.from('todo_list').delete().eq('id', id)
     }
 
-    async updateAsDone (id: string) {
+    async updateAsDone (id: number) {
         return this.client.from('todo_list').update({done: true}).eq('id', id)
     }
 
