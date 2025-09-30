@@ -8,14 +8,14 @@ A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind C
 
 ## 🇨🇳 Chinese Documentation Available
 
-[中文文档](./README_CN.md) | [移动端中文文档](./README_MOBILE_ZH.md)
+[中文文档](./README_ZH.md) | [移动端中文文档](./README_MOBILE_ZH.md)
 
 This repository includes full documentation in Simplified Chinese:
-- **README_CN.md** - Complete Chinese translation of the main documentation
+- **README_ZH.md** - Complete Chinese translation of the main documentation
 - **README_MOBILE_ZH.md** - Complete Chinese translation of the mobile app documentation
 
 本仓库包含完整的简体中文文档：
-- **README_CN.md** - 主文档的完整中文翻译
+- **README_ZH.md** - 主文档的完整中文翻译
 - **README_MOBILE_ZH.md** - 移动应用文档的完整中文翻译
 
 ## LIVE DEMO
