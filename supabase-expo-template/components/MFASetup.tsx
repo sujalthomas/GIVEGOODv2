@@ -5,11 +5,12 @@ import { Input } from '@/components/ui/input'
 import { Colors } from '@/constants/theme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { supabase } from '@/lib/supabase'
-import { CheckCircle, Shield, Trash2 } from 'lucide-react-native'
+import { CheckCircle, Shield, Trash2, Copy, Check } from 'lucide-react-native'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
+import * as Clipboard from 'expo-clipboard'
 
 interface MFASetupProps {
   onStatusChange?: () => void
@@ -30,6 +31,7 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [actionInProgress, setActionInProgress] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetchFactors()
@@ -118,6 +120,12 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
     }
   }
 
+  async function copySecret() {
+    await Clipboard.setStringAsync(secret)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   function resetEnrollment() {
     setStep('list')
     setFactorId('')
@@ -126,6 +134,7 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
     setVerifyCode('')
     setFriendlyName('')
     setError('')
+    setCopied(false)
   }
 
   if (loading) {
@@ -227,9 +236,35 @@ export function MFASetup({ onStatusChange }: MFASetupProps) {
             <Text style={[styles.secretLabel, { color: colors.icon }]}>
               {t('mfa.manualEntry')}
             </Text>
+            
             <Text style={[styles.secretText, { color: colors.text }]}>
               {secret}
             </Text>
+
+            <TouchableOpacity
+              onPress={copySecret}
+              style={[styles.copyButton, { 
+                backgroundColor: copied ? '#22c55e' : colors.tint,
+                borderColor: copied ? '#22c55e' : colors.tint,
+              }]}
+              disabled={copied}
+            >
+              {copied ? (
+                <>
+                  <Check size={16} color="white" />
+                  <Text style={styles.copyButtonText}>
+                    {t('mfa.copied')}
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Copy size={16} color="white" />
+                  <Text style={styles.copyButtonText}>
+                    {t('mfa.copyCode')}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
 
             <Input
               label={t('mfa.verificationCode')}
@@ -339,8 +374,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
     letterSpacing: 2,
+  },
+  copyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  copyButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
   },
   buttonRow: {
     flexDirection: 'row',

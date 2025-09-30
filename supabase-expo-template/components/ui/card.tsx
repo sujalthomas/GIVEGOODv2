@@ -14,7 +14,11 @@ export function Card({ children, style }: CardProps) {
   return (
     <View style={[
       styles.card,
-      { backgroundColor: colors.background },
+      { 
+        backgroundColor: colors.background,
+        borderColor: colorScheme === 'dark' ? '#27272a' : '#e5e7eb',
+        borderWidth: 1,
+      },
       style
     ]}>
       {children}

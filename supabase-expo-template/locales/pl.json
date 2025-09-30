@@ -101,7 +101,9 @@
     "errors": {
       "nameRequired": "Podaj nazwę dla tej metody uwierzytelniania",
       "noFactorSelected": "Proszę wybrać urządzenie uwierzytelniające"
-    }
+    },
+    "copyCode": "Kopiuj kod",
+    "copied": "Skopiowano!"
   },
   "settings": {
     "title": "Ustawienia",

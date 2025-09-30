@@ -101,7 +101,9 @@
     "errors": {
       "nameRequired": "Please provide a name for this authentication method",
       "noFactorSelected": "Please select an authentication device"
-    }
+    },
+    "copyCode": "Copy Code",
+    "copied": "Copied!"
   },
   "settings": {
     "title": "Settings",
