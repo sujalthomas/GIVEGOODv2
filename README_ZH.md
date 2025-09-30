@@ -29,11 +29,6 @@ https://play.google.com/store/books/details?id=5UWBEQAAQBAJ - 9月1日起上线
 
 我们不再能够修改 auth 架构。我修改了原始迁移以将其重命名为自定义架构。如果你需要从旧版本迁移 - 查看 supabase/migrations_for_old/20250525183944_auth_removal.sql
 
-## SupaNuggets
-
-在此模板基础上，我正在构建 SupaNuggets 系列 - 50个迷你应用
-
-https://supanuggets.razikus.com - 免费获取 :)（按需付费模式）
 
 ## 🚀 功能特性
 

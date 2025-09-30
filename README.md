@@ -42,12 +42,6 @@ According to this - https://github.com/Razikus/supabase-nextjs-template/issues/4
 
 We are no longer able to modify auth schema. I modified original migrations to rename it to custom schema. If you need to migrate from older version - check supabase/migrations_for_old/20250525183944_auth_removal.sql
 
-## SupaNuggets
-
-On top of this template I'm building a SupaNuggets series - 50 mini apps
-
-https://supanuggets.razikus.com - grab your copy for free :) (Pay As You Want model)
-
 ## 🚀 Features
 
 - **Authentication**
