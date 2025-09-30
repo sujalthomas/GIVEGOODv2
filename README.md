@@ -4,6 +4,7 @@ A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind C
 
 
 > **🎉 NEW: Mobile App Now Available!** Check out [README_MOBILE.md](./README_MOBILE.md) for the complete React Native + Expo mobile app that shares the same Supabase backend!
+> https://youtube.com/shorts/qcASa0Ywsy4?feature=share
 
 
 ## 🇨🇳 Chinese Documentation Available
