@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { UserCheck, Mail, MapPin, Calendar, Heart, Filter, Download } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
 
