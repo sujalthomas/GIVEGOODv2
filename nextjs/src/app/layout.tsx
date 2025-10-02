@@ -6,8 +6,9 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_PRODUCTNAME,
-  description: "The best way to build your SaaS product.",
+  title: "Give Good Club | Feed Street Animals with Love",
+  description: "A grassroots volunteer initiative building DIY PVC-pipe dog feeders for street animals in Delhi/NCR. Join us in spreading kindness, one feeder at a time.",
+  keywords: "street dogs, animal welfare, Delhi, NGO, volunteer, community, dog feeders, animal rescue",
 };
 
 export default function RootLayout({
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   let theme = process.env.NEXT_PUBLIC_THEME
   if(!theme) {
-    theme = "theme-sass3"
+    theme = "theme-givegood"
   }
   const gaID = process.env.NEXT_PUBLIC_GOOGLE_TAG;
   return (

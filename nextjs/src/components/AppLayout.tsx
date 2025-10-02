@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {
@@ -9,10 +9,12 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo,
+    Key, Files, LucideListTodo, UserCheck,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
+
+const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -22,6 +24,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
 
     const { user } = useGlobal();
+    
+    // Check if user is super admin
+    const isSuperAdmin = useMemo(() => {
+        return user?.email === SUPER_ADMIN_EMAIL;
+    }, [user?.email]);
 
     const handleLogout = async () => {
         try {
@@ -44,12 +51,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const productName = process.env.NEXT_PUBLIC_PRODUCTNAME;
 
-    const navigation = [
+    const baseNavigation = [
         { name: 'Homepage', href: '/app', icon: Home },
         { name: 'Example Storage', href: '/app/storage', icon: Files },
         { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
         { name: 'User Settings', href: '/app/user-settings', icon: User },
     ];
+
+    // Add super admin navigation item
+    const navigation = useMemo(() => {
+        if (isSuperAdmin) {
+            return [
+                ...baseNavigation,
+                { name: 'Volunteer Submissions', href: '/app/volunteers', icon: UserCheck },
+            ];
+        }
+        return baseNavigation;
+    }, [isSuperAdmin]);
 
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
