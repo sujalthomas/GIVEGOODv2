@@ -63,7 +63,7 @@ export default function DonationsPage() {
 
       if (error) throw error;
 
-      setDonations(data || []);
+      setDonations((data || []) as Donation[]);
     } catch (error) {
       console.error('Error fetching donations:', error);
     } finally {
