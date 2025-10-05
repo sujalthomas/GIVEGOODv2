@@ -62,7 +62,9 @@ export default function TransparencyLedger() {
     }
   };
 
-  const getRecipientName = (purpose: string) => {
+  const getRecipientName = (purpose: string | null) => {
+    if (!purpose) return 'Give Good Club';
+    
     const recipients: { [key: string]: string } = {
       feeder_construction: 'Street Animal Feeders',
       medical_aid: 'Animal Medical Fund',
@@ -72,7 +74,9 @@ export default function TransparencyLedger() {
     return recipients[purpose] || 'Give Good Club';
   };
 
-  const getCategoryLabel = (purpose: string) => {
+  const getCategoryLabel = (purpose: string | null) => {
+    if (!purpose) return 'General';
+    
     const labels: { [key: string]: string } = {
       feeder_construction: 'Infrastructure',
       medical_aid: 'Healthcare',

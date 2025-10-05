@@ -1,11 +1,11 @@
 "use client";
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { XCircle, ArrowRight, RefreshCw, Mail } from 'lucide-react';
+import { XCircle, ArrowRight, RefreshCw, Mail, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function DonationFailurePage() {
+function DonationFailureContent() {
   const searchParams = useSearchParams();
   const reason = searchParams.get('reason');
 
@@ -162,6 +162,22 @@ export default function DonationFailurePage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+// Wrapper component with Suspense boundary
+export default function DonationFailurePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-red-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-red-600 animate-spin mx-auto mb-4" />
+          <p className="text-xl text-gray-700">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DonationFailureContent />
+    </Suspense>
   );
 }
 

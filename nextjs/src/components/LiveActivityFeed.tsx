@@ -55,7 +55,7 @@ export default function LiveActivityFeed() {
           food_supplies: 'food supplies',
         };
         
-        const purposeText = purposeLabels[donation.purpose] || 'helping animals';
+        const purposeText = donation.purpose ? (purposeLabels[donation.purpose] || 'helping animals') : 'helping animals';
 
         activityList.push({
           id: donation.id,

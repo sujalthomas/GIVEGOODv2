@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Heart, Share2, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ interface DonationStatus {
   payment_id?: string;
 }
 
-export default function DonationSuccessPage() {
+function DonationSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get('orderId');
@@ -364,3 +364,18 @@ function getImpactStatements(amount: number): string[] {
   return statements.slice(0, 4); // Return max 4 statements
 }
 
+// Wrapper component with Suspense boundary
+export default function DonationSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-primary-50 to-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-16 h-16 text-primary-600 animate-spin mx-auto mb-4" />
+          <p className="text-xl text-gray-700">Loading your donation details...</p>
+        </div>
+      </div>
+    }>
+      <DonationSuccessContent />
+    </Suspense>
+  );
+}
