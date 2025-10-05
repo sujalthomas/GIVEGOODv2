@@ -345,8 +345,11 @@ export default function DonatePage() {
                       value={formData.donorPhone}
                       onChange={(e) => setFormData({ ...formData, donorPhone: e.target.value })}
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="+91 98765 43210"
+                      placeholder="9876543210 or +91 9876543210"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 10-digit Indian mobile number (spaces okay)
+                    </p>
                   </div>
                 </motion.div>
               )}
