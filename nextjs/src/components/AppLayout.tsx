@@ -9,7 +9,7 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck,
+    Key, Files, LucideListTodo, UserCheck, Heart,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
@@ -58,12 +58,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         { name: 'User Settings', href: '/app/user-settings', icon: User },
     ];
 
-    // Add super admin navigation item
+    // Add super admin navigation items
     const navigation = useMemo(() => {
         if (isSuperAdmin) {
             return [
                 ...baseNavigation,
                 { name: 'Volunteer Submissions', href: '/app/volunteers', icon: UserCheck },
+                { name: 'Donation Dashboard', href: '/app/donations', icon: Heart },
             ];
         }
         return baseNavigation;

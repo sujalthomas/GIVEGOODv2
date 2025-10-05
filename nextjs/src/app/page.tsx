@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Heart, Wrench, MapPin, Sparkles, Droplets, Shield, Instagram, Mail, Users, PawPrint } from 'lucide-react';
 import VolunteerForm from '@/components/VolunteerForm';
+import LiveActivityFeed from '@/components/LiveActivityFeed';
+import TransparencyLedger from '@/components/TransparencyLedger';
 
 export default function Home() {
   const scrollToForm = () => {
@@ -86,24 +88,22 @@ export default function Home() {
               so they&apos;re cared for in safe, designated spaces.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.a
+                href="/donate"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-accent-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-accent-800 transition-colors shadow-xl inline-block text-center"
+              >
+                ❤️ Donate Now
+              </motion.a>
               <motion.button
                 onClick={scrollToForm}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-accent-700 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-accent-800 transition-colors shadow-xl"
-              >
-                Join Us Today
-              </motion.button>
-              <motion.a
-                href="https://donate.stripe.com/test_example"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
                 className="bg-white text-primary-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-secondary-50 transition-colors shadow-xl"
               >
-                Donate Now
-              </motion.a>
+                Join Us as Volunteer
+              </motion.button>
             </div>
           </motion.div>
         </div>
@@ -299,12 +299,10 @@ export default function Home() {
                   Support us financially! Every ₹500 builds one complete feeder that can serve dozens of dogs for years.
                 </p>
                 <a
-                  href="https://donate.stripe.com/test_example"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/donate"
                   className="inline-block bg-accent-700 text-white px-6 py-3 rounded-full font-semibold hover:bg-accent-800 transition-colors"
                 >
-                  Donate Now
+                  ❤️ Donate Now
                 </a>
               </div>
             </motion.div>
@@ -357,6 +355,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Live Activity Feed Section */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Real-Time Impact
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              See the latest donations and activity as they happen. Every contribution makes a difference!
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl mx-auto"
+          >
+            <LiveActivityFeed />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Transparency Ledger Section */}
+      <section className="py-16 md:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <TransparencyLedger />
+          </motion.div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -376,7 +412,7 @@ export default function Home() {
               <ul className="space-y-2">
                 <li><Link href="#join" className="hover:text-primary-400 transition-colors">Volunteer</Link></li>
                 <li><Link href="#how" className="hover:text-primary-400 transition-colors">How It Works</Link></li>
-                <li><a href="https://donate.stripe.com/test_example" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">Donate</a></li>
+                <li><Link href="/donate" className="hover:text-primary-400 transition-colors">Donate</Link></li>
               </ul>
             </div>
             

@@ -375,9 +375,28 @@
   * {
     @apply border-border;
     }
-  html {
-    scroll-behavior: smooth;
-    }
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E07856;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D84315;
+}
   body {
     @apply bg-background text-foreground;
     }

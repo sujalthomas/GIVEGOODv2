@@ -14,6 +14,194 @@ export type Database = {
   }
   public: {
     Tables: {
+      anchor_batches: {
+        Row: {
+          batch_end_time: string
+          batch_start_time: string
+          created_at: string
+          donation_count: number
+          error_message: string | null
+          id: string
+          leaf_count: number
+          merkle_root: string
+          metadata: Json | null
+          onchain_block: number | null
+          onchain_slot: number | null
+          onchain_timestamp: string | null
+          onchain_tx_signature: string | null
+          retry_count: number | null
+          status: string
+          total_amount_inr: number
+          tree_height: number
+          updated_at: string
+        }
+        Insert: {
+          batch_end_time: string
+          batch_start_time: string
+          created_at?: string
+          donation_count?: number
+          error_message?: string | null
+          id?: string
+          leaf_count: number
+          merkle_root: string
+          metadata?: Json | null
+          onchain_block?: number | null
+          onchain_slot?: number | null
+          onchain_timestamp?: string | null
+          onchain_tx_signature?: string | null
+          retry_count?: number | null
+          status?: string
+          total_amount_inr?: number
+          tree_height: number
+          updated_at?: string
+        }
+        Update: {
+          batch_end_time?: string
+          batch_start_time?: string
+          created_at?: string
+          donation_count?: number
+          error_message?: string | null
+          id?: string
+          leaf_count?: number
+          merkle_root?: string
+          metadata?: Json | null
+          onchain_block?: number | null
+          onchain_slot?: number | null
+          onchain_timestamp?: string | null
+          onchain_tx_signature?: string | null
+          retry_count?: number | null
+          status?: string
+          total_amount_inr?: number
+          tree_height?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount_inr: number
+          anchor_batch_id: string | null
+          anchored: boolean | null
+          anonymous: boolean | null
+          bank_reference: string | null
+          campaign_id: string | null
+          card_last4: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          dedication_message: string | null
+          donor_email: string | null
+          donor_name: string | null
+          donor_pan: string | null
+          donor_phone: string | null
+          id: string
+          internal_tags: string[] | null
+          ip_address: unknown | null
+          merkle_leaf_hash: string | null
+          merkle_leaf_index: number | null
+          merkle_proof: Json | null
+          metadata: Json | null
+          notes: string | null
+          order_id: string | null
+          payment_id: string
+          payment_method: string | null
+          payment_method_details: Json | null
+          provider: string
+          purpose: string | null
+          razorpay_event_id: string | null
+          razorpay_signature: string | null
+          status: string
+          updated_at: string
+          upi_reference: string | null
+          user_agent: string | null
+          webhook_received_at: string | null
+        }
+        Insert: {
+          amount_inr: number
+          anchor_batch_id?: string | null
+          anchored?: boolean | null
+          anonymous?: boolean | null
+          bank_reference?: string | null
+          campaign_id?: string | null
+          card_last4?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dedication_message?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_pan?: string | null
+          donor_phone?: string | null
+          id?: string
+          internal_tags?: string[] | null
+          ip_address?: unknown | null
+          merkle_leaf_hash?: string | null
+          merkle_leaf_index?: number | null
+          merkle_proof?: Json | null
+          metadata?: Json | null
+          notes?: string | null
+          order_id?: string | null
+          payment_id: string
+          payment_method?: string | null
+          payment_method_details?: Json | null
+          provider: string
+          purpose?: string | null
+          razorpay_event_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          updated_at?: string
+          upi_reference?: string | null
+          user_agent?: string | null
+          webhook_received_at?: string | null
+        }
+        Update: {
+          amount_inr?: number
+          anchor_batch_id?: string | null
+          anchored?: boolean | null
+          anonymous?: boolean | null
+          bank_reference?: string | null
+          campaign_id?: string | null
+          card_last4?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          dedication_message?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_pan?: string | null
+          donor_phone?: string | null
+          id?: string
+          internal_tags?: string[] | null
+          ip_address?: unknown | null
+          merkle_leaf_hash?: string | null
+          merkle_leaf_index?: number | null
+          merkle_proof?: Json | null
+          metadata?: Json | null
+          notes?: string | null
+          order_id?: string | null
+          payment_id?: string
+          payment_method?: string | null
+          payment_method_details?: Json | null
+          provider?: string
+          purpose?: string | null
+          razorpay_event_id?: string | null
+          razorpay_signature?: string | null
+          status?: string
+          updated_at?: string
+          upi_reference?: string | null
+          user_agent?: string | null
+          webhook_received_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_anchor_batch_id_fkey"
+            columns: ["anchor_batch_id"]
+            isOneToOne: false
+            referencedRelation: "anchor_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       todo_list: {
         Row: {
           created_at: string
@@ -82,7 +270,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_donation_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          anchored_donations: number
+          completed_donations: number
+          pending_donations: number
+          total_amount: number
+          total_donations: number
+        }[]
+      }
+      get_unanchored_donations: {
+        Args: { batch_size?: number; time_window_hours?: number }
+        Returns: {
+          amount: number
+          created_at: string
+          donation_id: string
+          payment_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
