@@ -55,6 +55,8 @@ export interface RazorpayPayment {
   contact: string | null;
   notes: Record<string, string>;
   created_at: number;
+  fee?: number; // Total fee charged by Razorpay (in paisa)
+  tax?: number; // GST on the fee (in paisa)
   vpa?: string; // UPI VPA
   upi?: {
     payer_account_type: string;

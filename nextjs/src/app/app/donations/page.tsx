@@ -29,6 +29,9 @@ interface Donation {
   order_id: string;
   created_at: string;
   webhook_received_at: string | null;
+  razorpay_fee_inr?: number;
+  tax_amount_inr?: number;
+  net_amount_inr?: number;
 }
 
 export default function DonationsPage() {
@@ -103,6 +106,8 @@ export default function DonationsPage() {
   const stats = useMemo(() => {
     const completed = donations.filter(d => d.status === 'completed');
     const totalAmount = completed.reduce((sum, d) => sum + d.amount_inr, 0);
+    const totalNetAmount = completed.reduce((sum, d) => sum + (d.net_amount_inr || d.amount_inr), 0);
+    const totalFees = totalAmount - totalNetAmount;
     const avgDonation = completed.length > 0 ? totalAmount / completed.length : 0;
     
     const purposeBreakdown = completed.reduce((acc, d) => {
@@ -129,11 +134,14 @@ export default function DonationsPage() {
       pending: donations.filter(d => d.status === 'pending').length,
       failed: donations.filter(d => d.status === 'failed').length,
       totalAmount,
+      totalNetAmount,
+      totalFees,
       avgDonation,
       purposeBreakdown,
       paymentMethods,
       recentCount: recentDonations.length,
       recentAmount: recentDonations.reduce((sum, d) => sum + d.amount_inr, 0),
+      recentNetAmount: recentDonations.reduce((sum, d) => sum + (d.net_amount_inr || d.amount_inr), 0),
     };
   }, [donations]);
 
@@ -233,13 +241,15 @@ export default function DonationsPage() {
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm opacity-90">Total Raised</div>
+                <div className="flex-1">
+                  <div className="text-sm opacity-90">Total Raised (Gross)</div>
                   <div className="text-3xl font-bold mt-1">
                     ₹{stats.totalAmount.toLocaleString()}
                   </div>
-                  <div className="text-xs opacity-75 mt-1">
-                    {stats.completed} successful donations
+                  <div className="text-xs opacity-75 mt-1 space-y-0.5">
+                    <div>Net: ₹{stats.totalNetAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div>Fees: ₹{stats.totalFees.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="mt-1">{stats.completed} donations</div>
                   </div>
                 </div>
                 <DollarSign className="w-12 h-12 opacity-50" />
@@ -279,13 +289,14 @@ export default function DonationsPage() {
           <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="flex-1">
                   <div className="text-sm opacity-90">Last 30 Days</div>
                   <div className="text-3xl font-bold mt-1">
                     ₹{stats.recentAmount.toLocaleString()}
                   </div>
-                  <div className="text-xs opacity-75 mt-1">
-                    {stats.recentCount} donations
+                  <div className="text-xs opacity-75 mt-1 space-y-0.5">
+                    <div>Net: ₹{stats.recentNetAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                    <div className="mt-1">{stats.recentCount} donations</div>
                   </div>
                 </div>
                 <Calendar className="w-12 h-12 opacity-50" />

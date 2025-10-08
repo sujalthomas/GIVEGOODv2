@@ -51,16 +51,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate phone format if provided (strip spaces and dashes first)
-    if (body.donorPhone && body.donorPhone.trim()) {
+    if (body.donorPhone && body.donorPhone.trim().length > 0) {
       const cleanedPhone = body.donorPhone.replace(/[\s-]/g, ''); // Remove spaces and dashes
-      if (!isValidPhone(cleanedPhone)) {
+      if (cleanedPhone.length > 0 && !isValidPhone(cleanedPhone)) {
         return NextResponse.json(
           { error: 'Invalid phone format. Use 10-digit Indian mobile number' },
           { status: 400 }
         );
       }
-      // Update body with cleaned phone
-      body.donorPhone = cleanedPhone;
+      // Update body with cleaned phone (or set to undefined if empty)
+      body.donorPhone = cleanedPhone.length > 0 ? cleanedPhone : undefined;
+    } else {
+      body.donorPhone = undefined;
     }
 
     // Create Razorpay order

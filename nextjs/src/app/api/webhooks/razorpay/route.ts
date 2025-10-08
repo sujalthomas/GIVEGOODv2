@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWebhookSignature, fetchPaymentDetails, extractUPIReference, paiseToRupees } from '@/lib/razorpay/client';
+import { verifyWebhookSignature, fetchPaymentDetails, extractUPIReference, paiseToRupees, RazorpayPayment } from '@/lib/razorpay/client';
 import { createServerClient } from '@supabase/ssr';
 
 // Disable body parsing to get raw body for signature verification
@@ -240,6 +240,26 @@ async function handlePaymentCaptured(
   // Extract UPI reference if available
   const upiReference = extractUPIReference(fullPaymentDetails);
 
+  // Extract fee information for transparency
+  // Note: fee and tax are only available when fetching full payment details from API
+  const paymentDetails = fullPaymentDetails as RazorpayPayment;
+  const totalFee = paymentDetails.fee || 0; // Total fee in paisa
+  const taxAmount = paymentDetails.tax || 0; // GST in paisa
+  const platformFee = totalFee - taxAmount; // Razorpay fee (before GST)
+  
+  const amountInRupees = paiseToRupees(paymentEntity.amount);
+  const feeInRupees = paiseToRupees(platformFee);
+  const taxInRupees = paiseToRupees(taxAmount);
+  const netAmount = amountInRupees - paiseToRupees(totalFee); // What charity receives
+
+  console.log('💰 Fee Breakdown:', {
+    grossAmount: amountInRupees,
+    platformFee: feeInRupees,
+    gst: taxInRupees,
+    totalFee: paiseToRupees(totalFee),
+    netAmount: netAmount,
+  });
+
   // STEP 5: Update donation to "completed" status
   const { error: updateError } = await supabase
     .from('donations')
@@ -248,6 +268,9 @@ async function handlePaymentCaptured(
       status: 'completed',
       payment_method: paymentEntity.method,
       upi_reference: upiReference,
+      razorpay_fee_inr: feeInRupees,
+      tax_amount_inr: taxInRupees,
+      net_amount_inr: netAmount,
       payment_method_details: {
         method: paymentEntity.method,
         email: paymentEntity.email,
@@ -262,6 +285,12 @@ async function handlePaymentCaptured(
         ...(typeof donation.metadata === 'object' && donation.metadata !== null ? donation.metadata : {}),
         payment_id: fullPaymentDetails.id,
         payment_method: fullPaymentDetails.method,
+        fee_breakdown: {
+          total_fee_paisa: totalFee,
+          platform_fee_paisa: platformFee,
+          gst_paisa: taxAmount,
+          net_amount_inr: netAmount,
+        },
         payment_status: fullPaymentDetails.status,
         webhook_event: event.event,
         captured_at: new Date().toISOString(),

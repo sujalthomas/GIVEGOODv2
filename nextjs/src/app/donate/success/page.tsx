@@ -12,6 +12,9 @@ interface DonationStatus {
   amount_inr: number;
   id: string;
   payment_id?: string;
+  razorpay_fee_inr?: number;
+  tax_amount_inr?: number;
+  net_amount_inr?: number;
 }
 
 function DonationSuccessContent() {
@@ -40,7 +43,7 @@ function DonationSuccessContent() {
 
         const { data, error } = await supabase
           .from('donations')
-          .select('id, status, amount_inr, payment_id')
+          .select('id, status, amount_inr, payment_id, razorpay_fee_inr, tax_amount_inr, net_amount_inr')
           .eq('order_id', orderId)
           .single();
 
@@ -50,14 +53,16 @@ function DonationSuccessContent() {
         }
 
         if (data) {
-          setDonationStatus(data as DonationStatus);
+          // Type assertion: The columns exist in DB but TypeScript types are stale
+          const donation = data as unknown as DonationStatus;
+          setDonationStatus(donation);
 
-          if (data.status === 'completed') {
+          if (donation.status === 'completed') {
             setIsLoading(false);
             setShowConfetti(true);
             // Stop polling
             return true;
-          } else if (data.status === 'failed') {
+          } else if (donation.status === 'failed') {
             setIsLoading(false);
             router.push('/donate/failure?reason=payment_failed');
             return true;
@@ -226,8 +231,60 @@ function DonationSuccessContent() {
             transition={{ delay: 0.4 }}
             className="text-xl text-gray-600 mb-8"
           >
-            Your donation of <span className="font-bold text-primary-600">₹{amount}</span> has been received successfully!
+            Your donation of <span className="font-bold text-primary-600">₹{amount.toLocaleString()}</span> has been received successfully!
           </motion.p>
+
+          {/* Transparency Section - Fee Breakdown */}
+          {donationStatus?.net_amount_inr && donationStatus?.razorpay_fee_inr && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45 }}
+              className="bg-gradient-to-br from-blue-50 to-green-50 border border-blue-200 rounded-2xl shadow-md p-6 mb-8"
+            >
+              <div className="flex items-center justify-center mb-3">
+                <Sparkles className="w-5 h-5 text-blue-600 mr-2" />
+                <h3 className="text-lg font-bold text-gray-900">Transparency Breakdown</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                We believe in complete transparency. Here&apos;s exactly where your donation goes:
+              </p>
+              
+              <div className="space-y-2 bg-white rounded-lg p-4 text-sm">
+                <div className="flex justify-between items-center pb-2 border-b border-gray-200">
+                  <span className="text-gray-700">Your generous donation:</span>
+                  <span className="font-bold text-gray-900">₹{amount.toLocaleString()}</span>
+                </div>
+                
+                <div className="flex justify-between items-center text-gray-600">
+                  <span className="flex items-center">
+                    <span className="text-xs mr-1">−</span> Payment processing fee:
+                  </span>
+                  <span>₹{donationStatus.razorpay_fee_inr.toFixed(2)}</span>
+                </div>
+                
+                {donationStatus.tax_amount_inr && donationStatus.tax_amount_inr > 0 && (
+                  <div className="flex justify-between items-center text-gray-600">
+                    <span className="flex items-center">
+                      <span className="text-xs mr-1">−</span> GST on processing fee:
+                    </span>
+                    <span>₹{donationStatus.tax_amount_inr.toFixed(2)}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center pt-2 border-t-2 border-green-200">
+                  <span className="font-bold text-green-700">Amount to Give Good Club:</span>
+                  <span className="font-bold text-green-700 text-lg">
+                    ₹{donationStatus.net_amount_inr.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-3 text-center">
+                💚 100% of the net amount goes directly to helping street animals
+              </p>
+            </motion.div>
+          )}
 
           {/* Impact Statement */}
           <motion.div
