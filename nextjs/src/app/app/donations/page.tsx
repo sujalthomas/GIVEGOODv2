@@ -327,6 +327,40 @@ export default function DonationsPage() {
         </motion.div>
       </div>
 
+      {/* Amount in Wallet - Highlighted Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="mb-6"
+      >
+        <Card className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 text-white border-4 border-green-300 shadow-2xl">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wallet className="w-6 h-6" />
+                  <div className="text-lg font-semibold opacity-90">💰 Amount in Wallet (Net to Charity)</div>
+                </div>
+                <div className="text-5xl font-bold mt-2">
+                  ₹{stats.totalNetAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </div>
+                <div className="text-sm opacity-90 mt-3 flex items-center gap-4">
+                  <span>✅ After all payment fees deducted</span>
+                  <span className="opacity-75">|</span>
+                  <span>📊 Fees paid: ₹{stats.totalFees.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
+              <div className="hidden md:block">
+                <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center">
+                  <DollarSign className="w-16 h-16" />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
       {/* Breakdown Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Purpose Breakdown */}

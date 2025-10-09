@@ -12,11 +12,12 @@ interface Transaction {
   category: string;
   status: string;
   amount: number;
+  netAmount: number;
 }
 
 export default function TransparencyLedger() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [stats, setStats] = useState({ total: 0, verified: 0, amount: 0 });
+  const [stats, setStats] = useState({ total: 0, verified: 0, amount: 0, netAmount: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,15 +31,28 @@ export default function TransparencyLedger() {
 
       const { data: donations, error } = await supabase
         .from('donations')
-        .select('id, payment_id, amount_inr, purpose, created_at, status, anonymous')
+        .select('id, payment_id, amount_inr, net_amount_inr, purpose, created_at, status, anonymous')
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
         .limit(6);
 
       if (error) throw error;
 
+      // Type assertion: columns exist but types may be stale
+      type DonationData = {
+        id: string;
+        payment_id: string;
+        amount_inr: number;
+        net_amount_inr: number | null;
+        purpose: string | null;
+        created_at: string;
+        status: string;
+        anonymous: boolean | null;
+      };
+      const donationData = (donations || []) as unknown as DonationData[];
+
       // Map to transaction format
-      const txns: Transaction[] = (donations || []).map((d) => ({
+      const txns: Transaction[] = donationData.map((d) => ({
         id: d.id,
         hash: d.payment_id.slice(0, 10),
         date: new Date(d.created_at).toISOString().split('T')[0],
@@ -46,15 +60,17 @@ export default function TransparencyLedger() {
         category: getCategoryLabel(d.purpose),
         status: 'Verified',
         amount: d.amount_inr,
+        netAmount: d.net_amount_inr || d.amount_inr,
       }));
 
       setTransactions(txns);
 
       // Calculate stats
-      const total = donations?.length || 0;
-      const verified = donations?.filter(d => d.status === 'completed').length || 0;
-      const amount = donations?.reduce((sum, d) => sum + d.amount_inr, 0) || 0;
-      setStats({ total, verified, amount });
+      const total = donationData.length;
+      const verified = donationData.filter((d) => d.status === 'completed').length;
+      const amount = donationData.reduce((sum, d) => sum + d.amount_inr, 0);
+      const netAmount = donationData.reduce((sum, d) => sum + (d.net_amount_inr || d.amount_inr), 0);
+      setStats({ total, verified, amount, netAmount });
     } catch (error) {
       console.error('Error fetching transactions:', error);
     } finally {
@@ -119,7 +135,7 @@ export default function TransparencyLedger() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -133,7 +149,25 @@ export default function TransparencyLedger() {
               <div className="text-2xl font-bold text-gray-900">
                 ₹{stats.amount.toLocaleString()}
               </div>
-              <div className="text-sm text-gray-600">Total Verified</div>
+              <div className="text-sm text-gray-600">Total Raised</div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+          className="bg-white rounded-xl p-4 shadow-lg border-2 border-green-500"
+        >
+          <div className="flex items-center gap-3">
+            <Shield className="w-8 h-8 text-green-600" />
+            <div>
+              <div className="text-2xl font-bold text-green-700">
+                ₹{stats.netAmount.toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600 font-semibold">Net to Charity</div>
             </div>
           </div>
         </motion.div>
@@ -158,7 +192,7 @@ export default function TransparencyLedger() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.25 }}
           className="bg-white rounded-xl p-4 shadow-lg"
         >
           <div className="flex items-center gap-3">
@@ -194,6 +228,9 @@ export default function TransparencyLedger() {
                 </th>
                 <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                   Amount
+                </th>
+                <th className="px-6 py-4 text-right text-sm font-semibold text-green-700">
+                  Net to Charity
                 </th>
               </tr>
             </thead>
@@ -237,6 +274,11 @@ export default function TransparencyLedger() {
                   <td className="px-6 py-4 text-right">
                     <span className="text-lg font-bold text-gray-900">
                       ₹{txn.amount.toLocaleString()}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <span className="text-lg font-bold text-green-700">
+                      ₹{txn.netAmount.toLocaleString()}
                     </span>
                   </td>
                 </motion.tr>
