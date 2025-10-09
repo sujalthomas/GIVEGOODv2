@@ -7,6 +7,7 @@ import { Heart, Wrench, MapPin, Sparkles, Droplets, Shield, Instagram, Mail, Use
 import VolunteerForm from '@/components/VolunteerForm';
 import LiveActivityFeed from '@/components/LiveActivityFeed';
 import TransparencyLedger from '@/components/TransparencyLedger';
+import DonationVerifier from '@/components/DonationVerifier';
 
 export default function Home() {
   const scrollToForm = () => {
@@ -43,11 +44,11 @@ export default function Home() {
               <Link href="#how" className="text-gray-600 hover:text-primary-600 transition-colors">
                 How It Works
               </Link>
+              <Link href="#verify" className="text-gray-600 hover:text-primary-600 transition-colors">
+                Verify Donation
+              </Link>
               <Link href="#join" className="text-gray-600 hover:text-primary-600 transition-colors">
                 Volunteer
-              </Link>
-              <Link href="#gallery" className="text-gray-600 hover:text-primary-600 transition-colors">
-                Gallery
               </Link>
               <button
                 onClick={scrollToForm}
@@ -389,6 +390,35 @@ export default function Home() {
             transition={{ duration: 0.6 }}
           >
             <TransparencyLedger />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Donation Verifier Section */}
+      <section id="verify" className="py-20 bg-gradient-to-b from-white via-blue-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Verify Your Donation
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Complete transparency - cryptographically verify your donation is included in our blockchain batches
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <DonationVerifier />
           </motion.div>
         </div>
       </section>

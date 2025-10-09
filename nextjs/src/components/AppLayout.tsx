@@ -9,7 +9,7 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck, Heart,
+    Key, Files, LucideListTodo, UserCheck, Heart, Package,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
@@ -65,6 +65,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 ...baseNavigation,
                 { name: 'Volunteer Submissions', href: '/app/volunteers', icon: UserCheck },
                 { name: 'Donation Dashboard', href: '/app/donations', icon: Heart },
+                { name: 'Anchor Batches', href: '/app/batches', icon: Package },
             ];
         }
         return baseNavigation;
