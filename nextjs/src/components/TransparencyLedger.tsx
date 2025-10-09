@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Calendar, CheckCircle, TrendingUp } from 'lucide-react';
+import { Shield, Calendar, CheckCircle, TrendingUp, ExternalLink, Anchor, Copy, Check } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 
 interface Transaction {
@@ -13,28 +13,41 @@ interface Transaction {
   status: string;
   amount: number;
   netAmount: number;
+  anchored: boolean;
+  batchId?: string;
+  txSignature?: string;
 }
 
 export default function TransparencyLedger() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [stats, setStats] = useState({ total: 0, verified: 0, amount: 0, netAmount: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
 
+      // Fetch donations with batch info
       const { data: donations, error } = await supabase
         .from('donations')
-        .select('id, payment_id, amount_inr, net_amount_inr, purpose, created_at, status, anonymous')
+        .select(`
+          id, 
+          payment_id, 
+          amount_inr, 
+          net_amount_inr, 
+          purpose, 
+          created_at, 
+          status, 
+          anonymous,
+          anchored,
+          anchor_batch_id,
+          anchor_batches(onchain_tx_signature)
+        `)
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
-        .limit(6);
+        .limit(10);
 
       if (error) throw error;
 
@@ -48,6 +61,9 @@ export default function TransparencyLedger() {
         created_at: string;
         status: string;
         anonymous: boolean | null;
+        anchored: boolean | null;
+        anchor_batch_id: string | null;
+        anchor_batches: { onchain_tx_signature: string | null } | null;
       };
       const donationData = (donations || []) as unknown as DonationData[];
 
@@ -61,6 +77,9 @@ export default function TransparencyLedger() {
         status: 'Verified',
         amount: d.amount_inr,
         netAmount: d.net_amount_inr || d.amount_inr,
+        anchored: d.anchored || false,
+        batchId: d.anchor_batch_id || undefined,
+        txSignature: d.anchor_batches?.onchain_tx_signature || undefined,
       }));
 
       setTransactions(txns);
@@ -76,7 +95,11 @@ export default function TransparencyLedger() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const getRecipientName = (purpose: string | null) => {
     if (!purpose) return 'Give Good Club';
@@ -100,6 +123,16 @@ export default function TransparencyLedger() {
       food_supplies: 'Food',
     };
     return labels[purpose] || 'General';
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   if (isLoading) {
@@ -226,6 +259,9 @@ export default function TransparencyLedger() {
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                   Status
                 </th>
+                <th className="px-6 py-4 text-center text-sm font-semibold text-blue-700">
+                  Blockchain
+                </th>
                 <th className="px-6 py-4 text-right text-sm font-semibold text-gray-700">
                   Amount
                 </th>
@@ -245,9 +281,22 @@ export default function TransparencyLedger() {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-6 py-4">
-                    <code className="text-sm text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">
-                      {txn.hash}
-                    </code>
+                    <div className="flex items-center gap-2">
+                      <code className="text-sm text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">
+                        {txn.hash}
+                      </code>
+                      <button
+                        onClick={() => copyToClipboard(txn.hash, txn.hash)}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        title="Copy payment ID"
+                      >
+                        {copiedId === txn.hash ? (
+                          <Check className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -271,6 +320,26 @@ export default function TransparencyLedger() {
                       </span>
                     </div>
                   </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-1">
+                      {txn.anchored && txn.txSignature ? (
+                        <a
+                          href={`https://solscan.io/tx/${txn.txSignature}?cluster=devnet`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
+                          title="View on Solana Explorer"
+                        >
+                          <Anchor className="w-4 h-4" />
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400" title="Pending blockchain anchor">
+                          <Anchor className="w-4 h-4 text-gray-300" />
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <span className="text-lg font-bold text-gray-900">
                       ₹{txn.amount.toLocaleString()}
@@ -290,7 +359,7 @@ export default function TransparencyLedger() {
         {/* View Complete Ledger Button */}
         <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
           <a
-            href="/transparency"
+            href="/transactions"
             className="flex items-center justify-center gap-2 text-primary-600 hover:text-primary-700 font-semibold group"
           >
             View Complete Ledger

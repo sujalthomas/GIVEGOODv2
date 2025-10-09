@@ -25,6 +25,8 @@ import {
   TrendingUp,
   FileText,
   RotateCcw,
+  Anchor,
+  ExternalLink,
 } from 'lucide-react';
 
 interface Batch {
@@ -41,6 +43,8 @@ interface Batch {
   status: string;
   retry_count: number | null;
   onchain_tx_signature: string | null;
+  onchain_slot: number | null;
+  onchain_timestamp: string | null;
   metadata: Record<string, unknown> | null;
 }
 
@@ -160,6 +164,33 @@ export default function AnchorBatchesPage() {
     }
   };
 
+  // Anchor batch to Solana blockchain
+  const handleAnchorBatch = async (batchId: string) => {
+    if (!confirm('Are you sure you want to anchor this batch to the Solana blockchain?\n\nThis will create a permanent on-chain record.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/batches/anchor-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ batchId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`✅ ${data.message}\n\nTransaction Signature: ${data.batch.signature?.substring(0, 16)}...\n\nView on Explorer: ${data.batch.explorerUrl}`);
+        fetchBatches();
+      } else {
+        alert(`❌ Error: ${data.error}`);
+      }
+    } catch (err) {
+      console.error('Error anchoring batch:', err);
+      alert('❌ Failed to anchor batch. Check console for details.');
+    }
+  };
+
   useEffect(() => {
     fetchBatches();
     fetchUnanchoredCount();
@@ -174,6 +205,14 @@ export default function AnchorBatchesPage() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Get Solana explorer URL
+  const getExplorerUrl = (signature: string) => {
+    // Check if we're on devnet or mainnet
+    const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+    const baseUrl = 'https://solscan.io';
+    return `${baseUrl}/tx/${signature}${network !== 'mainnet-beta' ? `?cluster=${network}` : ''}`;
   };
 
   // Get status badge
@@ -460,6 +499,28 @@ export default function AnchorBatchesPage() {
                               title="Retry failed batch"
                             >
                               <RotateCcw className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {batch.status === 'pending' && batch.merkle_root && !batch.onchain_tx_signature && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleAnchorBatch(batch.id)}
+                              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                              title="Anchor to Solana blockchain"
+                            >
+                              <Anchor className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {batch.onchain_tx_signature && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(getExplorerUrl(batch.onchain_tx_signature!), '_blank')}
+                              className="text-green-600 border-green-300 hover:bg-green-50"
+                              title="View on Solana Explorer"
+                            >
+                              <ExternalLink className="w-4 h-4" />
                             </Button>
                           )}
                           <Button

@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Heart, Share2, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle, Heart, Share2, ArrowRight, Sparkles, Loader2, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Confetti from '@/components/Confetti';
+import DonationVerifier from '@/components/DonationVerifier';
 import { createSPASassClient } from '@/lib/supabase/client';
 
 interface DonationStatus {
@@ -325,6 +326,36 @@ function DonationSuccessContent() {
               </p>
             </motion.div>
           )}
+
+          {/* Blockchain Verification Widget */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+            className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl shadow-lg p-6 mb-8 border border-blue-200"
+          >
+            <div className="flex items-center justify-center mb-4">
+              <Shield className="w-7 h-7 text-blue-600 mr-2" />
+              <h3 className="text-xl font-bold text-gray-900">Verify on Blockchain</h3>
+            </div>
+            <p className="text-sm text-gray-600 text-center mb-4">
+              Your donation will be permanently recorded on the Solana blockchain within 24 hours.
+              Use your Donation ID or Payment ID to verify it&apos;s included.
+            </p>
+            <div className="bg-white rounded-xl p-4">
+              <Suspense fallback={<div className="text-center text-gray-500">Loading verifier...</div>}>
+                <DonationVerifier />
+              </Suspense>
+            </div>
+            <div className="mt-4 text-center">
+              <Link
+                href="/how-verification-works"
+                className="text-sm text-blue-600 hover:text-blue-700 underline"
+              >
+                Learn how blockchain verification works →
+              </Link>
+            </div>
+          </motion.div>
 
           {/* Action Buttons */}
           <motion.div

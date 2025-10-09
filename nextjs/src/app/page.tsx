@@ -8,6 +8,7 @@ import VolunteerForm from '@/components/VolunteerForm';
 import LiveActivityFeed from '@/components/LiveActivityFeed';
 import TransparencyLedger from '@/components/TransparencyLedger';
 import DonationVerifier from '@/components/DonationVerifier';
+import BlockchainStatsSection from '@/components/BlockchainStatsSection';
 
 export default function Home() {
   const scrollToForm = () => {
@@ -44,11 +45,12 @@ export default function Home() {
               <Link href="#how" className="text-gray-600 hover:text-primary-600 transition-colors">
                 How It Works
               </Link>
-              <Link href="#verify" className="text-gray-600 hover:text-primary-600 transition-colors">
-                Verify Donation
+              <Link href="/transparency" className="text-gray-600 hover:text-primary-600 transition-colors flex items-center gap-1">
+                <Shield className="w-4 h-4" />
+                Transparency
               </Link>
-              <Link href="#join" className="text-gray-600 hover:text-primary-600 transition-colors">
-                Volunteer
+              <Link href="/how-verification-works" className="text-gray-600 hover:text-primary-600 transition-colors">
+                Verification Guide
               </Link>
               <button
                 onClick={scrollToForm}
@@ -379,6 +381,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Blockchain Stats Section */}
+      <BlockchainStatsSection />
 
       {/* Transparency Ledger Section */}
       <section className="py-16 md:py-24 bg-gray-50">

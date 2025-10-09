@@ -56,8 +56,17 @@ export async function POST(req: NextRequest) {
     
     if (fetchError || !donation) {
       console.error('❌ Donation not found:', fetchError);
+      
+      const searchType = donationId ? 'Donation ID' : 'Payment ID';
+      const searchValue = donationId || paymentId;
+      
       return NextResponse.json(
-        { error: 'Donation not found' },
+        { 
+          error: 'Donation not found',
+          details: `No donation found with ${searchType}: ${searchValue}. Please check the ID and try again.`,
+          searchType,
+          searchValue
+        },
         { status: 404 }
       );
     }
