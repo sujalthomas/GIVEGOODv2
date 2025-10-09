@@ -561,11 +561,28 @@ export default function DonationsPage() {
                     </div>
 
                     {/* Right: Amount & Purpose */}
-                    <div className="flex flex-col items-end gap-2 lg:min-w-[200px]">
+                    <div className="flex flex-col items-end gap-2 lg:min-w-[240px]">
                       <div className="text-3xl font-bold text-primary-600 flex items-center">
                         <IndianRupee className="w-6 h-6" />
                         {donation.amount_inr.toLocaleString()}
                       </div>
+                      
+                      {/* Fee Breakdown */}
+                      {donation.net_amount_inr && donation.status === 'completed' && (
+                        <div className="text-xs text-gray-600 bg-green-50 rounded-lg px-3 py-2 space-y-0.5">
+                          <div className="flex justify-between gap-4">
+                            <span>Net:</span>
+                            <span className="font-semibold text-green-700">₹{donation.net_amount_inr.toLocaleString()}</span>
+                          </div>
+                          {donation.razorpay_fee_inr && donation.razorpay_fee_inr > 0 && (
+                            <div className="flex justify-between gap-4 text-gray-500">
+                              <span>Fee:</span>
+                              <span>₹{(donation.razorpay_fee_inr + (donation.tax_amount_inr || 0)).toFixed(2)}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
                       <span className="px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full text-sm font-medium">
                         {getPurposeLabel(donation.purpose)}
                       </span>
