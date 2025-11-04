@@ -144,7 +144,7 @@ export default function Home() {
                   &quot;Born out of faith, love, and street experiences with loyal dogs who ask for nothing but kindness.&quot;
                 </p>
                 <p>
-                  Today, Give Good Club is a growing movement of volunteers across Delhi/NCR, building feeders, 
+                  Today, Give Good Club is a growing movement of volunteers across Bangalore, building feeders, 
                   refilling bowls, and creating a kinder city — one street corner at a time.
                 </p>
               </div>
@@ -274,15 +274,15 @@ export default function Home() {
               {[
                 {
                   quote: "This is the kind of kindness our streets need. I never thought building a feeder could bring so much joy.",
-                  author: "Ananya, Saket"
+                  author: "Ananya, Koramangala"
                 },
                 {
                   quote: "My kids help refill the feeder every evening. It's become our family ritual. The dogs wait for us!",
-                  author: "Rajesh, Vasant Kunj"
+                  author: "Rajesh, Indiranagar"
                 },
                 {
                   quote: "From skeptic to believer. These feeders actually work. Our colony dogs are healthier and calmer.",
-                  author: "Meera, Hauz Khas"
+                  author: "Meera, Jayanagar"
                 }
               ].map((testimonial, index) => (
                 <motion.div
@@ -313,8 +313,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Volunteer Map Showcase */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Our Growing Network
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              See our volunteers and feeders spread across Bangalore in real-time
+            </p>
+          </motion.div>
+          
+          <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
+            <Link
+              href="/volunteer-map"
+              className="block max-w-4xl mx-auto bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-8 text-center hover:scale-[1.02] transition-transform shadow-xl"
+            >
+              <MapPin className="w-16 h-16 text-white mx-auto mb-4" />
+              <h3 className="text-3xl font-bold text-white mb-2">
+                View Interactive Map
+              </h3>
+              <p className="text-lg text-primary-100 mb-4">
+                See exactly where our volunteers are making a difference across Bangalore
+              </p>
+              <div className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-full font-semibold">
+                Explore the Map →
+              </div>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Gallery Section */}
-      <section id="gallery" className="py-24 bg-white">
+      <section id="gallery" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div {...fadeInUp} className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -438,7 +470,7 @@ export default function Home() {
                 <span className="text-xl font-bold text-white">Give Good Club</span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed">
-                A community initiative born in Delhi, fueled by love for animals.
+                A community initiative born in Bangalore, fueled by love for animals.
               </p>
             </div>
             

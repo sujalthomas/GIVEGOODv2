@@ -1,0 +1,54 @@
+/* Import Leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+/* Fix for marker icons not showing */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom marker clusters */
+.marker-cluster-small {
+  background-color: rgba(59, 130, 246, 0.6);
+}
+
+.marker-cluster-small div {
+  background-color: rgba(59, 130, 246, 0.8);
+}
+
+.marker-cluster-medium {
+  background-color: rgba(16, 185, 129, 0.6);
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(16, 185, 129, 0.8);
+}
+
+.marker-cluster-large {
+  background-color: rgba(239, 68, 68, 0.6);
+}
+
+.marker-cluster-large div {
+  background-color: rgba(239, 68, 68, 0.8);
+}
+
+/* Coverage zones animation */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+.coverage-zone {
+  animation: pulse 3s ease-in-out infinite;
+}
+

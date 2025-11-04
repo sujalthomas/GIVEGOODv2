@@ -33,7 +33,16 @@ export async function updateSession(request: NextRequest) {
 
     // IMPORTANT: DO NOT REMOVE auth.getUser()
 
-    const {data: user} = await supabase.auth.getUser()
+    let user;
+    try {
+        const {data} = await supabase.auth.getUser()
+        user = data
+    } catch (error) {
+        // Gracefully handle auth errors (e.g., network issues, token refresh failures)
+        console.error('Auth error in middleware:', error);
+        user = null;
+    }
+    
     if (
         (!user || !user.user) && request.nextUrl.pathname.startsWith('/app')
     ) {

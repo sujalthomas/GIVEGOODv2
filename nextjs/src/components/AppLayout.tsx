@@ -9,7 +9,7 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity,
+    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
@@ -51,19 +51,22 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const productName = process.env.NEXT_PUBLIC_PRODUCTNAME;
 
-    const baseNavigation = [
-        { name: 'Homepage', href: '/app', icon: Home },
-        { name: 'Example Storage', href: '/app/storage', icon: Files },
-        { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
-        { name: 'User Settings', href: '/app/user-settings', icon: User },
-    ];
-
     // Add super admin navigation items
     const navigation = useMemo(() => {
+        const baseNavigation = [
+            { name: 'Homepage', href: '/app', icon: Home },
+            { name: 'Example Storage', href: '/app/storage', icon: Files },
+            { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
+            { name: 'User Settings', href: '/app/user-settings', icon: User },
+        ];
+        
         if (isSuperAdmin) {
             return [
                 ...baseNavigation,
                 { name: 'Volunteer Submissions', href: '/app/volunteers', icon: UserCheck },
+                { name: 'Volunteer Map', href: '/app/volunteer-map', icon: MapPin },
+                { name: 'Feeder Dashboard', href: '/app/feeders', icon: Home },
+                { name: 'Refill Logs', href: '/app/refills', icon: Droplets },
                 { name: 'Donation Dashboard', href: '/app/donations', icon: Heart },
                 { name: 'Anchor Batches', href: '/app/batches', icon: Package },
                 { name: 'Blockchain Stats', href: '/app/blockchain-stats', icon: Activity },
