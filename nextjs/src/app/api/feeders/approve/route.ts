@@ -3,7 +3,7 @@ import { createSSRSassClient } from '@/lib/supabase/server';
 
 interface ApproveFeederRequest {
   feederId: string;
-  status: 'active' | 'rejected';
+  status: 'active' | 'rejected' | 'inactive';
   rejectionReason?: string;
 }
 

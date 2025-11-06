@@ -13,6 +13,7 @@ interface FeederSubmission {
   photo_url?: string;
   feeder_type?: string;
   notes?: string;
+  skipApproval?: boolean; // Admin can bypass approval
 }
 
 export async function POST(request: NextRequest) {
@@ -62,6 +63,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if user is admin for skipApproval
+    const isAdmin = user.email === 'sujalt1811@gmail.com';
+    const finalStatus = (body.skipApproval && isAdmin) ? 'active' : 'pending';
+
     // Create feeder
     const { data: feeder, error: insertError } = await supabase
       .from('feeders')
@@ -73,12 +78,14 @@ export async function POST(request: NextRequest) {
         latitude: body.latitude,
         longitude: body.longitude,
         capacity_kg: body.capacity_kg,
-        installation_date: body.installation_date,
+        installation_date: finalStatus === 'active' ? new Date().toISOString().split('T')[0] : body.installation_date,
         photo_url: body.photo_url,
         feeder_type: body.feeder_type || 'pvc_pipe',
         notes: body.notes,
         submitted_by: volunteer.id,
-        status: 'pending'
+        status: finalStatus,
+        reviewed_by: finalStatus === 'active' ? user.id : null,
+        reviewed_at: finalStatus === 'active' ? new Date().toISOString() : null
       })
       .select()
       .single();

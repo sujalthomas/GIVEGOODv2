@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   Home, MapPin, Calendar, CheckCircle, XCircle, Clock, AlertTriangle,
-  Filter, Download, Droplets, Package
+  Filter, Download, Droplets, Package, Plus, TrendingUp
 } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import FeederSubmissionForm from '@/components/FeederSubmissionForm';
 
 const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
 
@@ -43,8 +45,10 @@ export default function FeedersPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
   const [selectedFeeder, setSelectedFeeder] = useState<Feeder | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [feederHealth, setFeederHealth] = useState<Record<string, number>>({});
   
   const { user } = useGlobal();
   const router = useRouter();
@@ -71,6 +75,37 @@ export default function FeedersPage() {
 
       if (error) throw error;
       setFeeders((data || []) as Feeder[]);
+
+      // Fetch refills for health calculation (last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const { data: refills } = await supabase
+        .from('feeder_refills')
+        .select('feeder_id, refill_date, verified')
+        .gte('refill_date', thirtyDaysAgo.toISOString());
+
+      // Calculate health score for each feeder
+      const healthScores: Record<string, number> = {};
+      (data || [] as Feeder[]).forEach((feeder) => {
+        if (feeder.status !== 'active') {
+          healthScores[feeder.id] = 0;
+          return;
+        }
+
+        const feederRefills = (refills || []).filter((r: { feeder_id: string; verified: boolean | null }) => 
+          r.feeder_id === feeder.id && r.verified === true
+        );
+
+        const idealRefills = Math.ceil(30 / (feeder.refill_frequency_days || 7));
+        const actualRefills = feederRefills.length;
+        const refillRatio = idealRefills > 0 ? Math.min(actualRefills / idealRefills, 1) : 0;
+        const healthScore = Math.round(refillRatio * 100);
+
+        healthScores[feeder.id] = healthScore;
+      });
+
+      setFeederHealth(healthScores);
     } catch (error) {
       console.error('Error fetching feeders:', error);
     } finally {
@@ -202,13 +237,22 @@ export default function FeedersPage() {
             Manage and track all pet feeders across Bangalore
           </p>
         </div>
-        <button
-          onClick={exportToCSV}
-          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowCreateDialog(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Feeder
+          </button>
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -381,29 +425,53 @@ export default function FeedersPage() {
                         </div>
                       </div>
 
-                      {/* Refill Status */}
+                      {/* Refill Status & Health */}
                       {feeder.status === 'active' && (
-                        <div className="flex items-center gap-4 text-xs">
-                          {feeder.last_refilled_at ? (
-                            <div className="flex items-center gap-1">
-                              <Droplets className="w-3 h-3 text-green-600" />
-                              <span className="text-gray-600">
-                                Last refilled: {new Date(feeder.last_refilled_at).toLocaleDateString('en-IN')}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3 text-yellow-600" />
-                              <span className="text-yellow-600">Never refilled</span>
-                            </div>
-                          )}
-                          {feeder.next_refill_due && (
-                            <div className={`flex items-center gap-1 ${isOverdue(feeder) ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                Next due: {new Date(feeder.next_refill_due).toLocaleDateString('en-IN')}
-                                {isOverdue(feeder) && ' (OVERDUE!)'}
-                              </span>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-4 text-xs">
+                            {feeder.last_refilled_at ? (
+                              <div className="flex items-center gap-1">
+                                <Droplets className="w-3 h-3 text-green-600" />
+                                <span className="text-gray-600">
+                                  Last refilled: {new Date(feeder.last_refilled_at).toLocaleDateString('en-IN')}
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3 text-yellow-600" />
+                                <span className="text-yellow-600">Never refilled</span>
+                              </div>
+                            )}
+                            {feeder.next_refill_due && (
+                              <div className={`flex items-center gap-1 ${isOverdue(feeder) ? 'text-red-600 font-semibold' : 'text-gray-600'}`}>
+                                <Clock className="w-3 h-3" />
+                                <span>
+                                  Next due: {new Date(feeder.next_refill_due).toLocaleDateString('en-IN')}
+                                  {isOverdue(feeder) && ' (OVERDUE!)'}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {/* Health Score */}
+                          {feederHealth[feeder.id] !== undefined && (
+                            <div className="flex items-center gap-2">
+                              <TrendingUp className="w-4 h-4 text-gray-400" />
+                              <div className="flex items-center gap-1">
+                                <div className={`w-2 h-2 rounded-full ${
+                                  feederHealth[feeder.id] >= 80 ? 'bg-green-500' :
+                                  feederHealth[feeder.id] >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}></div>
+                                <span className={`text-sm font-semibold ${
+                                  feederHealth[feeder.id] >= 80 ? 'text-green-600' :
+                                  feederHealth[feeder.id] >= 60 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
+                                  Health: {feederHealth[feeder.id]}%
+                                </span>
+                                <span className="text-xs text-gray-500 ml-1">
+                                  (Based on refill frequency)
+                                </span>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -493,6 +561,22 @@ export default function FeedersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Feeder Dialog (Admin Quick Action) */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Feeder (Admin)</DialogTitle>
+          </DialogHeader>
+          <FeederSubmissionForm 
+            adminMode={true}
+            onSuccess={() => {
+              setShowCreateDialog(false);
+              fetchFeeders(); // Refresh list
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

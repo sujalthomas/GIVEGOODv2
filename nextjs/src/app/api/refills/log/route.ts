@@ -8,6 +8,7 @@ interface LogRefillRequest {
   photo_url?: string;
   notes?: string;
   feeder_condition?: string;
+  verifyImmediately?: boolean; // Admin can skip verification
 }
 
 export async function POST(request: NextRequest) {
@@ -72,6 +73,10 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    // Check if user is admin for verifyImmediately
+    const isAdmin = user.email === 'sujalt1811@gmail.com';
+    const shouldVerify = body.verifyImmediately && isAdmin;
+
     // Log the refill
     const { data: refill, error: insertError } = await supabase
       .from('feeder_refills')
@@ -83,7 +88,9 @@ export async function POST(request: NextRequest) {
         photo_url: body.photo_url,
         notes: body.notes,
         feeder_condition: body.feeder_condition || 'good',
-        verified: false // Requires admin verification
+        verified: shouldVerify,
+        verified_by: shouldVerify ? user.id : null,
+        verified_at: shouldVerify ? new Date().toISOString() : null
       })
       .select()
       .single();

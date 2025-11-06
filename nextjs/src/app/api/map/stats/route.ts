@@ -28,7 +28,8 @@ export async function GET() {
       : 0;
 
     // Simple coverage calculation (can be enhanced)
-    const totalBangalorePincodes = 110; // Approximate
+    // Updated to match our expanded pincode database (560001-560110 = 110 pincodes)
+    const totalBangalorePincodes = 110;
     const coveragePercent = Math.round((areasCount / totalBangalorePincodes) * 100);
 
     return NextResponse.json({

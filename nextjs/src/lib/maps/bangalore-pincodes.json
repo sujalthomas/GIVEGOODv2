@@ -29,11 +29,29 @@
     "longitude": 77.5724,
     "locality": "Chamrajpet"
   },
+  "560006": {
+    "area": "Basavanagudi",
+    "latitude": 12.9400,
+    "longitude": 77.5700,
+    "locality": "South Bangalore"
+  },
+  "560007": {
+    "area": "Hanumanthnagar",
+    "latitude": 12.9450,
+    "longitude": 77.5750,
+    "locality": "South Bangalore"
+  },
   "560008": {
     "area": "Malleswaram",
     "latitude": 13.0067,
     "longitude": 77.5712,
     "locality": "Malleswaram"
+  },
+  "560009": {
+    "area": "Seshadripuram",
+    "latitude": 12.9900,
+    "longitude": 77.5800,
+    "locality": "Central Bangalore"
   },
   "560010": {
     "area": "Jayanagar",
@@ -47,16 +65,58 @@
     "longitude": 77.5969,
     "locality": "Jayanagar"
   },
+  "560012": {
+    "area": "Banashankari",
+    "latitude": 12.9200,
+    "longitude": 77.5700,
+    "locality": "South Bangalore"
+  },
+  "560013": {
+    "area": "Vijayanagar",
+    "latitude": 12.9716,
+    "longitude": 77.5333,
+    "locality": "West Bangalore"
+  },
+  "560014": {
+    "area": "Rajajinagar",
+    "latitude": 12.9916,
+    "longitude": 77.5544,
+    "locality": "Rajajinagar"
+  },
+  "560015": {
+    "area": "Peenya",
+    "latitude": 13.0200,
+    "longitude": 77.5200,
+    "locality": "North Bangalore"
+  },
+  "560016": {
+    "area": "Yeshwanthpur",
+    "latitude": 13.0280,
+    "longitude": 77.5419,
+    "locality": "Yeshwanthpur"
+  },
   "560017": {
     "area": "Rajajinagar",
     "latitude": 12.9916,
     "longitude": 77.5544,
     "locality": "Rajajinagar"
   },
+  "560018": {
+    "area": "Mathikere",
+    "latitude": 13.0100,
+    "longitude": 77.5500,
+    "locality": "North Bangalore"
+  },
   "560019": {
     "area": "Jalahalli",
     "latitude": 13.0448,
     "longitude": 77.5432,
+    "locality": "North Bangalore"
+  },
+  "560020": {
+    "area": "Dasarahalli",
+    "latitude": 13.0500,
+    "longitude": 77.5300,
     "locality": "North Bangalore"
   },
   "560021": {
@@ -65,10 +125,34 @@
     "longitude": 77.5419,
     "locality": "Yeshwanthpur"
   },
+  "560022": {
+    "area": "Hebbal",
+    "latitude": 13.0358,
+    "longitude": 77.5970,
+    "locality": "North Bangalore"
+  },
+  "560023": {
+    "area": "Nagasandra",
+    "latitude": 13.0600,
+    "longitude": 77.5100,
+    "locality": "North Bangalore"
+  },
   "560024": {
     "area": "Yelahanka",
     "latitude": 13.1007,
     "longitude": 77.5963,
+    "locality": "North Bangalore"
+  },
+  "560025": {
+    "area": "Yelahanka New Town",
+    "latitude": 13.1007,
+    "longitude": 77.5963,
+    "locality": "North Bangalore"
+  },
+  "560026": {
+    "area": "Doddaballapur Road",
+    "latitude": 13.1200,
+    "longitude": 77.6000,
     "locality": "North Bangalore"
   },
   "560027": {
@@ -77,16 +161,52 @@
     "longitude": 77.5321,
     "locality": "West Bangalore"
   },
+  "560028": {
+    "area": "Vijayanagar",
+    "latitude": 12.9716,
+    "longitude": 77.5333,
+    "locality": "West Bangalore"
+  },
   "560029": {
     "area": "Vijayanagar",
     "latitude": 12.9716,
     "longitude": 77.5333,
     "locality": "West Bangalore"
   },
+  "560030": {
+    "area": "Magadi Road",
+    "latitude": 12.9600,
+    "longitude": 77.5200,
+    "locality": "West Bangalore"
+  },
+  "560031": {
+    "area": "Kengeri",
+    "latitude": 12.9083,
+    "longitude": 77.4851,
+    "locality": "West Bangalore"
+  },
+  "560032": {
+    "area": "Rajarajeshwari Nagar",
+    "latitude": 12.9000,
+    "longitude": 77.5000,
+    "locality": "West Bangalore"
+  },
+  "560033": {
+    "area": "Uttarahalli",
+    "latitude": 12.8900,
+    "longitude": 77.5400,
+    "locality": "South Bangalore"
+  },
   "560034": {
     "area": "Koramangala",
     "latitude": 12.9352,
     "longitude": 77.6245,
+    "locality": "Southeast Bangalore"
+  },
+  "560035": {
+    "area": "Koramangala 5th Block",
+    "latitude": 12.9300,
+    "longitude": 77.6200,
     "locality": "Southeast Bangalore"
   },
   "560036": {
@@ -95,10 +215,40 @@
     "longitude": 77.6271,
     "locality": "Koramangala"
   },
+  "560037": {
+    "area": "Ejipura",
+    "latitude": 12.9400,
+    "longitude": 77.6300,
+    "locality": "East Bangalore"
+  },
   "560038": {
     "area": "Indiranagar",
     "latitude": 12.9719,
     "longitude": 77.6412,
+    "locality": "East Bangalore"
+  },
+  "560039": {
+    "area": "Domlur",
+    "latitude": 12.9600,
+    "longitude": 77.6400,
+    "locality": "East Bangalore"
+  },
+  "560040": {
+    "area": "Old Airport Road",
+    "latitude": 12.9500,
+    "longitude": 77.6500,
+    "locality": "East Bangalore"
+  },
+  "560041": {
+    "area": "Murugeshpalya",
+    "latitude": 12.9400,
+    "longitude": 77.6600,
+    "locality": "East Bangalore"
+  },
+  "560042": {
+    "area": "Vimanapura",
+    "latitude": 12.9500,
+    "longitude": 77.6700,
     "locality": "East Bangalore"
   },
   "560043": {
@@ -107,10 +257,40 @@
     "longitude": 77.6101,
     "locality": "South Bangalore"
   },
+  "560044": {
+    "area": "BTM Layout 2nd Stage",
+    "latitude": 12.9100,
+    "longitude": 77.6050,
+    "locality": "South Bangalore"
+  },
+  "560045": {
+    "area": "Bommanahalli",
+    "latitude": 12.9000,
+    "longitude": 77.6200,
+    "locality": "South Bangalore"
+  },
+  "560046": {
+    "area": "Hosur Road",
+    "latitude": 12.8800,
+    "longitude": 77.6300,
+    "locality": "South Bangalore"
+  },
   "560047": {
     "area": "JP Nagar",
     "latitude": 12.9010,
     "longitude": 77.5974,
+    "locality": "South Bangalore"
+  },
+  "560048": {
+    "area": "JP Nagar 2nd Phase",
+    "latitude": 12.8950,
+    "longitude": 77.5900,
+    "locality": "South Bangalore"
+  },
+  "560049": {
+    "area": "JP Nagar 3rd Phase",
+    "latitude": 12.8900,
+    "longitude": 77.5850,
     "locality": "South Bangalore"
   },
   "560050": {
@@ -119,16 +299,106 @@
     "longitude": 77.5970,
     "locality": "North Bangalore"
   },
+  "560051": {
+    "area": "Kodigehalli",
+    "latitude": 13.0400,
+    "longitude": 77.6000,
+    "locality": "North Bangalore"
+  },
+  "560052": {
+    "area": "Sahakar Nagar",
+    "latitude": 13.0500,
+    "longitude": 77.6100,
+    "locality": "North Bangalore"
+  },
+  "560053": {
+    "area": "RT Nagar",
+    "latitude": 13.0200,
+    "longitude": 77.5900,
+    "locality": "North Bangalore"
+  },
+  "560054": {
+    "area": "Ganganagar",
+    "latitude": 13.0100,
+    "longitude": 77.5800,
+    "locality": "North Bangalore"
+  },
+  "560055": {
+    "area": "Sanjay Nagar",
+    "latitude": 13.0000,
+    "longitude": 77.5700,
+    "locality": "North Bangalore"
+  },
+  "560056": {
+    "area": "Nagavara",
+    "latitude": 13.0300,
+    "longitude": 77.6200,
+    "locality": "North Bangalore"
+  },
+  "560057": {
+    "area": "Hennur",
+    "latitude": 13.0400,
+    "longitude": 77.6400,
+    "locality": "North Bangalore"
+  },
+  "560058": {
+    "area": "Kalyan Nagar",
+    "latitude": 13.0200,
+    "longitude": 77.6500,
+    "locality": "East Bangalore"
+  },
+  "560059": {
+    "area": "HRBR Layout",
+    "latitude": 13.0100,
+    "longitude": 77.6600,
+    "locality": "East Bangalore"
+  },
+  "560060": {
+    "area": "Banaswadi",
+    "latitude": 13.0000,
+    "longitude": 77.6500,
+    "locality": "East Bangalore"
+  },
+  "560061": {
+    "area": "Ramamurthy Nagar",
+    "latitude": 12.9900,
+    "longitude": 77.6600,
+    "locality": "East Bangalore"
+  },
+  "560062": {
+    "area": "KR Puram",
+    "latitude": 12.9800,
+    "longitude": 77.6700,
+    "locality": "East Bangalore"
+  },
+  "560063": {
+    "area": "Mahadevapura",
+    "latitude": 12.9700,
+    "longitude": 77.6800,
+    "locality": "East Bangalore"
+  },
   "560064": {
     "area": "Marathahalli",
     "latitude": 12.9830,
     "longitude": 77.6816,
     "locality": "East Bangalore"
   },
+  "560065": {
+    "area": "Bellandur",
+    "latitude": 12.9350,
+    "longitude": 77.6700,
+    "locality": "Southeast Bangalore"
+  },
   "560066": {
     "area": "Whitefield",
     "latitude": 12.9698,
     "longitude": 77.7499,
+    "locality": "East Bangalore"
+  },
+  "560067": {
+    "area": "Varthur",
+    "latitude": 12.9200,
+    "longitude": 77.7200,
     "locality": "East Bangalore"
   },
   "560068": {
@@ -137,10 +407,58 @@
     "longitude": 77.6978,
     "locality": "Southeast Bangalore"
   },
+  "560069": {
+    "area": "Carmelaram",
+    "latitude": 12.9000,
+    "longitude": 77.7100,
+    "locality": "Southeast Bangalore"
+  },
+  "560070": {
+    "area": "Anekal",
+    "latitude": 12.7000,
+    "longitude": 77.7000,
+    "locality": "South Bangalore"
+  },
+  "560071": {
+    "area": "Hosur Road",
+    "latitude": 12.8500,
+    "longitude": 77.6800,
+    "locality": "South Bangalore"
+  },
+  "560072": {
+    "area": "Bommanahalli Industrial Area",
+    "latitude": 12.8700,
+    "longitude": 77.6500,
+    "locality": "South Bangalore"
+  },
+  "560073": {
+    "area": "Konanakunte",
+    "latitude": 12.8600,
+    "longitude": 77.5800,
+    "locality": "South Bangalore"
+  },
+  "560074": {
+    "area": "Uttarahalli",
+    "latitude": 12.8800,
+    "longitude": 77.5600,
+    "locality": "South Bangalore"
+  },
+  "560075": {
+    "area": "Jigani",
+    "latitude": 12.8000,
+    "longitude": 77.6000,
+    "locality": "South Bangalore"
+  },
   "560076": {
     "area": "Electronic City",
     "latitude": 12.8456,
     "longitude": 77.6603,
+    "locality": "South Bangalore"
+  },
+  "560077": {
+    "area": "Electronic City Phase 2",
+    "latitude": 12.8400,
+    "longitude": 77.6700,
     "locality": "South Bangalore"
   },
   "560078": {
@@ -149,11 +467,131 @@
     "longitude": 77.5937,
     "locality": "South Bangalore"
   },
+  "560079": {
+    "area": "Arekere",
+    "latitude": 12.8800,
+    "longitude": 77.6000,
+    "locality": "South Bangalore"
+  },
+  "560080": {
+    "area": "Hulimavu",
+    "latitude": 12.8700,
+    "longitude": 77.6100,
+    "locality": "South Bangalore"
+  },
+  "560081": {
+    "area": "Bilekahalli",
+    "latitude": 12.8600,
+    "longitude": 77.6200,
+    "locality": "South Bangalore"
+  },
+  "560082": {
+    "area": "Begur",
+    "latitude": 12.8500,
+    "longitude": 77.6300,
+    "locality": "South Bangalore"
+  },
+  "560083": {
+    "area": "Hosapalya",
+    "latitude": 12.8400,
+    "longitude": 77.6400,
+    "locality": "South Bangalore"
+  },
+  "560084": {
+    "area": "Madiwala",
+    "latitude": 12.9300,
+    "longitude": 77.6200,
+    "locality": "Southeast Bangalore"
+  },
+  "560085": {
+    "area": "Jayanagar",
+    "latitude": 12.9250,
+    "longitude": 77.5838,
+    "locality": "South Bangalore"
+  },
+  "560086": {
+    "area": "Padmanabhanagar",
+    "latitude": 12.9200,
+    "longitude": 77.5750,
+    "locality": "South Bangalore"
+  },
+  "560087": {
+    "area": "Girinagar",
+    "latitude": 12.9300,
+    "longitude": 77.5600,
+    "locality": "South Bangalore"
+  },
+  "560088": {
+    "area": "Basaveshwaranagar",
+    "latitude": 12.9350,
+    "longitude": 77.5500,
+    "locality": "West Bangalore"
+  },
+  "560089": {
+    "area": "Girinagar",
+    "latitude": 12.9300,
+    "longitude": 77.5600,
+    "locality": "South Bangalore"
+  },
+  "560090": {
+    "area": "Vijayanagar",
+    "latitude": 12.9716,
+    "longitude": 77.5333,
+    "locality": "West Bangalore"
+  },
+  "560091": {
+    "area": "Chamarajpet",
+    "latitude": 12.9555,
+    "longitude": 77.5724,
+    "locality": "Central Bangalore"
+  },
+  "560092": {
+    "area": "Chickpet",
+    "latitude": 12.9650,
+    "longitude": 77.5800,
+    "locality": "Central Bangalore"
+  },
+  "560093": {
+    "area": "Shivajinagar",
+    "latitude": 12.9698,
+    "longitude": 77.6025,
+    "locality": "Central Bangalore"
+  },
+  "560094": {
+    "area": "Frazer Town",
+    "latitude": 12.9800,
+    "longitude": 77.6100,
+    "locality": "Central Bangalore"
+  },
   "560095": {
     "area": "HSR Layout",
     "latitude": 12.9116,
     "longitude": 77.6473,
     "locality": "South Bangalore"
+  },
+  "560096": {
+    "area": "HSR Layout Sector 1",
+    "latitude": 12.9100,
+    "longitude": 77.6450,
+    "locality": "South Bangalore"
+  },
+  "560097": {
+    "area": "HSR Layout Sector 2",
+    "latitude": 12.9150,
+    "longitude": 77.6500,
+    "locality": "South Bangalore"
+  },
+  "560098": {
+    "area": "HSR Layout Sector 7",
+    "latitude": 12.9200,
+    "longitude": 77.6550,
+    "locality": "South Bangalore"
+  },
+  "560099": {
+    "area": "Agara",
+    "latitude": 12.9250,
+    "longitude": 77.6600,
+    "locality": "Southeast Bangalore"
   },
   "560100": {
     "area": "Kengeri",
@@ -161,10 +599,64 @@
     "longitude": 77.4851,
     "locality": "West Bangalore"
   },
+  "560101": {
+    "area": "Kengeri Satellite Town",
+    "latitude": 12.9000,
+    "longitude": 77.4900,
+    "locality": "West Bangalore"
+  },
+  "560102": {
+    "area": "Rajarajeshwari Nagar",
+    "latitude": 12.8900,
+    "longitude": 77.5000,
+    "locality": "West Bangalore"
+  },
   "560103": {
     "area": "Yelahanka New Town",
     "latitude": 13.1007,
     "longitude": 77.5963,
+    "locality": "North Bangalore"
+  },
+  "560104": {
+    "area": "Yelahanka",
+    "latitude": 13.1007,
+    "longitude": 77.5963,
+    "locality": "North Bangalore"
+  },
+  "560105": {
+    "area": "Doddaballapur Road",
+    "latitude": 13.1200,
+    "longitude": 77.6000,
+    "locality": "North Bangalore"
+  },
+  "560106": {
+    "area": "Devanahalli",
+    "latitude": 13.2500,
+    "longitude": 77.7000,
+    "locality": "North Bangalore"
+  },
+  "560107": {
+    "area": "Nelamangala",
+    "latitude": 13.1000,
+    "longitude": 77.4000,
+    "locality": "West Bangalore"
+  },
+  "560108": {
+    "area": "Tumkur Road",
+    "latitude": 13.0500,
+    "longitude": 77.4500,
+    "locality": "West Bangalore"
+  },
+  "560109": {
+    "area": "Peenya Industrial Area",
+    "latitude": 13.0200,
+    "longitude": 77.5200,
+    "locality": "North Bangalore"
+  },
+  "560110": {
+    "area": "Jalahalli",
+    "latitude": 13.0448,
+    "longitude": 77.5432,
     "locality": "North Bangalore"
   }
 }

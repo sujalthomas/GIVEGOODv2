@@ -4,11 +4,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   Droplets, Calendar, CheckCircle, Clock, User,
-  Filter, Download, TrendingUp, Package, AlertTriangle
+  Filter, Download, TrendingUp, Package, AlertTriangle, Plus, XCircle
 } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import RefillLogForm from '@/components/RefillLogForm';
 
 const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
 
@@ -43,6 +46,10 @@ export default function RefillsPage() {
   const [loading, setLoading] = useState(true);
   const [verifiedFilter, setVerifiedFilter] = useState<VerifiedFilter>('pending');
   const [actionLoading, setActionLoading] = useState(false);
+  const [showLogDialog, setShowLogDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [selectedRefill, setSelectedRefill] = useState<Refill | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
   
   const { user } = useGlobal();
   const router = useRouter();
@@ -104,6 +111,37 @@ export default function RefillsPage() {
     } catch (error) {
       console.error('Error verifying refill:', error);
       alert('Failed to verify refill');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!selectedRefill || !rejectionReason.trim()) {
+      alert('Please provide a rejection reason');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const supabaseClient = await createSPASassClient();
+      const supabase = supabaseClient.getSupabaseClient();
+
+      // Delete the refill (rejected refills are removed)
+      const { error } = await supabase
+        .from('feeder_refills')
+        .delete()
+        .eq('id', selectedRefill.id);
+
+      if (error) throw new Error('Failed to reject refill');
+
+      setShowRejectDialog(false);
+      setRejectionReason('');
+      setSelectedRefill(null);
+      await fetchRefills();
+    } catch (error) {
+      console.error('Error rejecting refill:', error);
+      alert('Failed to reject refill');
     } finally {
       setActionLoading(false);
     }
@@ -181,13 +219,22 @@ export default function RefillsPage() {
             Verify and track all feeder refill activities
           </p>
         </div>
-        <button
-          onClick={exportToCSV}
-          className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowLogDialog(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Log Refill
+          </button>
+          <button
+            onClick={exportToCSV}
+            className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Export CSV
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -386,7 +433,7 @@ export default function RefillsPage() {
 
                     {/* Actions */}
                     {!refill.verified && (
-                      <div className="flex lg:flex-col">
+                      <div className="flex gap-2 lg:flex-col">
                         <button
                           onClick={() => handleVerify(refill.id)}
                           disabled={actionLoading}
@@ -394,6 +441,17 @@ export default function RefillsPage() {
                         >
                           <CheckCircle className="w-4 h-4" />
                           Verify
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedRefill(refill);
+                            setShowRejectDialog(true);
+                          }}
+                          disabled={actionLoading}
+                          className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Reject
                         </button>
                       </div>
                     )}
@@ -404,6 +462,68 @@ export default function RefillsPage() {
           ))
         )}
       </div>
+
+      {/* Log Refill Dialog (Admin Quick Action) */}
+      <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Log Refill (Admin)</DialogTitle>
+          </DialogHeader>
+          <RefillLogForm 
+            adminMode={true}
+            onSuccess={() => {
+              setShowLogDialog(false);
+              fetchRefills(); // Refresh list
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Refill Dialog */}
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reject Refill Log</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div>
+                Are you sure you want to reject this refill log? This will permanently delete it.
+                {selectedRefill && (
+                  <div className="mt-2 p-2 bg-gray-50 rounded">
+                    <div className="text-sm font-medium text-gray-900">
+                      {selectedRefill.feeders.location_name}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      {selectedRefill.food_quantity_kg} kg by {selectedRefill.volunteers.name}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="my-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Reason for rejection (optional):
+            </label>
+            <textarea
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              placeholder="e.g., Suspicious quantity, duplicate entry, invalid photo, etc."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              rows={3}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleReject}
+              disabled={actionLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {actionLoading ? 'Rejecting...' : 'Reject & Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

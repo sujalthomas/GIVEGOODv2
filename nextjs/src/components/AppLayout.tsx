@@ -10,7 +10,7 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets, ChevronLeft, ChevronRight,
+    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets, ChevronLeft, ChevronRight, Map,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
@@ -55,13 +55,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     // Add super admin navigation items
     const navigation = useMemo(() => {
-        const baseNavigation = [
-            { name: 'Homepage', href: '/app', icon: Home },
-            { name: 'Example Storage', href: '/app/storage', icon: Files },
-            { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
-            { name: 'User Settings', href: '/app/user-settings', icon: User },
-        ];
-        
+    const baseNavigation = [
+        { name: 'Homepage', href: '/app', icon: Home },
+            { name: 'Submit Feeder', href: '/app/submit-feeder', icon: Home },
+            { name: 'Log Refill', href: '/app/log-refill', icon: Droplets },
+            { name: 'View Map', href: '/volunteer-map', icon: Map },
+        { name: 'Example Storage', href: '/app/storage', icon: Files },
+        { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
+        { name: 'User Settings', href: '/app/user-settings', icon: User },
+    ];
+
         if (isSuperAdmin) {
             return [
                 ...baseNavigation,
@@ -103,7 +106,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {/* Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b">
                     {!isSidebarCollapsed ? (
-                        <span className="text-xl font-semibold text-primary-600">{productName}</span>
+                    <span className="text-xl font-semibold text-primary-600">{productName}</span>
                     ) : (
                         <span className="text-lg font-bold text-primary-600 mx-auto">GGC</span>
                     )}
@@ -157,7 +160,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             </>
                         )}
                     </button>
-                </div>
+            </div>
             </motion.div>
 
             <div className={contentPadding}>

@@ -107,6 +107,18 @@ export default function TopAreasPanel() {
                 <Home className="w-3 h-3" />
                 <span>{area.feederCount} feeders</span>
               </div>
+              <div className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${
+                  area.healthScore >= 80 ? 'bg-green-500' :
+                  area.healthScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                }`}></div>
+                <span className={
+                  area.healthScore >= 80 ? 'text-green-600 font-semibold' :
+                  area.healthScore >= 60 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold'
+                }>
+                  {area.healthScore}%
+                </span>
+              </div>
             </div>
           </motion.div>
         ))}

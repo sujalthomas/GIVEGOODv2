@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSSRSassClient } from '@/lib/supabase/server';
+import { getCoordinatesFromPincode, getAreaNameFromPincode } from '@/lib/geocoding/bangalore-pincodes';
 
 interface GeocodeRequest {
   volunteerId: string;
@@ -49,12 +50,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Geocode the pincode
-    const coords = await geocodePincode(body.pincode);
+    // Try Nominatim API first
+    let coords = await geocodePincode(body.pincode);
+    let source = 'nominatim';
 
+    // If Nominatim fails, use our local pincode reference as fallback
+    if (!coords) {
+      console.log(`Nominatim failed for ${body.pincode}, using local reference`);
+      const localCoords = getCoordinatesFromPincode(body.pincode);
+      
+      if (localCoords) {
+        coords = localCoords;
+        source = 'local_reference';
+      }
+    }
+
+    // If both fail, return error
     if (!coords) {
       return NextResponse.json(
-        { error: 'Failed to geocode pincode' },
+        { error: `Failed to geocode pincode ${body.pincode} - not found in Nominatim or local reference` },
         { status: 404 }
       );
     }
@@ -63,12 +77,25 @@ export async function POST(request: NextRequest) {
     const supabaseClient = await createSSRSassClient();
     const supabase = supabaseClient.getSupabaseClient();
 
+    // Also get area name from reference if available
+    const areaName = getAreaNameFromPincode(body.pincode);
+
+    const updateData: {
+      latitude: number;
+      longitude: number;
+      area_name?: string;
+    } = {
+      latitude: coords.lat,
+      longitude: coords.lon
+    };
+
+    if (areaName) {
+      updateData.area_name = areaName;
+    }
+
     const { error: updateError } = await supabase
       .from('volunteers')
-      .update({
-        latitude: coords.lat,
-        longitude: coords.lon
-      })
+      .update(updateData)
       .eq('id', body.volunteerId);
 
     if (updateError) {
@@ -82,7 +109,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       latitude: coords.lat,
-      longitude: coords.lon
+      longitude: coords.lon,
+      area_name: areaName,
+      source: source
     });
 
   } catch (error) {
