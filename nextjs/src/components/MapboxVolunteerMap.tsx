@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { Map, Marker, Popup, Layer, Source } from 'react-map-gl/mapbox';
+import { Map, Marker, Popup, Layer, Source, type MapRef } from 'react-map-gl/mapbox';
 import { motion } from 'framer-motion';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -29,11 +29,12 @@ interface FeederData {
 }
 
 interface MapProps {
+  volunteers: VolunteerData[];
+  feeders: FeederData[];
   showCoverageZones?: boolean;
   showConnections?: boolean;
   showHeatmap?: boolean;
   show3DBuildings?: boolean;
-  adminMode?: boolean;
 }
 
 // Bangalore center coordinates
@@ -43,15 +44,13 @@ const BANGALORE_CENTER = {
 };
 
 export default function MapboxVolunteerMap({
+  volunteers = [],
+  feeders = [],
   showCoverageZones = false,
   showConnections = false,
   showHeatmap = false,
-  show3DBuildings = false,
-  adminMode = false
+  show3DBuildings = false
 }: MapProps) {
-  const [volunteers, setVolunteers] = useState<VolunteerData[]>([]);
-  const [feeders, setFeeders] = useState<FeederData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [markersLoaded, setMarkersLoaded] = useState(false); // Track if markers already animated
   const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerData | null>(null);
   const [selectedFeeder, setSelectedFeeder] = useState<FeederData | null>(null);
@@ -61,33 +60,14 @@ export default function MapboxVolunteerMap({
     zoom: 11
   });
 
-  const mapRef = useRef<any>(null);
+  const mapRef = useRef<MapRef>(null);
 
-  // Fetch data
+  // Trigger marker animations once data is loaded
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [volunteersRes, feedersRes] = await Promise.all([
-          fetch('/api/map/volunteers'),
-          fetch('/api/map/feeders')
-        ]);
-
-        const volunteersData = await volunteersRes.json();
-        const feedersData = await feedersRes.json();
-
-        setVolunteers(volunteersData.volunteers || []);
-        setFeeders(feedersData.feeders || []);
-      } catch (error) {
-        console.error('Error fetching map data:', error);
-      } finally {
-        setLoading(false);
-        // Mark markers as loaded after a delay to allow animation
-        setTimeout(() => setMarkersLoaded(true), 2000);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (volunteers.length > 0 || feeders.length > 0) {
+      setTimeout(() => setMarkersLoaded(true), 500);
+    }
+  }, [volunteers.length, feeders.length]);
 
   // Helper to get volunteer color based on help types (memoized)
   const getVolunteerColor = useCallback((helpTypes: string[]) => {
@@ -203,17 +183,6 @@ export default function MapboxVolunteerMap({
     };
   }, [volunteers, feeders, showConnections]);
 
-  if (loading) {
-    return (
-      <div className="w-full h-[600px] bg-gray-100 rounded-2xl flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading map...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full h-full relative">
       <Map
@@ -232,7 +201,7 @@ export default function MapboxVolunteerMap({
       >
         {/* Heatmap Layer (density visualization) */}
         {showHeatmap && heatmapGeoJSON && (
-          <Source id="heatmap" type="geojson" data={heatmapGeoJSON as any}>
+          <Source id="heatmap" type="geojson" data={heatmapGeoJSON as GeoJSON.FeatureCollection}>
             <Layer
               id="heatmap-layer"
               type="heatmap"
@@ -292,7 +261,7 @@ export default function MapboxVolunteerMap({
 
         {/* Coverage Zones Layer (circles around feeders) */}
         {showCoverageZones && coverageZonesGeoJSON && (
-          <Source id="coverage-zones" type="geojson" data={coverageZonesGeoJSON as any}>
+          <Source id="coverage-zones" type="geojson" data={coverageZonesGeoJSON as GeoJSON.FeatureCollection}>
             <Layer
               id="coverage-zones-layer"
               type="circle"
@@ -317,7 +286,7 @@ export default function MapboxVolunteerMap({
 
         {/* Connection Lines Layer (volunteer → feeder connections) */}
         {showConnections && connectionLinesGeoJSON && (
-          <Source id="connections" type="geojson" data={connectionLinesGeoJSON as any}>
+          <Source id="connections" type="geojson" data={connectionLinesGeoJSON as GeoJSON.FeatureCollection}>
             <Layer
               id="connections-layer"
               type="line"

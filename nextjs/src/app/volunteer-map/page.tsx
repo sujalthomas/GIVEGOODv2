@@ -3,31 +3,21 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Map, Users, Home, Eye, EyeOff, TrendingUp, Layers, X, 
+  Map, Users, Home, TrendingUp, Layers, X, 
   Heart, ArrowLeft, Sparkles, Navigation, PawPrint
 } from 'lucide-react';
 import { useMapData } from '@/hooks/useMapData';
 import TopAreasPanel from '@/components/TopAreasPanel';
 import Link from 'next/link';
 
-// Dynamically import Mapbox map to avoid SSR issues
+// Dynamically import Mapbox map to avoid SSR issues (no loading component to avoid double loaders)
 const MapboxVolunteerMap = dynamic(
   () => import('@/components/MapboxVolunteerMap'),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading interactive map...</p>
-        </div>
-      </div>
-    )
-  }
+  { ssr: false }
 );
 
 export default function PublicVolunteerMapPage() {
-  const { stats, loading } = useMapData();
+  const { stats, volunteers, feeders, loading } = useMapData();
   const [showCoverageZones, setShowCoverageZones] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
@@ -36,6 +26,80 @@ export default function PublicVolunteerMapPage() {
   const [showControls, setShowControls] = useState(true);
   const [showTopAreas, setShowTopAreas] = useState(true);
   const [showCTA, setShowCTA] = useState(true);
+
+  // Single unified loading state
+  if (loading) {
+    return (
+      <div className="h-screen flex flex-col bg-gray-900 overflow-hidden">
+        {/* Minimal Top Bar - Loading State */}
+        <div className="relative z-50 bg-white/10 backdrop-blur-md border-b border-white/10">
+          <div className="px-4 md:px-6 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link 
+                  href="/"
+                  className="flex items-center gap-2 text-white hover:text-primary-100 transition-colors group"
+                >
+                  <div className="p-2 rounded-lg bg-primary-600/20 group-hover:bg-primary-600/30 transition-colors">
+                    <ArrowLeft className="w-4 h-4" />
+                  </div>
+                  <span className="hidden md:block font-medium">Back to Home</span>
+                </Link>
+                <div className="h-6 w-px bg-white/20"></div>
+                <div className="flex items-center gap-2">
+                  <PawPrint className="w-5 h-5 text-primary-400" />
+                  <div>
+                    <h1 className="text-sm md:text-base font-bold text-white">
+                      Bangalore Volunteer Network
+                    </h1>
+                    <p className="text-xs text-gray-300 hidden md:block">
+                      Real-time community visualization
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Loading Screen */}
+        <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+          {/* Animated background blobs */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/40 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-500/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+          </div>
+          
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center relative z-10">
+              {/* Multi-layer spinner */}
+              <div className="relative mb-6 w-24 h-24 mx-auto">
+                {/* Outer ring */}
+                <div className="absolute inset-0 border-4 border-primary-600/20 border-t-primary-600 rounded-full animate-spin"></div>
+                {/* Middle ring */}
+                <div className="absolute inset-2 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                {/* Inner pulsing core */}
+                <div className="absolute inset-6 bg-gradient-to-br from-primary-600 to-blue-600 rounded-full animate-pulse shadow-lg shadow-primary-500/50"></div>
+              </div>
+              
+              <div className="space-y-2 px-6">
+                <p className="text-white font-bold text-xl">Loading Volunteer Network</p>
+                <p className="text-gray-300 text-sm">Fetching map data and initializing...</p>
+                
+                {/* Loading dots */}
+                <div className="flex items-center justify-center gap-1.5 pt-2">
+                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 overflow-hidden">
@@ -111,13 +175,14 @@ export default function PublicVolunteerMapPage() {
       <div className="flex-1 relative overflow-hidden">
         {/* Full-screen Map */}
         <div className="absolute inset-0">
-          <MapboxVolunteerMap
-            showCoverageZones={showCoverageZones}
-            showHeatmap={showHeatmap}
-            showConnections={showConnections}
-            show3DBuildings={show3DBuildings}
-            adminMode={false}
-          />
+            <MapboxVolunteerMap
+              volunteers={volunteers}
+              feeders={feeders}
+              showCoverageZones={showCoverageZones}
+              showHeatmap={showHeatmap}
+              showConnections={showConnections}
+              show3DBuildings={show3DBuildings}
+            />
         </div>
 
         {/* Floating Controls - Left Side */}
@@ -285,7 +350,7 @@ export default function PublicVolunteerMapPage() {
                         </div>
                       </div>
                       <p className="text-sm text-primary-50 mb-4 leading-relaxed">
-                        Be part of Bangalore's growing community of changemakers. Help us feed stray animals across the city!
+                        Be part of Bangalore&apos;s growing community of changemakers. Help us feed stray animals across the city!
                       </p>
                       <Link
                         href="/#join"

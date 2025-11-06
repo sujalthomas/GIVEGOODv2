@@ -5,6 +5,7 @@ interface VolunteerData {
   name: string;
   area: string;
   pincode: string;
+  area_name: string | null;
   help_types: string[];
   latitude: number;
   longitude: number;
@@ -14,9 +15,11 @@ interface FeederData {
   id: string;
   location_name: string;
   pincode: string;
+  area_name: string | null;
   latitude: number;
   longitude: number;
   status: string;
+  capacity_kg: number | null;
   last_refilled_at: string | null;
   next_refill_due: string | null;
 }

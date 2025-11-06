@@ -2,6 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
     Home,
     User,
@@ -9,7 +10,7 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets,
+    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
@@ -18,6 +19,7 @@ const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
@@ -76,6 +78,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }, [isSuperAdmin]);
 
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+    const toggleCollapse = () => setSidebarCollapsed(!isSidebarCollapsed);
+
+    // Check if current page needs full-screen (no padding)
+    const isFullScreenPage = pathname === '/app/volunteer-map';
+    const contentPadding = isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64';
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -86,12 +93,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 />
             )}
 
-            {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-200 ease-in-out z-30 
-                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-
+            {/* Sidebar with Collapse */}
+            <motion.div 
+                animate={{ width: isSidebarCollapsed ? 64 : 256 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className={`fixed inset-y-0 left-0 bg-white shadow-lg transform transition-transform duration-200 ease-in-out z-30 
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+            >
+                {/* Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b">
-                    <span className="text-xl font-semibold text-primary-600">{productName}</span>
+                    {!isSidebarCollapsed ? (
+                        <span className="text-xl font-semibold text-primary-600">{productName}</span>
+                    ) : (
+                        <span className="text-lg font-bold text-primary-600 mx-auto">GGC</span>
+                    )}
                     <button
                         onClick={toggleSidebar}
                         className="lg:hidden text-gray-500 hover:text-gray-700"
@@ -108,26 +123,44 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                                title={isSidebarCollapsed ? item.name : undefined}
+                                className={`group flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-2'} py-2 text-sm font-medium rounded-md ${
                                     isActive
                                         ? 'bg-primary-50 text-primary-600'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
                             >
                                 <item.icon
-                                    className={`mr-3 h-5 w-5 ${
+                                    className={`${isSidebarCollapsed ? '' : 'mr-3'} h-5 w-5 ${
                                         isActive ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'
                                     }`}
                                 />
-                                {item.name}
+                                {!isSidebarCollapsed && item.name}
                             </Link>
                         );
                     })}
                 </nav>
 
-            </div>
+                {/* Collapse Toggle - Desktop Only */}
+                <div className="absolute bottom-4 left-0 right-0 px-2 hidden lg:block">
+                    <button
+                        onClick={toggleCollapse}
+                        className="w-full flex items-center justify-center py-2 text-gray-500 hover:bg-gray-50 rounded-md transition-colors"
+                        title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {isSidebarCollapsed ? (
+                            <ChevronRight className="h-5 w-5" />
+                        ) : (
+                            <>
+                                <ChevronLeft className="h-5 w-5 mr-2" />
+                                <span className="text-xs">Collapse</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </motion.div>
 
-            <div className="lg:pl-64">
+            <div className={contentPadding}>
                 <div className="sticky top-0 z-10 flex items-center justify-between h-16 bg-white shadow-sm px-4">
                     <button
                         onClick={toggleSidebar}
@@ -185,7 +218,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
 
-                <main className="p-4">
+                <main className={isFullScreenPage ? '' : 'p-4'}>
                     {children}
                 </main>
             </div>

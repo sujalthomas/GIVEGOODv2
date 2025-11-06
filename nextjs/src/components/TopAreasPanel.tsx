@@ -25,10 +25,39 @@ export default function TopAreasPanel() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-4">
-        <div className="animate-pulse space-y-3">
+      <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-4 border border-white/20">
+        {/* Header Skeleton */}
+        <div className="flex items-center gap-2 mb-4 border-b pb-2">
+          <div className="w-5 h-5 bg-gradient-to-br from-primary-200 to-primary-300 rounded animate-pulse"></div>
+          <div className="h-5 w-24 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
+        </div>
+
+        {/* Area Cards Skeleton */}
+        <div className="space-y-2">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-gradient-to-br from-primary-200 to-primary-300 rounded-full animate-pulse"></div>
+                  <div className="space-y-1.5">
+                    <div className="h-4 w-28 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
+                    <div className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                <div className="h-6 w-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full animate-pulse"></div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
+                <div className="h-3 w-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
