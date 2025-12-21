@@ -155,6 +155,12 @@ CREATE POLICY "anchor_batches_select_confirmed"
 -- SET raw_user_meta_data = raw_user_meta_data || '{"role": "admin"}'::jsonb 
 -- WHERE email = 'admin@example.com';
 --
+-- IMPORTANT: After updating user metadata, the user MUST log out and log back in
+-- (or refresh their JWT token) for the change to take effect. The is_admin() 
+-- function checks auth.jwt(), which reflects claims at login time, not the 
+-- current database state. Alternatively, you can use Supabase's auth.refreshSession()
+-- on the client side to get a new token with updated claims.
+--
 -- To test column security, try (should fail for non-service users):
 -- UPDATE donations SET status = 'completed' WHERE id = 'some-id';
 

@@ -59,6 +59,13 @@ function getAllowedOrigins(): string[] {
 // In production, you may want to set CSRF_STRICT_MODE=true
 const isStrictMode = process.env.CSRF_STRICT_MODE === 'true';
 
+// SECURITY: Whitelist of exact webhook paths that bypass origin checks
+// These paths verify requests via cryptographic signatures instead
+const WEBHOOK_PATH_WHITELIST = [
+  '/api/webhooks/razorpay',
+  // Add other webhook paths here as needed
+] as const;
+
 /**
  * Check if the request origin is allowed
  * Returns null if allowed, or an error response if blocked
@@ -78,10 +85,15 @@ export function checkOrigin(req: NextRequest, options?: { strict?: boolean }): N
   const strict = options?.strict ?? isStrictMode;
   
   // Webhooks from payment providers won't have origin/referer
-  // They should be verified via signature instead
-  const isWebhook = req.nextUrl.pathname.includes('/webhooks/');
-  if (isWebhook) {
-    return null; // Skip origin check for webhooks
+  // They should be verified via cryptographic signature instead
+  // SECURITY: Use exact path whitelist, not substring matching
+  // (includes('/webhooks/') could match /api/my-webhooks-test/ or /webhooks-info/)
+  const pathname = req.nextUrl.pathname;
+  const isWhitelistedWebhook = WEBHOOK_PATH_WHITELIST.some(
+    webhookPath => pathname === webhookPath || pathname.startsWith(webhookPath + '/')
+  );
+  if (isWhitelistedWebhook) {
+    return null; // Skip origin check - webhook verifies via signature
   }
   
   // API calls from server components won't have origin
