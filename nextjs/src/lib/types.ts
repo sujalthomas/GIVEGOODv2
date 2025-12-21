@@ -101,6 +101,7 @@ export type Database = {
           merkle_leaf_index: number | null
           merkle_proof: Json | null
           metadata: Json | null
+          net_amount_inr: number | null
           notes: string | null
           order_id: string | null
           payment_id: string
@@ -109,8 +110,10 @@ export type Database = {
           provider: string
           purpose: string | null
           razorpay_event_id: string | null
+          razorpay_fee_inr: number | null
           razorpay_signature: string | null
           status: string
+          tax_amount_inr: number | null
           updated_at: string
           upi_reference: string | null
           user_agent: string | null
@@ -139,6 +142,7 @@ export type Database = {
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
           metadata?: Json | null
+          net_amount_inr?: number | null
           notes?: string | null
           order_id?: string | null
           payment_id: string
@@ -147,8 +151,10 @@ export type Database = {
           provider: string
           purpose?: string | null
           razorpay_event_id?: string | null
+          razorpay_fee_inr?: number | null
           razorpay_signature?: string | null
           status?: string
+          tax_amount_inr?: number | null
           updated_at?: string
           upi_reference?: string | null
           user_agent?: string | null
@@ -177,6 +183,7 @@ export type Database = {
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
           metadata?: Json | null
+          net_amount_inr?: number | null
           notes?: string | null
           order_id?: string | null
           payment_id?: string
@@ -185,8 +192,10 @@ export type Database = {
           provider?: string
           purpose?: string | null
           razorpay_event_id?: string | null
+          razorpay_fee_inr?: number | null
           razorpay_signature?: string | null
           status?: string
+          tax_amount_inr?: number | null
           updated_at?: string
           upi_reference?: string | null
           user_agent?: string | null

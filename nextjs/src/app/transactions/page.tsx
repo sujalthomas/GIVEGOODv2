@@ -19,6 +19,13 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
+
+// Helper to get Solana explorer URL based on network
+function getSolanaExplorerUrl(signature: string): string {
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+  const baseUrl = 'https://solscan.io';
+  return `${baseUrl}/tx/${signature}${network !== 'mainnet-beta' ? `?cluster=${network}` : ''}`;
+}
 import { createSPASassClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
@@ -378,7 +385,7 @@ export default function TransactionsPage() {
                           <div className="flex items-center justify-center gap-1">
                             {txn.anchored && txn.txSignature ? (
                               <a
-                                href={`https://solscan.io/tx/${txn.txSignature}?cluster=devnet`}
+                                href={getSolanaExplorerUrl(txn.txSignature)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"

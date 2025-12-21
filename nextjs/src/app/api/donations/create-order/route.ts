@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createDonationOrder } from '@/lib/razorpay/client';
 import { createSPASassClient } from '@/lib/supabase/client';
+import { applyRateLimit } from '@/lib/security/rateLimit';
+import { applyCsrfProtection } from '@/lib/security/csrf';
 
 // Request body schema
 interface CreateOrderRequest {
@@ -15,6 +17,14 @@ interface CreateOrderRequest {
 }
 
 export async function POST(request: NextRequest) {
+  // SECURITY: Apply CSRF protection
+  const csrfError = applyCsrfProtection(request);
+  if (csrfError) return csrfError;
+  
+  // SECURITY: Apply rate limiting to prevent abuse
+  const rateLimited = applyRateLimit(request, 'donation');
+  if (rateLimited) return rateLimited;
+  
   try {
     // Parse request body
     const body: CreateOrderRequest = await request.json();

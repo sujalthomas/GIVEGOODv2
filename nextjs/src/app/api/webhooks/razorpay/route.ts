@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature, fetchPaymentDetails, extractUPIReference, paiseToRupees, RazorpayPayment } from '@/lib/razorpay/client';
 import { createServerClient } from '@supabase/ssr';
+import { applyRateLimit } from '@/lib/security/rateLimit';
 
 // Disable body parsing to get raw body for signature verification
 export const runtime = 'nodejs';
@@ -38,6 +39,10 @@ interface RazorpayWebhookEvent {
 }
 
 export async function POST(request: NextRequest) {
+  // SECURITY: Apply rate limiting (high limit for webhooks to allow Razorpay retries)
+  const rateLimited = applyRateLimit(request, 'webhook');
+  if (rateLimited) return rateLimited;
+  
   try {
     // Get raw body for signature verification
     const rawBody = await request.text();
@@ -53,24 +58,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Skip signature verification in development if webhook secret is placeholder
+    // SECURITY: Always verify webhook signature - NEVER skip this
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    const isPlaceholder = !webhookSecret || webhookSecret === 'your_webhook_secret_here';
     
-    if (!isPlaceholder) {
-      // Verify webhook signature in production
-      const isValidSignature = verifyWebhookSignature(rawBody, signature);
-
-      if (!isValidSignature) {
-        console.error('Invalid Razorpay webhook signature');
-        return NextResponse.json(
-          { error: 'Invalid signature' },
-          { status: 401 }
-        );
-      }
-    } else {
-      console.log('⚠️ Webhook signature verification skipped - set RAZORPAY_WEBHOOK_SECRET for production');
+    if (!webhookSecret) {
+      console.error('❌ CRITICAL: RAZORPAY_WEBHOOK_SECRET is not configured');
+      // Return 500 so Razorpay retries later when config is fixed
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
     }
+
+    // Verify webhook signature - this is mandatory for security
+    const isValidSignature = verifyWebhookSignature(rawBody, signature);
+
+    if (!isValidSignature) {
+      console.error('❌ Invalid Razorpay webhook signature - possible attack attempt');
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      );
+    }
+    
+    console.log('✅ Webhook signature verified successfully');
 
     // Parse webhook event
     const event: RazorpayWebhookEvent = JSON.parse(rawBody);
@@ -121,9 +132,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ status: 'success' });
 
   } catch (error) {
-    console.error('Error processing Razorpay webhook:', error);
-    // Still return 200 to prevent Razorpay from retrying
-    return NextResponse.json({ status: 'error', message: 'Webhook processing failed' });
+    console.error('❌ Error processing Razorpay webhook:', error);
+    // Return 500 for transient errors so Razorpay will retry
+    // Only return 200 for permanent errors that won't be fixed by retrying
+    return NextResponse.json(
+      { status: 'error', message: 'Webhook processing failed' },
+      { status: 500 }
+    );
   }
 }
 

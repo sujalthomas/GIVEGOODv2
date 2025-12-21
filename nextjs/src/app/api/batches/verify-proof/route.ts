@@ -13,6 +13,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSSRClient } from '@/lib/supabase/server';
 import { verifyMerkleProof, computeLeafHash } from '@/lib/merkle/builder';
+import { applyRateLimit } from '@/lib/security/rateLimit';
 import type { DonationLeaf, MerkleProof, VerificationResult } from '@/lib/merkle/types';
 import type { Tables } from '@/lib/types';
 
@@ -21,6 +22,10 @@ type AnchorBatch = Tables<'anchor_batches'>;
 
 export async function POST(req: NextRequest) {
   console.log('🔍 === VERIFY PROOF REQUEST ===');
+  
+  // SECURITY: Apply rate limiting for verification API
+  const rateLimited = applyRateLimit(req, 'verification');
+  if (rateLimited) return rateLimited;
   
   try {
     const body = await req.json();
@@ -191,6 +196,10 @@ export async function POST(req: NextRequest) {
  * Query params: ?donationId=xxx or ?paymentId=pay_xxx
  */
 export async function GET(req: NextRequest) {
+  // SECURITY: Apply rate limiting for verification API
+  const rateLimited = applyRateLimit(req, 'verification');
+  if (rateLimited) return rateLimited;
+  
   try {
     const searchParams = req.nextUrl.searchParams;
     const donationId = searchParams.get('donationId');

@@ -7,9 +7,14 @@
 
 import { NextResponse } from 'next/server';
 import { verifyWalletSetup, getSolanaConfig } from '@/lib/solana/anchor';
+import { requireAdminAuth } from '@/lib/auth/adminAuth';
 
 export async function GET() {
   console.log('🔍 === CHECKING WALLET STATUS ===');
+  
+  // SECURITY: Require admin authentication (wallet info is sensitive)
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
   
   try {
     const config = getSolanaConfig();
