@@ -4,12 +4,23 @@
  * Provides authentication and authorization checks for admin API routes.
  * This ensures only authenticated users with proper permissions can access
  * sensitive administrative functions.
+ * 
+ * SECURITY BEHAVIOR:
+ * - Production (NODE_ENV !== 'development'): Enforces admin role check
+ * - Development (NODE_ENV === 'development'): Allows any authenticated user
+ * 
+ * To make a user admin, set their role in Supabase:
+ * UPDATE auth.users SET raw_user_meta_data = raw_user_meta_data || '{"role": "admin"}' WHERE email = 'user@email.com';
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/types';
+import crypto from 'crypto';
+
+// Check if we're in development mode
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export interface AdminAuthResult {
   authorized: boolean;
@@ -24,19 +35,30 @@ export interface AdminAuthResult {
 /**
  * Check if the current request is from an authenticated admin user
  * 
- * For now, any authenticated user is considered an admin.
- * In production, you should add role-based checks using user metadata
- * or a separate admin_users table.
+ * In production: Requires user to have 'admin' or 'super_admin' role
+ * In development: Any authenticated user is allowed (for easier testing)
  * 
  * @returns AdminAuthResult with authorization status and user info
  */
 export async function checkAdminAuth(): Promise<AdminAuthResult> {
   try {
+    // SECURITY: Validate required environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('Missing required Supabase environment variables');
+      return {
+        authorized: false,
+        error: 'Server configuration error',
+      };
+    }
+    
     const cookieStore = await cookies();
     
     const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           getAll() {
@@ -65,23 +87,28 @@ export async function checkAdminAuth(): Promise<AdminAuthResult> {
     }
 
     // Check if user has admin role
-    // Option 1: Check user metadata (set during registration or by admin)
     const userMetadata = user.user_metadata || {};
     const appMetadata = user.app_metadata || {};
     
     // Check various places where role might be stored
     const role = userMetadata.role || appMetadata.role || 'user';
     const isAdmin = role === 'admin' || role === 'super_admin';
-
-    // For development/early stage: allow any authenticated user
-    // TODO: Uncomment the isAdmin check for production
-    // if (!isAdmin) {
-    //   return {
-    //     authorized: false,
-    //     user: { id: user.id, email: user.email, role },
-    //     error: 'Admin privileges required',
-    //   };
-    // }
+    
+    // SECURITY: Enforce admin role check in production
+    // In development, allow any authenticated user for easier testing
+    if (!isDevelopment && !isAdmin) {
+      console.warn(`⚠️ Non-admin user attempted admin action: ${user.email} (role: ${role})`);
+      return {
+        authorized: false,
+        user: { id: user.id, email: user.email, role },
+        error: 'Admin privileges required',
+      };
+    }
+    
+    // Log bypass in development for visibility
+    if (isDevelopment && !isAdmin) {
+      console.log(`ℹ️ DEV MODE: Allowing non-admin user: ${user.email} (role: ${role})`);
+    }
 
     return {
       authorized: true,
@@ -140,6 +167,8 @@ export async function getAdminAuth(): Promise<AdminAuthResult> {
 /**
  * Check if a request has a valid API key (for server-to-server calls)
  * This is an alternative auth method for automated/cron jobs
+ * 
+ * SECURITY: Uses timing-safe comparison to prevent timing attacks
  */
 export function checkApiKeyAuth(request: NextRequest): boolean {
   const apiKey = request.headers.get('x-api-key');
@@ -150,7 +179,27 @@ export function checkApiKeyAuth(request: NextRequest): boolean {
     return false;
   }
   
-  return apiKey === expectedKey;
+  // If no API key provided in request
+  if (!apiKey) {
+    return false;
+  }
+  
+  // SECURITY: Use timing-safe comparison to prevent timing attacks
+  // An attacker could use timing differences to infer the correct key character-by-character
+  try {
+    const apiKeyBuffer = Buffer.from(apiKey, 'utf8');
+    const expectedKeyBuffer = Buffer.from(expectedKey, 'utf8');
+    
+    // Lengths must match for timingSafeEqual
+    if (apiKeyBuffer.length !== expectedKeyBuffer.length) {
+      return false;
+    }
+    
+    return crypto.timingSafeEqual(apiKeyBuffer, expectedKeyBuffer);
+  } catch {
+    // In case of any encoding issues, fail closed
+    return false;
+  }
 }
 
 /**

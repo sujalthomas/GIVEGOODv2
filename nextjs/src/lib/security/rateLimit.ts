@@ -75,8 +75,24 @@ function getClientId(req: NextRequest): string {
     return realIp;
   }
   
-  // Last resort - use a hash of headers to identify client
-  return 'unknown';
+  // Fallback: Create a pseudo-identifier from request attributes
+  // This prevents all unknown clients from sharing the same bucket
+  const userAgent = req.headers.get('user-agent') || '';
+  const acceptLang = req.headers.get('accept-language') || '';
+  const accept = req.headers.get('accept') || '';
+  
+  // Create a simple hash of the combined attributes
+  const attributes = `${userAgent}|${acceptLang}|${accept}`;
+  let hash = 0;
+  for (let i = 0; i < attributes.length; i++) {
+    const char = attributes.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Return a fingerprint-based identifier
+  // Still not perfect, but better than a single shared bucket
+  return `fingerprint:${hash.toString(16)}`;
 }
 
 /**

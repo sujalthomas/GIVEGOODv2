@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify webhook signature - this is mandatory for security
-    const isValidSignature = verifyWebhookSignature(rawBody, signature);
+    // Verify webhook signature - pass validated secret to avoid race conditions
+    const isValidSignature = verifyWebhookSignature(rawBody, signature, webhookSecret);
 
     if (!isValidSignature) {
       console.error('❌ Invalid Razorpay webhook signature - possible attack attempt');

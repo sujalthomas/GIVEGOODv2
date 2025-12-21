@@ -90,8 +90,10 @@ export function checkOrigin(req: NextRequest): NextResponse | null {
   const allowedOrigins = getAllowedOrigins();
   
   // Check origin header
+  // SECURITY: Use strict equality only - startsWith is vulnerable to origin spoofing
+  // e.g., "https://givegoodclub.org.evil.com".startsWith("https://givegoodclub.org") === true
   if (origin) {
-    if (allowedOrigins.some(allowed => origin === allowed || origin.startsWith(allowed))) {
+    if (allowedOrigins.some(allowed => origin === allowed)) {
       return null; // Allowed
     }
     
@@ -103,12 +105,13 @@ export function checkOrigin(req: NextRequest): NextResponse | null {
   }
   
   // Fall back to referer check
+  // SECURITY: Same strict equality check for referer origin
   if (referer) {
     try {
       const refererUrl = new URL(referer);
       const refererOrigin = refererUrl.origin;
       
-      if (allowedOrigins.some(allowed => refererOrigin === allowed || refererOrigin.startsWith(allowed))) {
+      if (allowedOrigins.some(allowed => refererOrigin === allowed)) {
         return null; // Allowed
       }
       
