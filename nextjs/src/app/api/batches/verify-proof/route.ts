@@ -17,8 +17,42 @@ import { applyRateLimit } from '@/lib/security/rateLimit';
 import type { DonationLeaf, MerkleProof, VerificationResult } from '@/lib/merkle/types';
 import type { Tables } from '@/lib/types';
 
-type Donation = Tables<'donations'>;
-type AnchorBatch = Tables<'anchor_batches'>;
+// Type for donation with joined batch info
+type DonationWithBatch = Tables<'donations'> & {
+  anchor_batches?: { merkle_root: string; status: string } | { merkle_root: string; status: string }[] | null;
+};
+
+/**
+ * Type guard to validate MerkleProof structure at runtime
+ * Ensures the stored JSON has the expected shape
+ */
+function isValidMerkleProof(proof: unknown): proof is MerkleProof[] {
+  if (!Array.isArray(proof)) {
+    return false;
+  }
+  
+  return proof.every(item => 
+    typeof item === 'object' &&
+    item !== null &&
+    'hash' in item &&
+    typeof item.hash === 'string' &&
+    'position' in item &&
+    (item.position === 'left' || item.position === 'right')
+  );
+}
+
+/**
+ * Type guard to validate batch info from joined query
+ */
+function isValidBatchInfo(batch: unknown): batch is { merkle_root: string; status: string } {
+  return (
+    typeof batch === 'object' &&
+    batch !== null &&
+    'merkle_root' in batch &&
+    typeof (batch as { merkle_root: unknown }).merkle_root === 'string' &&
+    'status' in batch
+  );
+}
 
 /**
  * Core verification logic - shared between GET and POST
@@ -41,10 +75,10 @@ async function performVerification(donationId: string | null, paymentId: string 
     query = query.eq('payment_id', paymentId);
   }
   
-  const { data: donation, error: fetchError } = await query.single() as unknown as {
-    data: Donation & { anchor_batches: AnchorBatch | AnchorBatch[] };
-    error: unknown;
-  };
+  const { data, error: fetchError } = await query.single();
+  
+  // Type the donation with batch info - Supabase returns joined data
+  const donation = data as DonationWithBatch | null;
   
   if (fetchError || !donation) {
     console.error('❌ Donation not found:', fetchError);
@@ -81,15 +115,15 @@ async function performVerification(donationId: string | null, paymentId: string 
   
   console.log(`✅ Donation is in batch: ${donation.anchor_batch_id}`);
   
-  // STEP 3: Get batch Merkle root
-  const batchInfo = Array.isArray(donation.anchor_batches) 
-    ? donation.anchor_batches[0] 
-    : donation.anchor_batches;
+  // STEP 3: Get batch Merkle root with runtime validation
+  // The join returns anchor_batches which could be an object or array
+  const rawBatchInfo = donation.anchor_batches;
+  const batchInfo = Array.isArray(rawBatchInfo) ? rawBatchInfo[0] : rawBatchInfo;
   
-  if (!batchInfo || !batchInfo.merkle_root) {
-    console.error('❌ Batch not found or missing merkle_root');
+  if (!isValidBatchInfo(batchInfo)) {
+    console.error('❌ Batch not found or invalid structure:', batchInfo);
     return NextResponse.json(
-      { error: 'Batch information incomplete' },
+      { error: 'Batch information incomplete or invalid' },
       { status: 500 }
     );
   }
@@ -129,8 +163,20 @@ async function performVerification(donationId: string | null, paymentId: string 
   
   console.log('✅ Leaf hash matches stored hash');
   
-  // STEP 6: Verify Merkle proof
-  const proof = donation.merkle_proof as unknown as MerkleProof[];
+  // STEP 6: Verify Merkle proof with runtime validation
+  const rawProof = donation.merkle_proof;
+  
+  if (!isValidMerkleProof(rawProof)) {
+    console.error('❌ Invalid merkle_proof structure:', rawProof);
+    return NextResponse.json({
+      valid: false,
+      merkleRoot: '',
+      leafHash: computedLeafHash,
+      error: 'Invalid Merkle proof structure - proof data may be corrupted',
+    }, { status: 500 });
+  }
+  
+  const proof: MerkleProof[] = rawProof;
   const isValid = verifyMerkleProof(computedLeafHash, proof, merkleRoot);
   
   const result: VerificationResult = {

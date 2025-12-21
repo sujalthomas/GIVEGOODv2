@@ -129,6 +129,16 @@ CREATE POLICY "anchor_batches_select_admin"
         is_admin()
     );
 
+-- Non-admin authenticated users can view confirmed batches (for transparency/verification)
+-- This ensures logged-in users can still verify donations on the transparency page
+CREATE POLICY "anchor_batches_select_confirmed"
+    ON public.anchor_batches
+    FOR SELECT
+    TO authenticated
+    USING (
+        status = 'confirmed'
+    );
+
 -- Note: The existing "anchor_batches_select_public" policy allows
 -- anonymous users to see confirmed batches for the transparency page.
 -- This is intentional for public verification.

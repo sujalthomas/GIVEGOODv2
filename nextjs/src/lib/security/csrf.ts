@@ -18,47 +18,53 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * Get allowed origins from environment
  * Falls back to common development origins
+ * Uses Set to deduplicate origins
  */
 function getAllowedOrigins(): string[] {
   const envOrigins = process.env.ALLOWED_ORIGINS;
   if (envOrigins) {
-    return envOrigins.split(',').map(o => o.trim());
+    return [...new Set(envOrigins.split(',').map(o => o.trim()))];
   }
   
-  // Default allowed origins
-  const origins = [
+  // Use Set to deduplicate origins (VERCEL_URL or NEXT_PUBLIC_APP_URL might match hardcoded values)
+  const origins = new Set<string>([
     // Production domain (update this!)
     'https://givegoodclub.org',
     'https://www.givegoodclub.org',
-  ];
+  ]);
   
   // In development, also allow localhost
   if (process.env.NODE_ENV === 'development') {
-    origins.push(
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://127.0.0.1:3000',
-    );
+    origins.add('http://localhost:3000');
+    origins.add('http://localhost:3001');
+    origins.add('http://127.0.0.1:3000');
   }
   
   // Vercel preview deployments
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl) {
-    origins.push(`https://${vercelUrl}`);
+    origins.add(`https://${vercelUrl}`);
   }
   
   // Next.js URL
   const nextUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (nextUrl) {
-    origins.push(nextUrl);
+    origins.add(nextUrl);
   }
   
-  return origins;
+  return [...origins];
 }
+
+// Whether to enable strict mode (block requests without origin/referer)
+// In production, you may want to set CSRF_STRICT_MODE=true
+const isStrictMode = process.env.CSRF_STRICT_MODE === 'true';
 
 /**
  * Check if the request origin is allowed
  * Returns null if allowed, or an error response if blocked
+ * 
+ * Options:
+ * - strict: Override global strict mode for this check
  * 
  * Usage:
  * ```typescript
@@ -66,9 +72,10 @@ function getAllowedOrigins(): string[] {
  * if (csrfError) return csrfError;
  * ```
  */
-export function checkOrigin(req: NextRequest): NextResponse | null {
+export function checkOrigin(req: NextRequest, options?: { strict?: boolean }): NextResponse | null {
   const origin = req.headers.get('origin');
   const referer = req.headers.get('referer');
+  const strict = options?.strict ?? isStrictMode;
   
   // Webhooks from payment providers won't have origin/referer
   // They should be verified via signature instead
@@ -81,8 +88,16 @@ export function checkOrigin(req: NextRequest): NextResponse | null {
   // Check if it looks like a server-side call
   const isServerSide = !origin && !referer;
   if (isServerSide) {
-    // Could be SSR or API route calling another API route
-    // This is generally safe, but log for monitoring
+    if (strict) {
+      // In strict mode, block requests without origin/referer
+      // This prevents curl/direct API calls but may break some legitimate use cases
+      console.warn('⚠️ CSRF Strict Mode: Blocked request without origin/referer');
+      return NextResponse.json(
+        { error: 'Origin or Referer header required', code: 'CSRF_BLOCKED' },
+        { status: 403 }
+      );
+    }
+    // Non-strict: Could be SSR or API route calling another API route
     console.log('ℹ️ Request without origin/referer (likely server-side)');
     return null;
   }
@@ -130,8 +145,15 @@ export function checkOrigin(req: NextRequest): NextResponse | null {
     }
   }
   
-  // No origin or referer - could be a direct API call
-  // In strict mode, we'd block this; for now, allow with warning
+  // No origin or referer - could be a direct API call (curl, etc.)
+  if (strict) {
+    console.warn('⚠️ CSRF Strict Mode: Blocked request without origin/referer headers');
+    return NextResponse.json(
+      { error: 'Origin or Referer header required', code: 'CSRF_BLOCKED' },
+      { status: 403 }
+    );
+  }
+  
   console.log('ℹ️ Request without origin or referer headers');
   return null;
 }
