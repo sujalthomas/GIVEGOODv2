@@ -7,8 +7,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createSSRClient } from '@/lib/supabase/server';
+import { requireAdminAuth } from '@/lib/auth/adminAuth';
 
 export async function GET(req: NextRequest) {
+  // SECURITY: Require admin authentication for full batch list
+  const authError = await requireAdminAuth();
+  if (authError) return authError;
+  
   try {
     const searchParams = req.nextUrl.searchParams;
     const batchId = searchParams.get('batchId');

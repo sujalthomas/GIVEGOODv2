@@ -18,6 +18,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerAdminClient } from '@/lib/supabase/serverAdminClient';
+import { requireAdminOrApiKey } from '@/lib/auth/adminAuth';
 import { anchorBatchToSolana, getExplorerUrl } from '@/lib/solana/anchor';
 import type { Tables } from '@/lib/types';
 
@@ -25,6 +26,10 @@ type AnchorBatch = Tables<'anchor_batches'>;
 
 export async function POST(req: NextRequest) {
   console.log('⛓️ === ANCHOR BATCH TO BLOCKCHAIN REQUEST ===');
+  
+  // SECURITY: Require admin authentication
+  const authError = await requireAdminOrApiKey(req);
+  if (authError) return authError;
   
   try {
     const body = await req.json();
@@ -219,6 +224,10 @@ export async function POST(req: NextRequest) {
  * GET endpoint to check if batch can be anchored
  */
 export async function GET(req: NextRequest) {
+  // SECURITY: Require admin authentication
+  const authError = await requireAdminOrApiKey(req);
+  if (authError) return authError;
+  
   try {
     const searchParams = req.nextUrl.searchParams;
     const batchId = searchParams.get('batchId');

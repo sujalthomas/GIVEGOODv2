@@ -141,15 +141,27 @@ export function verifyPaymentSignature(
 /**
  * Verify webhook signature
  * Razorpay sends webhooks with signature in headers
+ * 
+ * @param webhookBody - Raw request body as string
+ * @param signature - Signature from x-razorpay-signature header
+ * @param secret - Webhook secret (pass validated secret to avoid race conditions)
  */
 export function verifyWebhookSignature(
   webhookBody: string,
-  signature: string
+  signature: string,
+  secret?: string
 ): boolean {
   try {
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
+    // Use passed secret or fall back to env (for backward compatibility)
+    const webhookSecret = secret || process.env.RAZORPAY_WEBHOOK_SECRET;
+    
+    if (!webhookSecret) {
+      console.error('Webhook secret not provided');
+      return false;
+    }
+    
     const expectedSignature = crypto
-      .createHmac('sha256', secret)
+      .createHmac('sha256', webhookSecret)
       .update(webhookBody)
       .digest('hex');
 
