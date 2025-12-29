@@ -4,7 +4,13 @@
  * Allows checking the status of a donation by order_id.
  * Used by the success page to poll for payment confirmation.
  * 
- * Security: The order_id acts as a secret - only the donor knows it.
+ * SECURITY NOTE: Razorpay order IDs are not designed as secrets.
+ * TODO: Consider adding a cryptographically secure status_token to donations
+ * table for improved security. For now, we rely on:
+ * - Rate limiting to prevent enumeration attacks
+ * - The fact that only the donor receives the order_id from Razorpay checkout
+ * - Limited sensitive data exposure (no PII returned)
+ * 
  * We use the admin client to bypass RLS since this is a legitimate use case.
  */
 
@@ -13,7 +19,7 @@ import { createServerAdminClient } from '@/lib/supabase/serverAdminClient';
 import { applyRateLimit } from '@/lib/security/rateLimit';
 
 export async function GET(request: NextRequest) {
-  // Apply rate limiting
+  // Apply rate limiting to prevent order_id enumeration
   const rateLimited = applyRateLimit(request, 'verification');
   if (rateLimited) return rateLimited;
 
@@ -45,15 +51,32 @@ export async function GET(request: NextRequest) {
       .eq('order_id', orderId)
       .single();
 
-    if (error || !data) {
-      console.error('Error fetching donation status:', error);
+    // Handle Supabase errors with proper distinction
+    if (error) {
+      // PGRST116 = "No rows returned" - this is a "not found" case
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Donation not found' },
+          { status: 404 }
+        );
+      }
+      // Any other error is a database/server issue
+      console.error('Database error fetching donation status:', error);
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+    }
+
+    // Data check (shouldn't happen after error check, but defensive)
+    if (!data) {
       return NextResponse.json(
         { error: 'Donation not found' },
         { status: 404 }
       );
     }
 
-    // Return donation status (safe to expose - only donor knows order_id)
+    // Return donation status (limited data - no PII exposed)
     return NextResponse.json({
       id: data.id,
       status: data.status,

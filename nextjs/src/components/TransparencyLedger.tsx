@@ -4,6 +4,12 @@ import { motion } from 'framer-motion';
 import { Shield, Calendar, CheckCircle, TrendingUp, ExternalLink, Anchor, Copy, Check } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 
+// Helper to get Solana explorer URL based on network
+function getSolanaExplorerUrl(signature: string): string {
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+  return `https://solscan.io/tx/${signature}${network !== 'mainnet-beta' ? `?cluster=${network}` : ''}`;
+}
+
 interface Transaction {
   id: string;
   payment_id: string; // Full payment ID for copying
@@ -105,7 +111,7 @@ export default function TransparencyLedger() {
 
   const getRecipientName = (purpose: string | null) => {
     if (!purpose) return 'Give Good Club';
-    
+
     const recipients: { [key: string]: string } = {
       feeder_construction: 'Street Animal Feeders',
       medical_aid: 'Animal Medical Fund',
@@ -117,7 +123,7 @@ export default function TransparencyLedger() {
 
   const getCategoryLabel = (purpose: string | null) => {
     if (!purpose) return 'General';
-    
+
     const labels: { [key: string]: string } = {
       feeder_construction: 'Infrastructure',
       medical_aid: 'Healthcare',
@@ -326,7 +332,7 @@ export default function TransparencyLedger() {
                     <div className="flex items-center justify-center gap-1">
                       {txn.anchored && txn.txSignature ? (
                         <a
-                          href={`https://solscan.io/tx/${txn.txSignature}?cluster=devnet`}
+                          href={getSolanaExplorerUrl(txn.txSignature)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"

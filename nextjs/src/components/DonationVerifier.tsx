@@ -53,9 +53,10 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
 
   // Update searchValue when initialValue prop changes
   useEffect(() => {
-    if (initialValue && initialValue !== searchValue) {
+    if (initialValue) {
       setSearchValue(initialValue);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
 
   // Auto-verify when initialValue is available and autoVerify is true
@@ -84,7 +85,7 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
     try {
       // Determine if this is a payment/order ID or a donation UUID
       const isPaymentOrOrderId = searchTerm.startsWith('pay_') || searchTerm.startsWith('order_');
-      
+
       const response = await fetch('/api/batches/verify-proof', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -185,7 +186,7 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
           {result && (
             <div className="space-y-6">
               {/* Status Banner - Different states */}
-              
+
               {/* PENDING BATCH STATE */}
               {isPendingBatch && (
                 <div className="p-6 rounded-xl border-2 bg-amber-50 border-amber-300">
@@ -207,7 +208,7 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
                     <div className="flex items-start gap-2">
                       <Info className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
                       <p className="text-sm text-amber-800">
-                        <strong>What does this mean?</strong> We batch donations together before anchoring to the Solana blockchain to save costs. 
+                        <strong>What does this mean?</strong> We batch donations together before anchoring to the Solana blockchain to save costs.
                         Your donation is secure and will be cryptographically verified once the batch is processed.
                       </p>
                     </div>
@@ -267,41 +268,39 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
                     <div>
                       <span className="text-gray-500">Date:</span>
                       <span className="ml-2 font-bold text-gray-900">
-                        {result.donation.created_at 
+                        {result.donation.created_at
                           ? new Date(result.donation.created_at).toLocaleString('en-IN')
                           : 'Just now'}
                       </span>
                     </div>
                     <div>
                       <span className="text-gray-500">Blockchain Status:</span>
-                      <span className={`ml-2 font-bold ${
-                        result.donation.anchored ? 'text-green-700' : 
-                        result.donation.batched ? 'text-blue-700' : 'text-amber-600'
-                      }`}>
-                        {result.donation.anchored ? 'Confirmed ⛓️' : 
-                         result.donation.batched ? 'In Batch (Processing)' : 'Awaiting Batch'}
+                      <span className={`ml-2 font-bold ${result.donation.anchored ? 'text-green-700' :
+                          result.donation.batched ? 'text-blue-700' : 'text-amber-600'
+                        }`}>
+                        {result.donation.anchored ? 'Confirmed ⛓️' :
+                          result.donation.batched ? 'In Batch (Processing)' : 'Awaiting Batch'}
                       </span>
                     </div>
                     {result.donation.batched && (
                       <>
                         <div>
                           <span className="text-gray-500">Batch Status:</span>
-                          <span className={`ml-2 font-bold ${
-                            result.donation.batch_status === 'confirmed' ? 'text-green-700' :
-                            result.donation.batch_status === 'pending' ? 'text-yellow-700' :
-                            result.donation.batch_status === 'anchoring' ? 'text-blue-700' : 'text-gray-700'
-                          }`}>
+                          <span className={`ml-2 font-bold ${result.donation.batch_status === 'confirmed' ? 'text-green-700' :
+                              result.donation.batch_status === 'pending' ? 'text-yellow-700' :
+                                result.donation.batch_status === 'anchoring' ? 'text-blue-700' : 'text-gray-700'
+                            }`}>
                             {result.donation.batch_status === 'confirmed' ? 'Confirmed on Blockchain' :
-                             result.donation.batch_status === 'pending' ? 'Pending Anchor' :
-                             result.donation.batch_status === 'anchoring' ? 'Anchoring to Solana...' : 
-                             result.donation.batch_status || 'Unknown'}
+                              result.donation.batch_status === 'pending' ? 'Pending Anchor' :
+                                result.donation.batch_status === 'anchoring' ? 'Anchoring to Solana...' :
+                                  result.donation.batch_status || 'Unknown'}
                           </span>
                         </div>
                         <div>
                           <span className="text-gray-500">Payment ID:</span>
                           <code className="ml-2 text-xs bg-gray-100 px-2 py-1 rounded font-mono">
-                            {result.donation.payment_id.length > 20 
-                              ? result.donation.payment_id.substring(0, 20) + '...' 
+                            {result.donation.payment_id.length > 20
+                              ? result.donation.payment_id.substring(0, 20) + '...'
                               : result.donation.payment_id}
                           </code>
                         </div>

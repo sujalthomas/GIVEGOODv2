@@ -15,7 +15,7 @@ DROP CONSTRAINT IF EXISTS valid_phone;
 ALTER TABLE public.donations 
 ADD CONSTRAINT valid_phone CHECK (
     donor_phone IS NULL 
-    OR donor_phone ~ '^(\+)?[1-9][0-9]{1,14}$'
+    OR donor_phone ~ '^(\+)?[1-9][0-9]{0,14}$'
 );
 
 -- Also fix the email constraint if it has similar issues
@@ -39,5 +39,5 @@ ADD CONSTRAINT valid_pan CHECK (
 );
 
 COMMENT ON CONSTRAINT valid_phone ON public.donations IS 
-    'Validates phone in E.164 format: optional + followed by 2-15 digits starting with 1-9';
+    'Validates phone in E.164 format: optional + followed by 1-15 digits starting with 1-9';
 

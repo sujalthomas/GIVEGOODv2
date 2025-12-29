@@ -147,13 +147,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Defensive check: ensure donation ID was returned
+    if (!donation?.id) {
+      console.error('Donation created but no ID returned');
+      return NextResponse.json(
+        { error: 'Failed to create donation record' },
+        { status: 500 }
+      );
+    }
+
     // Return order details to frontend
     return NextResponse.json({
       success: true,
       orderId: razorpayOrder.id,
       amount: razorpayOrder.amount, // Amount in paise
       currency: razorpayOrder.currency,
-      donationId: donation?.id,
+      donationId: donation.id,
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
 

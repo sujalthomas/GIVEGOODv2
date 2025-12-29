@@ -3,9 +3,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { 
-  Heart, Wrench, MapPin, Sparkles, Droplets, Shield, 
-  Instagram, Mail, Users, PawPrint, ChevronDown, 
+import {
+  Heart, Wrench, MapPin, Sparkles, Droplets, Shield,
+  Instagram, Mail, Users, PawPrint, ChevronDown,
   ArrowRight, CheckCircle, Star, Leaf, HandHeart
 } from 'lucide-react';
 import VolunteerForm from '@/components/VolunteerForm';
@@ -128,7 +128,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-secondary-50 overflow-x-hidden">
       {/* Navigation */}
-      <motion.nav 
+      <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -187,9 +187,11 @@ export default function Home() {
             </div>
 
             {/* Mobile Menu Button */}
-              <button
+            <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="lg:hidden p-2 rounded-lg hover:bg-primary-50"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMenuOpen}
             >
               <div className="w-6 h-5 flex flex-col justify-between">
                 <motion.span
@@ -243,11 +245,11 @@ export default function Home() {
                     <button
                       onClick={() => { scrollToForm(); setIsMenuOpen(false); }}
                       className="flex-1 bg-secondary-600 text-white px-4 py-3 rounded-xl font-semibold"
-              >
-                Join Us
-              </button>
-            </div>
-          </div>
+                    >
+                      Join Us
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -255,7 +257,7 @@ export default function Home() {
       </motion.nav>
 
       {/* Hero Section */}
-      <section 
+      <section
         ref={heroRef}
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
       >
@@ -265,13 +267,13 @@ export default function Home() {
           <div className="absolute inset-0 paw-pattern opacity-40" />
           <FloatingPaws />
         </div>
-        
+
         {/* Decorative Blobs */}
         <div className="absolute top-20 -right-20 w-96 h-96 bg-primary-200/40 rounded-full blur-3xl" />
         <div className="absolute bottom-20 -left-20 w-80 h-80 bg-secondary-300/40 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-200/20 rounded-full blur-3xl" />
-        
-        <motion.div 
+
+        <motion.div
           style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24"
         >
@@ -284,9 +286,9 @@ export default function Home() {
               className="text-center lg:text-left"
             >
               {/* Badge */}
-          <motion.div
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-6 shadow-sm border border-primary-100"
               >
@@ -298,7 +300,7 @@ export default function Home() {
                 Feed with{' '}
                 <span className="relative inline-block">
                   <span className="text-gradient">love.</span>
-                  <motion.svg 
+                  <motion.svg
                     className="absolute -bottom-2 left-0 w-full"
                     viewBox="0 0 200 12"
                     initial={{ pathLength: 0 }}
@@ -316,28 +318,28 @@ export default function Home() {
                 </span>
                 <br />
                 <span className="font-light italic text-secondary-600">Build with hope.</span>
-            </h1>
+              </h1>
 
               <p className="text-lg sm:text-xl text-secondary-600 mb-8 max-w-xl leading-relaxed font-body">
-                We&apos;re a community of animal lovers building DIY feeders for street dogs — 
+                We&apos;re a community of animal lovers building DIY feeders for street dogs —
                 creating safe spaces where they&apos;re cared for, fed, and loved.
-            </p>
+              </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <motion.a
-                href="/donate"
+                <motion.a
+                  href="/donate"
                   whileHover={{ scale: 1.05, boxShadow: "0 20px 40px -15px rgba(224, 120, 86, 0.4)" }}
-                whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.95 }}
                   className="group bg-primary-600 text-white px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-primary-700 transition-all shadow-xl inline-flex items-center justify-center gap-3"
-              >
+                >
                   <Heart className="w-5 h-5 group-hover:scale-110 transition-transform" />
                   Donate Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.a>
-              <motion.button
-                onClick={scrollToForm}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                </motion.a>
+                <motion.button
+                  onClick={scrollToForm}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="group bg-white text-secondary-700 px-8 py-4 rounded-2xl text-lg font-semibold hover:bg-secondary-50 transition-all shadow-lg border-2 border-secondary-200 inline-flex items-center justify-center gap-3"
                 >
                   <HandHeart className="w-5 h-5" />
@@ -385,7 +387,7 @@ export default function Home() {
                     priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-primary-900/40 via-transparent to-transparent" />
-                  
+
                   {/* Floating Card */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -464,7 +466,7 @@ export default function Home() {
       {/* Impact Stats Section */}
       <section id="impact" className="py-24 bg-white relative overflow-hidden grain">
         <div className="absolute inset-0 paw-pattern opacity-30" />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <span className="text-primary-600 font-semibold text-sm uppercase tracking-wider">Our Impact</span>
@@ -494,7 +496,7 @@ export default function Home() {
                 </div>
                 <div className="font-display text-5xl font-bold text-secondary-900 mb-2">
                   <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-            </div>
+                </div>
                 <div className="font-semibold text-secondary-800 text-lg mb-1">{stat.label}</div>
                 <div className="text-secondary-500 text-sm">{stat.description}</div>
 
@@ -515,12 +517,12 @@ export default function Home() {
               <div className="relative">
                 {/* Main Image */}
                 <div className="relative rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
-                <Image
-                  src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&q=80"
+                  <Image
+                    src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&q=80"
                     alt="Volunteer feeding street dogs"
-                  fill
-                  className="object-cover"
-                />
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
                 {/* Floating accent card */}
@@ -546,7 +548,7 @@ export default function Home() {
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-accent-200/40 rounded-full blur-2xl -z-10" />
               </div>
             </motion.div>
-            
+
             {/* Content Side */}
             <motion.div {...fadeInUp} className="order-1 lg:order-2">
               <span className="text-primary-600 font-semibold text-sm uppercase tracking-wider">Our Journey</span>
@@ -557,20 +559,20 @@ export default function Home() {
 
               <div className="space-y-6 text-lg text-secondary-600 leading-relaxed">
                 <p>
-                  It started with a simple commitment — <span className="text-primary-600 font-semibold">5% of our salary for animals</span>. 
+                  It started with a simple commitment — <span className="text-primary-600 font-semibold">5% of our salary for animals</span>.
                   What began as personal giving transformed into something bigger when we realized we could do more together.
                 </p>
                 <p>
-                  We funded our first feeders, built them by hand with PVC pipes, and placed them around our neighborhoods. 
+                  We funded our first feeders, built them by hand with PVC pipes, and placed them around our neighborhoods.
                   The response was overwhelming. People wanted to help. Communities rallied. Dogs were safer, better fed, and more welcomed.
                 </p>
-                
+
                 <blockquote className="border-l-4 border-primary-500 pl-6 py-4 bg-primary-50/50 rounded-r-xl italic text-primary-800 font-display text-xl">
                   &ldquo;Born out of faith, love, and street experiences with loyal dogs who ask for nothing but kindness.&rdquo;
                 </blockquote>
 
                 <p>
-                  Today, Give Good Club is a growing movement of volunteers across Bangalore, building feeders, 
+                  Today, Give Good Club is a growing movement of volunteers across Bangalore, building feeders,
                   refilling bowls, and creating a kinder city — one street corner at a time.
                 </p>
               </div>
@@ -647,14 +649,14 @@ export default function Home() {
                 <div className="relative bg-secondary-800/50 backdrop-blur-sm rounded-3xl overflow-hidden border border-secondary-700/50 hover:border-primary-500/50 transition-all duration-500">
                   {/* Image */}
                   <div className="relative h-56 overflow-hidden">
-                  <Image
-                    src={step.image}
-                    alt={step.title}
-                    fill
+                    <Image
+                      src={step.image}
+                      alt={step.title}
+                      fill
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
-                  />
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-secondary-900 via-secondary-900/50 to-transparent" />
-                    
+
                     {/* Step Number */}
                     <div className="absolute top-6 left-6 font-display text-6xl font-bold text-white/10">
                       {step.step}
@@ -668,7 +670,7 @@ export default function Home() {
                         <step.icon className="w-7 h-7 text-primary-400" />
                       </div>
                       <h3 className="font-display text-2xl font-bold text-white">{step.title}</h3>
-                </div>
+                    </div>
                     <p className="text-secondary-300 leading-relaxed">{step.description}</p>
                   </div>
                 </div>
@@ -688,7 +690,7 @@ export default function Home() {
       {/* Why Feeders Matter Section */}
       <section className="py-24 bg-white relative overflow-hidden">
         <div className="absolute inset-0 paw-pattern opacity-20" />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <span className="text-secondary-600 font-semibold text-sm uppercase tracking-wider">The Impact</span>
@@ -727,7 +729,7 @@ export default function Home() {
       {/* Join the Movement Section */}
       <section id="join" className="py-24 bg-gradient-to-b from-secondary-50 via-primary-50/30 to-secondary-50 relative overflow-hidden">
         <FloatingPaws />
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <span className="text-primary-600 font-semibold text-sm uppercase tracking-wider">Get Involved</span>
@@ -747,7 +749,7 @@ export default function Home() {
 
             <motion.div {...fadeInUp} className="space-y-6">
               <h3 className="font-display text-2xl font-bold text-secondary-900">What our volunteers say</h3>
-              
+
               {[
                 {
                   quote: "This is the kind of kindness our streets need. I never thought building a feeder could bring so much joy.",
@@ -806,18 +808,18 @@ export default function Home() {
                     <h4 className="font-display text-xl font-bold">Can&apos;t join yet?</h4>
                   </div>
                   <p className="text-primary-100 mb-6">
-                  Support us financially! Every ₹500 builds one complete feeder that can serve dozens of dogs for years.
-                </p>
+                    Support us financially! Every ₹500 builds one complete feeder that can serve dozens of dogs for years.
+                  </p>
                   <motion.a
-                  href="/donate"
+                    href="/donate"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-xl font-semibold hover:bg-primary-50 transition-colors"
-                >
+                  >
                     <Heart className="w-5 h-5" />
                     Donate Now
                   </motion.a>
-              </div>
+                </div>
               </motion.div>
             </motion.div>
           </div>
@@ -959,7 +961,7 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            
+
             {/* Quick Links */}
             <div>
               <h4 className="font-display font-semibold text-lg mb-6">Get Involved</h4>
@@ -979,7 +981,7 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            
+
             {/* About */}
             <div>
               <h4 className="font-display font-semibold text-lg mb-6">About</h4>
@@ -999,7 +1001,7 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            
+
             {/* Newsletter/CTA */}
             <div>
               <h4 className="font-display font-semibold text-lg mb-6">Stay Updated</h4>
@@ -1019,7 +1021,7 @@ export default function Home() {
               </motion.a>
             </div>
           </div>
-          
+
           {/* Bottom Bar */}
           <div className="border-t border-secondary-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-secondary-500 text-sm">

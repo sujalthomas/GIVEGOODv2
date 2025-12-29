@@ -8,7 +8,7 @@ interface FormData {
   name: string;
   area: string;
   helpType: string[];
-  email?: string;
+  email: string;
 }
 
 export default function VolunteerForm() {
@@ -41,11 +41,11 @@ export default function VolunteerForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
-      
+
       const { error: insertError } = await supabase
         .from('volunteers')
         .insert({
@@ -60,7 +60,7 @@ export default function VolunteerForm() {
       }
 
       setSubmitted(true);
-      
+
       // Reset form after 4 seconds
       setTimeout(() => {
         setSubmitted(false);
