@@ -8,7 +8,7 @@ interface FormData {
   name: string;
   area: string;
   helpType: string[];
-  email?: string;
+  email: string;
 }
 
 export default function VolunteerForm() {
@@ -41,17 +41,17 @@ export default function VolunteerForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
-      
+
       const { error: insertError } = await supabase
         .from('volunteers')
         .insert({
           name: formData.name,
           area: formData.area,
-          email: formData.email || null,
+          email: formData.email,
           help_types: formData.helpType
         });
 
@@ -60,7 +60,7 @@ export default function VolunteerForm() {
       }
 
       setSubmitted(true);
-      
+
       // Reset form after 4 seconds
       setTimeout(() => {
         setSubmitted(false);
@@ -159,17 +159,18 @@ export default function VolunteerForm() {
           value={formData.area}
           onChange={(e) => setFormData({ ...formData, area: e.target.value })}
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-          placeholder="Hauz Khas, Delhi"
+          placeholder="Koramangala, Bangalore"
         />
       </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-          Email (optional)
+          Email *
         </label>
         <input
           type="email"
           id="email"
+          required
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
@@ -203,7 +204,7 @@ export default function VolunteerForm() {
 
       <button
         type="submit"
-        disabled={loading || !formData.name || !formData.area || formData.helpType.length === 0}
+        disabled={loading || !formData.name || !formData.area || !formData.email || formData.helpType.length === 0}
         className="w-full bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
       >
         {loading ? (

@@ -7,8 +7,8 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
   title: "Give Good Club | Feed Street Animals with Love",
-  description: "A grassroots volunteer initiative building DIY PVC-pipe dog feeders for street animals in Delhi/NCR. Join us in spreading kindness, one feeder at a time.",
-  keywords: "street dogs, animal welfare, Delhi, NGO, volunteer, community, dog feeders, animal rescue",
+  description: "A grassroots volunteer initiative building DIY PVC-pipe dog feeders for street animals in Bangalore. Join us in spreading kindness, one feeder at a time.",
+  keywords: "street dogs, animal welfare, Bangalore, NGO, volunteer, community, dog feeders, animal rescue, Karnataka",
 };
 
 export default function RootLayout({

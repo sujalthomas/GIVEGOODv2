@@ -17,6 +17,35 @@ interface DonationFormData {
   anonymous: boolean;
 }
 
+// Format phone number to display format (with +91 prefix)
+function formatPhoneDisplay(value: string): string {
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, '');
+
+  // Remove leading 91 if present (we'll add +91 prefix in display)
+  const cleanDigits = digits.startsWith('91') && digits.length > 10
+    ? digits.slice(2)
+    : digits;
+
+  // Limit to 10 digits
+  const limitedDigits = cleanDigits.slice(0, 10);
+
+  // Format as: XXXXX XXXXX (5-5 pattern)
+  if (limitedDigits.length > 5) {
+    return `${limitedDigits.slice(0, 5)} ${limitedDigits.slice(5)}`;
+  }
+  return limitedDigits;
+}
+
+// Get raw phone number for API submission
+function getPhoneForSubmission(displayValue: string): string | undefined {
+  const digits = displayValue.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+  return undefined;
+}
+
 export default function DonatePage() {
   const router = useRouter();
   const { isLoaded: razorpayLoaded } = useRazorpay();
@@ -87,6 +116,9 @@ export default function DonatePage() {
         }
       }
 
+      // Get properly formatted phone number
+      const phoneForSubmission = getPhoneForSubmission(formData.donorPhone);
+
       // Create order
       const orderResponse = await fetch('/api/donations/create-order', {
         method: 'POST',
@@ -95,7 +127,7 @@ export default function DonatePage() {
           amount: selectedAmount,
           donorName: formData.anonymous ? undefined : formData.donorName,
           donorEmail: formData.anonymous ? undefined : formData.donorEmail,
-          donorPhone: formData.donorPhone || undefined,
+          donorPhone: phoneForSubmission,
           purpose: formData.purpose,
           dedicationMessage: formData.dedicationMessage || undefined,
           anonymous: formData.anonymous,
@@ -131,7 +163,7 @@ export default function DonatePage() {
         prefill: {
           name: formData.anonymous ? undefined : formData.donorName,
           email: formData.anonymous ? undefined : formData.donorEmail,
-          contact: formData.donorPhone || undefined,
+          contact: phoneForSubmission,
         },
         notes: {
           purpose: formData.purpose,
@@ -202,18 +234,17 @@ export default function DonatePage() {
             className="bg-white rounded-2xl shadow-lg p-8"
           >
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Choose Your Impact</h2>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               {presetAmounts.map((preset) => (
                 <button
                   key={preset.value}
                   type="button"
                   onClick={() => handleAmountSelect(preset.value)}
-                  className={`p-4 rounded-xl border-2 transition-all transform hover:scale-105 ${
-                    formData.amount === preset.value && !formData.customAmount
+                  className={`p-4 rounded-xl border-2 transition-all transform hover:scale-105 ${formData.amount === preset.value && !formData.customAmount
                       ? 'border-primary-600 bg-primary-50'
                       : 'border-gray-200 hover:border-primary-300'
-                  }`}
+                    }`}
                 >
                   <div className="text-2xl font-bold text-gray-900">{preset.label}</div>
                   <div className="text-sm text-gray-600 mt-1">{preset.desc}</div>
@@ -250,7 +281,7 @@ export default function DonatePage() {
             className="bg-white rounded-2xl shadow-lg p-8"
           >
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Where should we use it?</h2>
-            
+
             <div className="grid md:grid-cols-3 gap-4">
               {purposes.map((purpose) => {
                 const Icon = purpose.icon;
@@ -259,11 +290,10 @@ export default function DonatePage() {
                     key={purpose.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, purpose: purpose.value })}
-                    className={`p-6 rounded-xl border-2 transition-all text-left ${
-                      formData.purpose === purpose.value
+                    className={`p-6 rounded-xl border-2 transition-all text-left ${formData.purpose === purpose.value
                         ? 'border-primary-600 bg-primary-50'
                         : 'border-gray-200 hover:border-primary-300'
-                    }`}
+                      }`}
                   >
                     <div className={`w-12 h-12 ${purpose.bg} rounded-full flex items-center justify-center mb-3`}>
                       <Icon className={`w-6 h-6 ${purpose.color}`} />
@@ -339,17 +369,41 @@ export default function DonatePage() {
                     <label htmlFor="donorPhone" className="block text-sm font-medium text-gray-700 mb-2">
                       Phone Number (Optional)
                     </label>
-                    <input
-                      type="tel"
-                      id="donorPhone"
-                      value={formData.donorPhone}
-                      onChange={(e) => setFormData({ ...formData, donorPhone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="9876543210 or +91 9876543210"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Enter 10-digit Indian mobile number (spaces okay)
-                    </p>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium select-none">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        id="donorPhone"
+                        value={formData.donorPhone}
+                        onChange={(e) => {
+                          const formatted = formatPhoneDisplay(e.target.value);
+                          setFormData({ ...formData, donorPhone: formatted });
+                        }}
+                        className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="98765 43210"
+                        maxLength={11} // 10 digits + 1 space
+                      />
+                    </div>
+                    {(() => {
+                      const digits = formData.donorPhone.replace(/\D/g, '');
+                      if (digits.length > 0 && digits.length < 10) {
+                        return (
+                          <p className="text-xs text-amber-600 mt-1">
+                            Please enter all 10 digits ({digits.length}/10)
+                          </p>
+                        );
+                      }
+                      if (digits.length === 10) {
+                        return (
+                          <p className="text-xs text-green-600 mt-1">
+                            ✓ Valid phone number
+                          </p>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 </motion.div>
               )}

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Confetti from '@/components/Confetti';
 import DonationVerifier from '@/components/DonationVerifier';
-import { createSPASassClient } from '@/lib/supabase/client';
 
 interface DonationStatus {
   status: 'pending' | 'completed' | 'failed';
@@ -23,7 +22,7 @@ function DonationSuccessContent() {
   const router = useRouter();
   const orderId = searchParams.get('orderId');
   const paymentId = searchParams.get('paymentId');
-  
+
   const [showConfetti, setShowConfetti] = useState(false);
   const [donationStatus, setDonationStatus] = useState<DonationStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,35 +38,39 @@ function DonationSuccessContent() {
 
     const checkPaymentStatus = async () => {
       try {
-        const supabaseClient = await createSPASassClient();
-        const supabase = supabaseClient.getSupabaseClient();
+        // Use API route to check donation status (bypasses RLS)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-        const { data, error } = await supabase
-          .from('donations')
-          .select('id, status, amount_inr, payment_id, razorpay_fee_inr, tax_amount_inr, net_amount_inr')
-          .eq('order_id', orderId)
-          .single();
+        const response = await fetch(`/api/donations/status?orderId=${encodeURIComponent(orderId)}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
-        if (error) {
-          console.error('Error fetching donation:', error);
-          return;
+        if (!response.ok) {
+          console.error('Error fetching donation status:', response.status);
+          return false;
         }
 
-        if (data) {
-          // Type assertion: The columns exist in DB but TypeScript types are stale
-          const donation = data as unknown as DonationStatus;
-          setDonationStatus(donation);
+        const donation = await response.json() as DonationStatus;
 
-          if (donation.status === 'completed') {
-            setIsLoading(false);
-            setShowConfetti(true);
-            // Stop polling
-            return true;
-          } else if (donation.status === 'failed') {
-            setIsLoading(false);
-            router.push('/donate/failure?reason=payment_failed');
-            return true;
-          }
+        // Basic validation that we got expected fields
+        if (!donation.status || typeof donation.amount_inr !== 'number') {
+          console.error('Unexpected donation status response:', donation);
+          return false;
+        }
+
+        setDonationStatus(donation);
+
+        if (donation.status === 'completed') {
+          setIsLoading(false);
+          setShowConfetti(true);
+          // Stop polling
+          return true;
+        } else if (donation.status === 'failed') {
+          setIsLoading(false);
+          router.push('/donate/failure?reason=payment_failed');
+          return true;
         }
 
         return false;
@@ -84,14 +87,14 @@ function DonationSuccessContent() {
     const pollInterval = setInterval(async () => {
       setPollCount((prev) => {
         const newCount = prev + 1;
-        
+
         if (newCount >= maxPollAttempts) {
           // Timeout - stop polling
           setIsLoading(false);
           clearInterval(pollInterval);
           return prev;
         }
-        
+
         return newCount;
       });
 
@@ -149,7 +152,7 @@ function DonationSuccessContent() {
           </div>
           {pollCount > 15 && (
             <p className="text-sm text-gray-500 mt-4">
-              Taking longer than usual? Don&apos;t worry, your payment is safe. 
+              Taking longer than usual? Don&apos;t worry, your payment is safe.
               <Link href="/app" className="text-primary-600 hover:underline ml-1">
                 Check your donations
               </Link>
@@ -198,7 +201,7 @@ function DonationSuccessContent() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary-50 to-white py-12 px-4 sm:px-6 lg:px-8">
       {showConfetti && <Confetti active={true} />}
-      
+
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -250,20 +253,20 @@ function DonationSuccessContent() {
               <p className="text-sm text-gray-600 mb-4">
                 We believe in complete transparency. Here&apos;s exactly where your donation goes:
               </p>
-              
+
               <div className="space-y-2 bg-white rounded-lg p-4 text-sm">
                 <div className="flex justify-between items-center pb-2 border-b border-gray-200">
                   <span className="text-gray-700">Your generous donation:</span>
                   <span className="font-bold text-gray-900">₹{amount.toLocaleString()}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center text-gray-600">
                   <span className="flex items-center">
                     <span className="text-xs mr-1">−</span> Payment processing fee:
                   </span>
                   <span>₹{donationStatus.razorpay_fee_inr.toFixed(2)}</span>
                 </div>
-                
+
                 {donationStatus.tax_amount_inr && donationStatus.tax_amount_inr > 0 && (
                   <div className="flex justify-between items-center text-gray-600">
                     <span className="flex items-center">
@@ -272,7 +275,7 @@ function DonationSuccessContent() {
                     <span>₹{donationStatus.tax_amount_inr.toFixed(2)}</span>
                   </div>
                 )}
-                
+
                 <div className="flex justify-between items-center pt-2 border-t-2 border-green-200">
                   <span className="font-bold text-green-700">Amount to Give Good Club:</span>
                   <span className="font-bold text-green-700 text-lg">
@@ -280,7 +283,7 @@ function DonationSuccessContent() {
                   </span>
                 </div>
               </div>
-              
+
               <p className="text-xs text-gray-500 mt-3 text-center">
                 💚 100% of the net amount goes directly to helping street animals
               </p>
@@ -344,7 +347,10 @@ function DonationSuccessContent() {
             </p>
             <div className="bg-white rounded-xl p-4">
               <Suspense fallback={<div className="text-center text-gray-500">Loading verifier...</div>}>
-                <DonationVerifier />
+                <DonationVerifier
+                  initialValue={donationId || ''}
+                  autoVerify={!!donationId}
+                />
               </Suspense>
             </div>
             <div className="mt-4 text-center">
