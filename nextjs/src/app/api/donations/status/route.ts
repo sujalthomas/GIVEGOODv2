@@ -14,7 +14,7 @@ import { applyRateLimit } from '@/lib/security/rateLimit';
 
 export async function GET(request: NextRequest) {
   // Apply rate limiting
-  const rateLimited = applyRateLimit(request, 'api');
+  const rateLimited = applyRateLimit(request, 'verification');
   if (rateLimited) return rateLimited;
 
   const searchParams = request.nextUrl.searchParams;
