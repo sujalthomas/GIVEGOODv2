@@ -78,7 +78,7 @@ export default function TransparencyLedger() {
       const txns: Transaction[] = donationData.map((d) => ({
         id: d.id,
         payment_id: d.payment_id || '', // Full payment ID for copying
-        hash: (d.payment_id || '').slice(0, 10), // Truncated for display
+        hash: d.payment_id ? d.payment_id.slice(0, 10) : 'N/A', // Truncated for display
         date: new Date(d.created_at).toISOString().split('T')[0],
         recipient: getRecipientName(d.purpose),
         category: getCategoryLabel(d.purpose),

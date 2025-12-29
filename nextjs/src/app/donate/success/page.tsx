@@ -47,6 +47,13 @@ function DonationSuccessContent() {
         }
 
         const donation = await response.json() as DonationStatus;
+
+        // Basic validation that we got expected fields
+        if (!donation.status || typeof donation.amount_inr !== 'number') {
+          console.error('Unexpected donation status response:', donation);
+          return false;
+        }
+
         setDonationStatus(donation);
 
         if (donation.status === 'completed') {

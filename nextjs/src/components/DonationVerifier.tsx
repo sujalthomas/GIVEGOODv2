@@ -9,7 +9,7 @@
  * This provides cryptographic proof of transparency.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,19 +59,8 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialValue]);
 
-  // Auto-verify when initialValue is available and autoVerify is true
-  useEffect(() => {
-    if (initialValue && autoVerify && !hasAutoVerified && !loading) {
-      setHasAutoVerified(true);
-      // Small delay to let the component render first
-      const timer = setTimeout(() => {
-        handleVerifyWithValue(initialValue);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [initialValue, autoVerify, hasAutoVerified, loading]);
-
-  const handleVerifyWithValue = async (value: string) => {
+  // Memoized verification handler to avoid stale closures
+  const handleVerifyWithValue = useCallback(async (value: string) => {
     const searchTerm = value.trim();
     if (!searchTerm) {
       setError('Please enter a donation ID or payment ID');
@@ -118,7 +107,19 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Auto-verify when initialValue is available and autoVerify is true
+  useEffect(() => {
+    if (initialValue && autoVerify && !hasAutoVerified && !loading) {
+      setHasAutoVerified(true);
+      // Small delay to let the component render first
+      const timer = setTimeout(() => {
+        handleVerifyWithValue(initialValue);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [initialValue, autoVerify, hasAutoVerified, loading, handleVerifyWithValue]);
 
   // Wrapper for button/enter key that uses current searchValue
   const handleVerify = () => handleVerifyWithValue(searchValue);
@@ -276,7 +277,7 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
                     <div>
                       <span className="text-gray-500">Blockchain Status:</span>
                       <span className={`ml-2 font-bold ${result.donation.anchored ? 'text-green-700' :
-                          result.donation.batched ? 'text-blue-700' : 'text-amber-600'
+                        result.donation.batched ? 'text-blue-700' : 'text-amber-600'
                         }`}>
                         {result.donation.anchored ? 'Confirmed ⛓️' :
                           result.donation.batched ? 'In Batch (Processing)' : 'Awaiting Batch'}
@@ -287,8 +288,8 @@ export default function DonationVerifier({ initialValue = '', autoVerify = false
                         <div>
                           <span className="text-gray-500">Batch Status:</span>
                           <span className={`ml-2 font-bold ${result.donation.batch_status === 'confirmed' ? 'text-green-700' :
-                              result.donation.batch_status === 'pending' ? 'text-yellow-700' :
-                                result.donation.batch_status === 'anchoring' ? 'text-blue-700' : 'text-gray-700'
+                            result.donation.batch_status === 'pending' ? 'text-yellow-700' :
+                              result.donation.batch_status === 'anchoring' ? 'text-blue-700' : 'text-gray-700'
                             }`}>
                             {result.donation.batch_status === 'confirmed' ? 'Confirmed on Blockchain' :
                               result.donation.batch_status === 'pending' ? 'Pending Anchor' :

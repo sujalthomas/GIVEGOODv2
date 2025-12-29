@@ -51,7 +51,7 @@ export default function VolunteerForm() {
         .insert({
           name: formData.name,
           area: formData.area,
-          email: formData.email || null,
+          email: formData.email,
           help_types: formData.helpType
         });
 
