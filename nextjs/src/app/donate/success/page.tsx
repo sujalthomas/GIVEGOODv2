@@ -39,7 +39,13 @@ function DonationSuccessContent() {
     const checkPaymentStatus = async () => {
       try {
         // Use API route to check donation status (bypasses RLS)
-        const response = await fetch(`/api/donations/status?orderId=${encodeURIComponent(orderId)}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const response = await fetch(`/api/donations/status?orderId=${encodeURIComponent(orderId)}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           console.error('Error fetching donation status:', response.status);
