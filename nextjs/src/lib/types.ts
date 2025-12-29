@@ -96,7 +96,7 @@ export type Database = {
           donor_phone: string | null
           id: string
           internal_tags: string[] | null
-          ip_address: unknown | null
+          ip_address: unknown
           merkle_leaf_hash: string | null
           merkle_leaf_index: number | null
           merkle_proof: Json | null
@@ -137,7 +137,7 @@ export type Database = {
           donor_phone?: string | null
           id?: string
           internal_tags?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           merkle_leaf_hash?: string | null
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
@@ -178,7 +178,7 @@ export type Database = {
           donor_phone?: string | null
           id?: string
           internal_tags?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           merkle_leaf_hash?: string | null
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
@@ -207,6 +207,171 @@ export type Database = {
             columns: ["anchor_batch_id"]
             isOneToOne: false
             referencedRelation: "anchor_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feeder_refills: {
+        Row: {
+          created_at: string
+          feeder_condition: string | null
+          feeder_id: string
+          food_quantity_kg: number
+          food_type: string | null
+          id: string
+          notes: string | null
+          photo_url: string | null
+          refill_date: string
+          refilled_by: string
+          updated_at: string
+          verified: boolean | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          feeder_condition?: string | null
+          feeder_id: string
+          food_quantity_kg: number
+          food_type?: string | null
+          id?: string
+          notes?: string | null
+          photo_url?: string | null
+          refill_date?: string
+          refilled_by: string
+          updated_at?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          feeder_condition?: string | null
+          feeder_id?: string
+          food_quantity_kg?: number
+          food_type?: string | null
+          id?: string
+          notes?: string | null
+          photo_url?: string | null
+          refill_date?: string
+          refilled_by?: string
+          updated_at?: string
+          verified?: boolean | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feeder_refills_feeder_id_fkey"
+            columns: ["feeder_id"]
+            isOneToOne: false
+            referencedRelation: "feeders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feeder_refills_feeder_id_fkey"
+            columns: ["feeder_id"]
+            isOneToOne: false
+            referencedRelation: "feeders_with_volunteers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feeder_refills_refilled_by_fkey"
+            columns: ["refilled_by"]
+            isOneToOne: false
+            referencedRelation: "volunteers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feeders: {
+        Row: {
+          additional_photos: Json | null
+          area_name: string | null
+          capacity_kg: number | null
+          created_at: string
+          feeder_type: string | null
+          id: string
+          installation_date: string | null
+          landmark: string | null
+          last_refilled_at: string | null
+          latitude: number
+          location_name: string
+          longitude: number
+          metadata: Json | null
+          next_refill_due: string | null
+          notes: string | null
+          photo_url: string | null
+          pincode: string
+          refill_frequency_days: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_by: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          additional_photos?: Json | null
+          area_name?: string | null
+          capacity_kg?: number | null
+          created_at?: string
+          feeder_type?: string | null
+          id?: string
+          installation_date?: string | null
+          landmark?: string | null
+          last_refilled_at?: string | null
+          latitude: number
+          location_name: string
+          longitude: number
+          metadata?: Json | null
+          next_refill_due?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          pincode: string
+          refill_frequency_days?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          additional_photos?: Json | null
+          area_name?: string | null
+          capacity_kg?: number | null
+          created_at?: string
+          feeder_type?: string | null
+          id?: string
+          installation_date?: string | null
+          landmark?: string | null
+          last_refilled_at?: string | null
+          latitude?: number
+          location_name?: string
+          longitude?: number
+          metadata?: Json | null
+          next_refill_due?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          pincode?: string
+          refill_frequency_days?: number | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_by?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feeders_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "volunteers"
             referencedColumns: ["id"]
           },
         ]
@@ -244,41 +409,168 @@ export type Database = {
         }
         Relationships: []
       }
+      volunteer_feeders: {
+        Row: {
+          assigned_at: string
+          feeder_id: string
+          id: string
+          is_primary: boolean | null
+          role: string
+          volunteer_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          feeder_id: string
+          id?: string
+          is_primary?: boolean | null
+          role?: string
+          volunteer_id: string
+        }
+        Update: {
+          assigned_at?: string
+          feeder_id?: string
+          id?: string
+          is_primary?: boolean | null
+          role?: string
+          volunteer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_feeders_feeder_id_fkey"
+            columns: ["feeder_id"]
+            isOneToOne: false
+            referencedRelation: "feeders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_feeders_feeder_id_fkey"
+            columns: ["feeder_id"]
+            isOneToOne: false
+            referencedRelation: "feeders_with_volunteers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_feeders_volunteer_id_fkey"
+            columns: ["volunteer_id"]
+            isOneToOne: false
+            referencedRelation: "volunteers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       volunteers: {
         Row: {
           area: string
+          area_name: string | null
+          city: string | null
           created_at: string
           email: string | null
           help_types: string[]
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
+          pincode: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
           updated_at: string
         }
         Insert: {
           area: string
+          area_name?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           help_types: string[]
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
+          pincode?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           updated_at?: string
         }
         Update: {
           area?: string
+          area_name?: string | null
+          city?: string | null
           created_at?: string
           email?: string | null
           help_types?: string[]
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
+          pincode?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           updated_at?: string
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      feeders_with_volunteers: {
+        Row: {
+          additional_photos: Json | null
+          area_name: string | null
+          capacity_kg: number | null
+          created_at: string | null
+          feeder_type: string | null
+          id: string | null
+          installation_date: string | null
+          landmark: string | null
+          last_refilled_at: string | null
+          latitude: number | null
+          location_name: string | null
+          longitude: number | null
+          metadata: Json | null
+          next_refill_due: string | null
+          notes: string | null
+          photo_url: string | null
+          pincode: string | null
+          refill_frequency_days: number | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_by: string | null
+          tags: string[] | null
+          updated_at: string | null
+          volunteer_count: number | null
+          volunteer_ids: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feeders_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "volunteers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      get_area_stats: {
+        Args: { p_pincode?: string }
+        Returns: {
+          active_feeder_count: number
+          area_name: string
+          avg_coverage_percent: number
+          feeder_count: number
+          pincode: string
+          total_refills_30d: number
+          volunteer_count: number
+        }[]
+      }
       get_donation_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -287,6 +579,18 @@ export type Database = {
           pending_donations: number
           total_amount: number
           total_donations: number
+        }[]
+      }
+      get_feeders_needing_refill: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          area_name: string
+          days_overdue: number
+          id: string
+          last_refilled_at: string
+          location_name: string
+          next_refill_due: string
+          pincode: string
         }[]
       }
       get_unanchored_donations: {
@@ -298,6 +602,7 @@ export type Database = {
           payment_id: string
         }[]
       }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

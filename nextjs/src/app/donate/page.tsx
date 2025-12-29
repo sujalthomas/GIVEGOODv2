@@ -17,6 +17,35 @@ interface DonationFormData {
   anonymous: boolean;
 }
 
+// Format phone number to display format (with +91 prefix)
+function formatPhoneDisplay(value: string): string {
+  // Remove all non-digits
+  const digits = value.replace(/\D/g, '');
+  
+  // Remove leading 91 if present (we'll add +91 prefix in display)
+  const cleanDigits = digits.startsWith('91') && digits.length > 10 
+    ? digits.slice(2) 
+    : digits;
+  
+  // Limit to 10 digits
+  const limitedDigits = cleanDigits.slice(0, 10);
+  
+  // Format as: XXXXX XXXXX (5-5 pattern)
+  if (limitedDigits.length > 5) {
+    return `${limitedDigits.slice(0, 5)} ${limitedDigits.slice(5)}`;
+  }
+  return limitedDigits;
+}
+
+// Get raw phone number for API submission
+function getPhoneForSubmission(displayValue: string): string | undefined {
+  const digits = displayValue.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+  return undefined;
+}
+
 export default function DonatePage() {
   const router = useRouter();
   const { isLoaded: razorpayLoaded } = useRazorpay();
@@ -87,6 +116,9 @@ export default function DonatePage() {
         }
       }
 
+      // Get properly formatted phone number
+      const phoneForSubmission = getPhoneForSubmission(formData.donorPhone);
+
       // Create order
       const orderResponse = await fetch('/api/donations/create-order', {
         method: 'POST',
@@ -95,7 +127,7 @@ export default function DonatePage() {
           amount: selectedAmount,
           donorName: formData.anonymous ? undefined : formData.donorName,
           donorEmail: formData.anonymous ? undefined : formData.donorEmail,
-          donorPhone: formData.donorPhone || undefined,
+          donorPhone: phoneForSubmission,
           purpose: formData.purpose,
           dedicationMessage: formData.dedicationMessage || undefined,
           anonymous: formData.anonymous,
@@ -131,7 +163,7 @@ export default function DonatePage() {
         prefill: {
           name: formData.anonymous ? undefined : formData.donorName,
           email: formData.anonymous ? undefined : formData.donorEmail,
-          contact: formData.donorPhone || undefined,
+          contact: phoneForSubmission,
         },
         notes: {
           purpose: formData.purpose,
@@ -339,17 +371,33 @@ export default function DonatePage() {
                     <label htmlFor="donorPhone" className="block text-sm font-medium text-gray-700 mb-2">
                       Phone Number (Optional)
                     </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium select-none">
+                        +91
+                      </span>
                     <input
                       type="tel"
                       id="donorPhone"
                       value={formData.donorPhone}
-                      onChange={(e) => setFormData({ ...formData, donorPhone: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="9876543210 or +91 9876543210"
+                        onChange={(e) => {
+                          const formatted = formatPhoneDisplay(e.target.value);
+                          setFormData({ ...formData, donorPhone: formatted });
+                        }}
+                        className="w-full pl-14 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="98765 43210"
+                        maxLength={11} // 10 digits + 1 space
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Enter 10-digit Indian mobile number (spaces okay)
+                    </div>
+                    {formData.donorPhone && formData.donorPhone.replace(/\D/g, '').length > 0 && formData.donorPhone.replace(/\D/g, '').length < 10 && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        Please enter all 10 digits ({formData.donorPhone.replace(/\D/g, '').length}/10)
+                      </p>
+                    )}
+                    {formData.donorPhone.replace(/\D/g, '').length === 10 && (
+                      <p className="text-xs text-green-600 mt-1">
+                        ✓ Valid phone number
                     </p>
+                    )}
                   </div>
                 </motion.div>
               )}

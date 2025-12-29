@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Confetti from '@/components/Confetti';
 import DonationVerifier from '@/components/DonationVerifier';
-import { createSPASassClient } from '@/lib/supabase/client';
 
 interface DonationStatus {
   status: 'pending' | 'completed' | 'failed';
@@ -39,35 +38,26 @@ function DonationSuccessContent() {
 
     const checkPaymentStatus = async () => {
       try {
-        const supabaseClient = await createSPASassClient();
-        const supabase = supabaseClient.getSupabaseClient();
-
-        const { data, error } = await supabase
-          .from('donations')
-          .select('id, status, amount_inr, payment_id, razorpay_fee_inr, tax_amount_inr, net_amount_inr')
-          .eq('order_id', orderId)
-          .single();
-
-        if (error) {
-          console.error('Error fetching donation:', error);
-          return;
+        // Use API route to check donation status (bypasses RLS)
+        const response = await fetch(`/api/donations/status?orderId=${orderId}`);
+        
+        if (!response.ok) {
+          console.error('Error fetching donation status:', response.status);
+          return false;
         }
 
-        if (data) {
-          // Type assertion: The columns exist in DB but TypeScript types are stale
-          const donation = data as unknown as DonationStatus;
-          setDonationStatus(donation);
+        const donation = await response.json() as DonationStatus;
+        setDonationStatus(donation);
 
-          if (donation.status === 'completed') {
-            setIsLoading(false);
-            setShowConfetti(true);
-            // Stop polling
-            return true;
-          } else if (donation.status === 'failed') {
-            setIsLoading(false);
-            router.push('/donate/failure?reason=payment_failed');
-            return true;
-          }
+        if (donation.status === 'completed') {
+          setIsLoading(false);
+          setShowConfetti(true);
+          // Stop polling
+          return true;
+        } else if (donation.status === 'failed') {
+          setIsLoading(false);
+          router.push('/donate/failure?reason=payment_failed');
+          return true;
         }
 
         return false;
@@ -344,7 +334,10 @@ function DonationSuccessContent() {
             </p>
             <div className="bg-white rounded-xl p-4">
               <Suspense fallback={<div className="text-center text-gray-500">Loading verifier...</div>}>
-                <DonationVerifier />
+                <DonationVerifier 
+                  initialValue={donationId || ''} 
+                  autoVerify={!!donationId}
+                />
               </Suspense>
             </div>
             <div className="mt-4 text-center">

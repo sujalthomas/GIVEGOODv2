@@ -355,7 +355,7 @@ export default function TransactionsPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <code className="text-xs text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">
-                              {txn.payment_id.slice(0, 12)}...
+                              {(txn.payment_id || '').slice(0, 12)}...
                             </code>
                             <button
                               onClick={() => copyToClipboard(txn.payment_id, txn.payment_id)}

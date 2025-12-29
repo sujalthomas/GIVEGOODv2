@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			display: ['var(--font-display)', 'Georgia', 'serif'],
+  			body: ['var(--font-body)', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+  		},
   		colors: {
   			primary: {
   				'50': 'var(--color-primary-50)',
@@ -38,6 +42,20 @@ const config: Config = {
   				DEFAULT: 'hsl(var(--secondary))',
   				foreground: 'hsl(var(--secondary-foreground))'
   			},
+  			accent: {
+  				'50': 'var(--color-accent-50)',
+  				'100': 'var(--color-accent-100)',
+  				'200': 'var(--color-accent-200)',
+  				'300': 'var(--color-accent-300)',
+  				'400': 'var(--color-accent-400)',
+  				'500': 'var(--color-accent-500)',
+  				'600': 'var(--color-accent-600)',
+  				'700': 'var(--color-accent-700)',
+  				'800': 'var(--color-accent-800)',
+  				'900': 'var(--color-accent-900)',
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -51,10 +69,6 @@ const config: Config = {
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',
   				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
   			},
   			destructive: {
   				DEFAULT: 'hsl(var(--destructive))',
@@ -75,7 +89,38 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		keyframes: {
+  			'float': {
+  				'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+  				'50%': { transform: 'translateY(-20px) rotate(2deg)' },
+  			},
+  			'marquee': {
+  				'0%': { transform: 'translateX(0)' },
+  				'100%': { transform: 'translateX(-50%)' },
+  			},
+  			'marquee-reverse': {
+  				'0%': { transform: 'translateX(-50%)' },
+  				'100%': { transform: 'translateX(0)' },
+  			},
+  			'pulse-ring': {
+  				'0%': { transform: 'scale(0.8)', opacity: '1' },
+  				'100%': { transform: 'scale(2)', opacity: '0' },
+  			},
+  			'shine': {
+  				'0%, 100%': { transform: 'translateX(-100%) rotate(45deg)' },
+  				'50%': { transform: 'translateX(100%) rotate(45deg)' },
+  			},
+  		},
+  		animation: {
+  			'float': 'float 6s ease-in-out infinite',
+  			'float-delayed': 'float 6s ease-in-out infinite 2s',
+  			'float-slow': 'float 8s ease-in-out infinite',
+  			'marquee': 'marquee 30s linear infinite',
+  			'marquee-reverse': 'marquee-reverse 30s linear infinite',
+  			'pulse-ring': 'pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite',
+  			'shine': 'shine 3s ease-in-out infinite',
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate")],

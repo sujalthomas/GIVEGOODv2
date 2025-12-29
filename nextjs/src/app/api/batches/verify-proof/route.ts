@@ -11,7 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createSSRClient } from '@/lib/supabase/server';
+import { createServerAdminClient } from '@/lib/supabase/serverAdminClient';
 import { verifyMerkleProof, computeLeafHash } from '@/lib/merkle/builder';
 import { applyRateLimit } from '@/lib/security/rateLimit';
 import type { DonationLeaf, MerkleProof, VerificationResult } from '@/lib/merkle/types';
@@ -61,21 +61,47 @@ function isValidBatchInfo(batch: unknown): batch is { merkle_root: string; statu
 async function performVerification(donationId: string | null, paymentId: string | null): Promise<NextResponse> {
   console.log(`🔎 Verifying donation: ${donationId || paymentId}`);
   
-  // Initialize Supabase client
-  const supabase = await createSSRClient();
+  // Initialize Supabase client with admin privileges to bypass RLS
+  // This is safe because this endpoint only reads public donation data for verification
+  const supabase = await createServerAdminClient();
   
   // STEP 1: Fetch donation with batch info
-  let query = supabase
-    .from('donations')
-    .select('*, anchor_batches(merkle_root, status)');
+  // Note: payment_id initially contains order_id, webhook updates it with actual payment_id
+  // So we need to search multiple columns for payment-related searches
+  
+  let data = null;
+  let fetchError = null;
   
   if (donationId) {
-    query = query.eq('id', donationId);
+    // Search by donation UUID
+    const result = await supabase
+      .from('donations')
+      .select('*, anchor_batches(merkle_root, status)')
+      .eq('id', donationId)
+      .single();
+    data = result.data;
+    fetchError = result.error;
   } else if (paymentId) {
-    query = query.eq('payment_id', paymentId);
+    // Try payment_id first (for completed donations where webhook has updated it)
+    let result = await supabase
+      .from('donations')
+      .select('*, anchor_batches(merkle_root, status)')
+      .eq('payment_id', paymentId)
+      .single();
+    
+    // If not found by payment_id, try order_id (for pending donations where payment_id = order_id)
+    if (result.error || !result.data) {
+      console.log('Payment ID not found, trying order_id...');
+      result = await supabase
+        .from('donations')
+        .select('*, anchor_batches(merkle_root, status)')
+        .eq('order_id', paymentId)
+        .single();
+    }
+    
+    data = result.data;
+    fetchError = result.error;
   }
-  
-  const { data, error: fetchError } = await query.single();
   
   // Type the donation with batch info - Supabase returns joined data
   const donation = data as DonationWithBatch | null;
@@ -107,8 +133,10 @@ async function performVerification(donationId: string | null, paymentId: string 
         id: donation.id,
         payment_id: donation.payment_id,
         amount_inr: donation.amount_inr,
+        created_at: donation.created_at,
         status: donation.status,
         batched: false,
+        anchored: false,
       },
     });
   }

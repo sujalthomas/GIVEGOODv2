@@ -6,7 +6,8 @@ import { createSPASassClient } from '@/lib/supabase/client';
 
 interface Transaction {
   id: string;
-  hash: string;
+  payment_id: string; // Full payment ID for copying
+  hash: string; // Truncated display version
   date: string;
   recipient: string;
   category: string;
@@ -70,7 +71,8 @@ export default function TransparencyLedger() {
       // Map to transaction format
       const txns: Transaction[] = donationData.map((d) => ({
         id: d.id,
-        hash: d.payment_id.slice(0, 10),
+        payment_id: d.payment_id || '', // Full payment ID for copying
+        hash: (d.payment_id || '').slice(0, 10), // Truncated for display
         date: new Date(d.created_at).toISOString().split('T')[0],
         recipient: getRecipientName(d.purpose),
         category: getCategoryLabel(d.purpose),
@@ -286,11 +288,11 @@ export default function TransparencyLedger() {
                         {txn.hash}
                       </code>
                       <button
-                        onClick={() => copyToClipboard(txn.hash, txn.hash)}
+                        onClick={() => copyToClipboard(txn.payment_id, txn.id)}
                         className="p-1 hover:bg-gray-100 rounded transition-colors"
-                        title="Copy payment ID"
+                        title="Copy full payment ID"
                       >
-                        {copiedId === txn.hash ? (
+                        {copiedId === txn.id ? (
                           <Check className="w-4 h-4 text-green-600" />
                         ) : (
                           <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
