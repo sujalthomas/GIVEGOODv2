@@ -9,9 +9,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Calendar, 
-  Anchor, 
+import {
+  Calendar,
+  Anchor,
   ExternalLink,
   ArrowLeft,
   Search,
@@ -19,6 +19,13 @@ import {
   Copy,
   Check,
 } from 'lucide-react';
+
+// Helper to get Solana explorer URL based on network
+function getSolanaExplorerUrl(signature: string): string {
+  const network = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'devnet';
+  const baseUrl = 'https://solscan.io';
+  return `${baseUrl}/tx/${signature}${network !== 'mainnet-beta' ? `?cluster=${network}` : ''}`;
+}
 import { createSPASassClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
@@ -203,7 +210,7 @@ export default function TransactionsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="mb-8">
           <Link
@@ -245,32 +252,29 @@ export default function TransactionsPage() {
             <div className="flex gap-2">
               <button
                 onClick={() => { setFilter('all'); setPage(1); }}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === 'all'
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'all'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 All
               </button>
               <button
                 onClick={() => { setFilter('anchored'); setPage(1); }}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-1 ${
-                  filter === 'anchored'
+                className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-1 ${filter === 'anchored'
                     ? 'bg-green-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 <Anchor className="w-4 h-4" />
                 On Blockchain
               </button>
               <button
                 onClick={() => { setFilter('pending'); setPage(1); }}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  filter === 'pending'
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${filter === 'pending'
                     ? 'bg-orange-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 Pending
               </button>
@@ -348,14 +352,14 @@ export default function TransactionsPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <code className="text-xs text-orange-600 font-mono bg-orange-50 px-2 py-1 rounded">
-                              {txn.payment_id.slice(0, 12)}...
+                              {(txn.payment_id || '').slice(0, 12)}...
                             </code>
                             <button
-                              onClick={() => copyToClipboard(txn.payment_id, txn.payment_id)}
+                              onClick={() => copyToClipboard(txn.payment_id || '', txn.payment_id || txn.id)}
                               className="p-1 hover:bg-gray-100 rounded transition-colors"
                               title="Copy payment ID"
                             >
-                              {copiedId === txn.payment_id ? (
+                              {copiedId === (txn.payment_id || txn.id) ? (
                                 <Check className="w-4 h-4 text-green-600" />
                               ) : (
                                 <Copy className="w-4 h-4 text-gray-400 hover:text-gray-600" />
@@ -378,7 +382,7 @@ export default function TransactionsPage() {
                           <div className="flex items-center justify-center gap-1">
                             {txn.anchored && txn.txSignature ? (
                               <a
-                                href={`https://solscan.io/tx/${txn.txSignature}?cluster=devnet`}
+                                href={getSolanaExplorerUrl(txn.txSignature)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors"
@@ -420,7 +424,7 @@ export default function TransactionsPage() {
                   >
                     Previous
                   </button>
-                  
+
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600">
                       Page {page} of {totalPages}

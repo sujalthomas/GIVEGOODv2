@@ -15,6 +15,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerAdminClient } from '@/lib/supabase/serverAdminClient';
+import { requireAdminOrApiKey } from '@/lib/auth/adminAuth';
 import {
   buildMerkleTree,
   computeLeafHash,
@@ -40,6 +41,10 @@ type AnchorBatch = Tables<'anchor_batches'>;
 
 export async function POST(req: NextRequest) {
   console.log('🎯 === CREATE BATCH REQUEST ===');
+  
+  // SECURITY: Require admin authentication
+  const authError = await requireAdminOrApiKey(req);
+  if (authError) return authError;
   
   try {
     // Parse optional config from request body
@@ -253,7 +258,11 @@ export async function POST(req: NextRequest) {
 /**
  * GET endpoint to check status of unanchored donations
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // SECURITY: Require admin authentication
+  const authError = await requireAdminOrApiKey(req);
+  if (authError) return authError;
+  
   try {
     const supabase = await createServerAdminClient();
     

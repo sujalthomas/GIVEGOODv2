@@ -9,7 +9,7 @@ interface FormData {
   area: string;
   pincode: string;
   helpType: string[];
-  email?: string;
+  email: string;
 }
 
 export default function VolunteerForm() {
@@ -67,11 +67,11 @@ export default function VolunteerForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
-      
+
       const { error: insertError } = await supabase
         .from('volunteers')
         .insert({
@@ -89,7 +89,7 @@ export default function VolunteerForm() {
       }
 
       setSubmitted(true);
-      
+
       // Reset form after 4 seconds
       setTimeout(() => {
         setSubmitted(false);
@@ -224,11 +224,12 @@ export default function VolunteerForm() {
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-          Email (optional)
+          Email *
         </label>
         <input
           type="email"
           id="email"
+          required
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"

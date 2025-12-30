@@ -96,7 +96,7 @@ export type Database = {
           donor_phone: string | null
           id: string
           internal_tags: string[] | null
-          ip_address: unknown | null
+          ip_address: unknown
           merkle_leaf_hash: string | null
           merkle_leaf_index: number | null
           merkle_proof: Json | null
@@ -137,7 +137,7 @@ export type Database = {
           donor_phone?: string | null
           id?: string
           internal_tags?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           merkle_leaf_hash?: string | null
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
@@ -178,7 +178,7 @@ export type Database = {
           donor_phone?: string | null
           id?: string
           internal_tags?: string[] | null
-          ip_address?: unknown | null
+          ip_address?: unknown
           merkle_leaf_hash?: string | null
           merkle_leaf_index?: number | null
           merkle_proof?: Json | null
@@ -602,6 +602,7 @@ export type Database = {
           payment_id: string
         }[]
       }
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
