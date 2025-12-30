@@ -78,10 +78,9 @@ export function calculateBangaloreCoverage(
 
 /**
  * Calculate coverage score for a specific area
+ * TODO: Future enhancement - use area center coordinates for distance-weighted scoring
  */
 export function calculateAreaCoverage(
-  areaCenterLat: number,
-  areaCenterLon: number,
   feedersInArea: number,
   volunteersInArea: number
 ): number {

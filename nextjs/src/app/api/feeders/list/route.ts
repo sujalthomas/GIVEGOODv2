@@ -30,17 +30,15 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
-    // Apply filters
-    if (status) {
-      query = query.eq('status', status);
-    }
-    if (pincode) {
-      query = query.eq('pincode', pincode);
-    }
-
-    // If not authenticated, only show active feeders
+    // Apply filters - unauthenticated users can only see active feeders (ignore status param)
     if (!user) {
       query = query.eq('status', 'active');
+    } else if (status) {
+      query = query.eq('status', status);
+    }
+    
+    if (pincode) {
+      query = query.eq('pincode', pincode);
     }
 
     const { data: feeders, error } = await query;

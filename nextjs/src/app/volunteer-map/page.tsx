@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Map, Users, Home, TrendingUp, Layers, X, 
+import {
+  Map as MapIcon, Users, Home, TrendingUp, Layers, X,
   Heart, ArrowLeft, Sparkles, Navigation, PawPrint
 } from 'lucide-react';
 import { useMapData } from '@/hooks/useMapData';
@@ -36,7 +36,7 @@ export default function PublicVolunteerMapPage() {
           <div className="px-4 md:px-6 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Link 
+                <Link
                   href="/"
                   className="flex items-center gap-2 text-white hover:text-primary-100 transition-colors group"
                 >
@@ -53,7 +53,7 @@ export default function PublicVolunteerMapPage() {
                       Bangalore Volunteer Network
                     </h1>
                     <p className="text-xs text-gray-300 hidden md:block">
-                      Real-time community visualization
+                      Interactive community map
                     </p>
                   </div>
                 </div>
@@ -70,7 +70,7 @@ export default function PublicVolunteerMapPage() {
             <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-500/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
             <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
           </div>
-          
+
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center relative z-10">
               {/* Multi-layer spinner */}
@@ -82,11 +82,11 @@ export default function PublicVolunteerMapPage() {
                 {/* Inner pulsing core */}
                 <div className="absolute inset-6 bg-gradient-to-br from-primary-600 to-blue-600 rounded-full animate-pulse shadow-lg shadow-primary-500/50"></div>
               </div>
-              
+
               <div className="space-y-2 px-6">
                 <p className="text-white font-bold text-xl">Loading Volunteer Network</p>
                 <p className="text-gray-300 text-sm">Fetching map data and initializing...</p>
-                
+
                 {/* Loading dots */}
                 <div className="flex items-center justify-center gap-1.5 pt-2">
                   <div className="w-2 h-2 bg-primary-400 rounded-full animate-bounce"></div>
@@ -112,7 +112,7 @@ export default function PublicVolunteerMapPage() {
         <div className="px-4 md:px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
+              <Link
                 href="/"
                 className="flex items-center gap-2 text-white hover:text-primary-100 transition-colors group"
               >
@@ -129,12 +129,12 @@ export default function PublicVolunteerMapPage() {
                     Bangalore Volunteer Network
                   </h1>
                   <p className="text-xs text-gray-300 hidden md:block">
-                    Real-time community visualization
+                    Interactive community map
                   </p>
                 </div>
               </div>
             </div>
-            
+
             {/* Stats Pills - Compact */}
             <div className="flex items-center gap-2">
               <motion.div
@@ -162,7 +162,7 @@ export default function PublicVolunteerMapPage() {
                 transition={{ delay: 0.2 }}
                 className="hidden md:flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20"
               >
-                <Map className="w-4 h-4 text-purple-300" />
+                <MapIcon className="w-4 h-4 text-purple-300" />
                 <span className="text-white font-bold text-sm">{stats.areas}</span>
                 <span className="text-gray-300 text-xs">areas</span>
               </motion.div>
@@ -175,14 +175,14 @@ export default function PublicVolunteerMapPage() {
       <div className="flex-1 relative overflow-hidden">
         {/* Full-screen Map */}
         <div className="absolute inset-0">
-            <MapboxVolunteerMap
-              volunteers={volunteers}
-              feeders={feeders}
-              showCoverageZones={showCoverageZones}
-              showHeatmap={showHeatmap}
-              showConnections={showConnections}
-              show3DBuildings={show3DBuildings}
-            />
+          <MapboxVolunteerMap
+            volunteers={volunteers}
+            feeders={feeders}
+            showCoverageZones={showCoverageZones}
+            showHeatmap={showHeatmap}
+            showConnections={showConnections}
+            show3DBuildings={show3DBuildings}
+          />
         </div>
 
         {/* Floating Controls - Left Side */}
@@ -212,30 +212,30 @@ export default function PublicVolunteerMapPage() {
 
                 <div className="space-y-2">
                   {[
-                    { 
-                      label: 'Coverage Zones', 
-                      value: showCoverageZones, 
+                    {
+                      label: 'Coverage Zones',
+                      value: showCoverageZones,
                       onChange: setShowCoverageZones,
                       icon: Navigation,
                       color: 'from-green-500 to-emerald-600'
                     },
-                    { 
-                      label: 'Heat Map', 
-                      value: showHeatmap, 
+                    {
+                      label: 'Heat Map',
+                      value: showHeatmap,
                       onChange: setShowHeatmap,
                       icon: TrendingUp,
                       color: 'from-orange-500 to-red-600'
                     },
-                    { 
-                      label: 'Connections', 
-                      value: showConnections, 
+                    {
+                      label: 'Connections',
+                      value: showConnections,
                       onChange: setShowConnections,
                       icon: Users,
                       color: 'from-blue-500 to-indigo-600'
                     },
-                    { 
-                      label: '3D Buildings', 
-                      value: show3DBuildings, 
+                    {
+                      label: '3D Buildings',
+                      value: show3DBuildings,
                       onChange: setShow3DBuildings,
                       icon: Home,
                       color: 'from-purple-500 to-pink-600'
@@ -249,10 +249,13 @@ export default function PublicVolunteerMapPage() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: idx * 0.05 }}
                         onClick={() => control.onChange(!control.value)}
+                        role="switch"
+                        aria-checked={control.value}
+                        aria-label={`Toggle ${control.label}`}
                         className={`
                           w-full flex items-center justify-between p-3 rounded-xl transition-all
-                          ${control.value 
-                            ? `bg-gradient-to-r ${control.color} text-white shadow-lg scale-[1.02]` 
+                          ${control.value
+                            ? `bg-gradient-to-r ${control.color} text-white shadow-lg scale-[1.02]`
                             : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                           }
                         `}

@@ -39,7 +39,7 @@ export interface Feeder {
   
   // Metadata
   notes: string | null;
-  feeder_type: string;
+  feeder_type: FeederType;
   tags: string[];
   metadata: Record<string, unknown>;
 }
@@ -67,7 +67,7 @@ export interface FeederRefill {
   refilled_by: string;
   refill_date: string;
   food_quantity_kg: number;
-  food_type: string;
+  food_type: FoodType;
   
   verified: boolean;
   verified_by: string | null;

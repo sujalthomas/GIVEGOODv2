@@ -50,6 +50,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Verify caller is authenticated admin
+    const supabaseClient = await createSSRSassClient();
+    const supabase = supabaseClient.getSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Only super admin can trigger geocoding
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    if (!SUPER_ADMIN_EMAIL || user.email !== SUPER_ADMIN_EMAIL) {
+      return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
+    }
+
     // Try Nominatim API first
     let coords = await geocodePincode(body.pincode);
     let source = 'nominatim';
@@ -73,9 +88,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update volunteer with coordinates
-    const supabaseClient = await createSSRSassClient();
-    const supabase = supabaseClient.getSupabaseClient();
+    // Update volunteer with coordinates (using supabase client from auth check above)
 
     // Also get area name from reference if available
     const areaName = getAreaNameFromPincode(body.pincode);

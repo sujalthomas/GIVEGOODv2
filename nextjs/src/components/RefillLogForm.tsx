@@ -32,7 +32,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
   const { user } = useGlobal();
   const [feeders, setFeeders] = useState<AssignedFeeder[]>([]);
   const [loadingFeeders, setLoadingFeeders] = useState(true);
-  
+
   const [formData, setFormData] = useState<FormData>({
     feeder_id: '',
     food_quantity_kg: '',
@@ -40,7 +40,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
     feeder_condition: 'good',
     notes: ''
   });
-  
+
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -81,10 +81,15 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
         setFeeders((data || []) as AssignedFeeder[]);
       } else {
         // Volunteer sees only assigned feeders
+        if (!user?.email) {
+          setFeeders([]);
+          return;
+        }
+
         const { data: volunteer } = await supabase
           .from('volunteers')
           .select('id')
-          .eq('email', user?.email || '')
+          .eq('email', user.email)
           .single();
 
         if (!volunteer) {
@@ -109,7 +114,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
           .eq('feeders.status', 'active');
 
         if (error) throw error;
-        
+
         // Extract feeders from nested structure
         interface VolunteerFeederItem {
           feeders: AssignedFeeder | null;
@@ -117,7 +122,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
         const assignedFeeders = (data || [])
           .map((item: VolunteerFeederItem) => item.feeders)
           .filter((f: AssignedFeeder | null): f is AssignedFeeder => f !== null);
-        
+
         setFeeders(assignedFeeders);
       }
     } catch (error) {
@@ -164,24 +169,24 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
       if (!formData.feeder_id || !formData.food_quantity_kg) {
         throw new Error('Please select a feeder and enter quantity');
       }
 
       const quantity = parseFloat(formData.food_quantity_kg);
-      if (quantity <= 0 || quantity > 100) {
+      if (isNaN(quantity) || quantity < 0.1 || quantity > 100) {
         throw new Error('Food quantity must be between 0.1 and 100 kg');
       }
 
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
-      
+
       // Get current user ID for storage
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (!currentUser) throw new Error('Not authenticated');
-      
+
       let photoUrl = null;
 
       // Upload photo if provided
@@ -189,7 +194,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
         setUploading(true);
         const timestamp = Date.now();
         const fileName = `refill_${timestamp}_${photo.name.replace(/[^0-9a-zA-Z.\-_]/g, '_')}`;
-        
+
         // Upload using user ID as folder (pattern: userId/refill_timestamp_name.jpg)
         const { error: uploadError } = await supabaseClient.uploadFile(
           currentUser.id,
@@ -237,7 +242,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
       }
 
       setSubmitted(true);
-      
+
       if (onSuccess) {
         setTimeout(() => {
           onSuccess();
@@ -380,7 +385,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
           {(() => {
             const selected = feeders.find(f => f.id === formData.feeder_id)!;
             const isOverdue = selected.next_refill_due && new Date(selected.next_refill_due) < new Date();
-            
+
             return (
               <div className="text-sm text-blue-800">
                 <p className="font-semibold">{selected.location_name}</p>
@@ -419,7 +424,7 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
           className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           placeholder="e.g., 3.5"
         />
-        
+
         {/* Quick Select Buttons */}
         <div className="flex gap-2 mt-2">
           {[1, 2, 3, 5].map(kg => (
@@ -444,11 +449,10 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
           {foodTypes.map((type) => (
             <label
               key={type.value}
-              className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                formData.food_type === type.value
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-300 hover:border-primary-400'
-              }`}
+              className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${formData.food_type === type.value
+                ? 'border-primary-600 bg-primary-50'
+                : 'border-gray-300 hover:border-primary-400'
+                }`}
             >
               <input
                 type="radio"
@@ -458,9 +462,8 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
                 onChange={(e) => setFormData({ ...formData, food_type: e.target.value })}
                 className="sr-only"
               />
-              <span className={`text-sm font-medium ${
-                formData.food_type === type.value ? 'text-primary-700' : 'text-gray-700'
-              }`}>
+              <span className={`text-sm font-medium ${formData.food_type === type.value ? 'text-primary-700' : 'text-gray-700'
+                }`}>
                 {type.label}
               </span>
             </label>
@@ -477,11 +480,10 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
           {conditions.map((condition) => (
             <label
               key={condition.value}
-              className={`flex items-center gap-2 p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                formData.feeder_condition === condition.value
-                  ? 'border-primary-600 bg-primary-50'
-                  : 'border-gray-300 hover:border-primary-400'
-              }`}
+              className={`flex items-center gap-2 p-3 border-2 rounded-xl cursor-pointer transition-all ${formData.feeder_condition === condition.value
+                ? 'border-primary-600 bg-primary-50'
+                : 'border-gray-300 hover:border-primary-400'
+                }`}
             >
               <input
                 type="radio"
@@ -492,9 +494,8 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
                 className="sr-only"
               />
               <span className="text-lg">{condition.icon}</span>
-              <span className={`text-sm font-medium ${
-                formData.feeder_condition === condition.value ? condition.color : 'text-gray-700'
-              }`}>
+              <span className={`text-sm font-medium ${formData.feeder_condition === condition.value ? condition.color : 'text-gray-700'
+                }`}>
                 {condition.label}
               </span>
             </label>
@@ -576,9 +577,9 @@ export default function RefillLogForm({ adminMode = false, onSuccess }: RefillLo
       <button
         type="submit"
         disabled={
-          loading || 
-          uploading || 
-          !formData.feeder_id || 
+          loading ||
+          uploading ||
+          !formData.feeder_id ||
           !formData.food_quantity_kg
         }
         className="w-full bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"

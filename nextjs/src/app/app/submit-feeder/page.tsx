@@ -24,6 +24,13 @@ export default function SubmitFeederPage() {
         const supabaseClient = await createSPASassClient();
         const supabase = supabaseClient.getSupabaseClient();
 
+        // User may not have email if authenticated via certain methods
+        if (!user.email) {
+          setIsApprovedVolunteer(false);
+          setChecking(false);
+          return;
+        }
+
         const { data: volunteer } = await supabase
           .from('volunteers')
           .select('id, status')
@@ -106,7 +113,7 @@ export default function SubmitFeederPage() {
         </p>
       </motion.div>
 
-      <FeederSubmissionForm 
+      <FeederSubmissionForm
         adminMode={false}
         onSuccess={() => {
           setTimeout(() => router.push('/app'), 3000);

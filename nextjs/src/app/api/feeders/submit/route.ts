@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSSRSassClient } from '@/lib/supabase/server';
+import type { FeederSubmission as BaseFeederSubmission } from '@/lib/types/feeder';
 
-interface FeederSubmission {
-  location_name: string;
-  pincode: string;
-  area_name?: string;
-  landmark?: string;
-  latitude: number;
-  longitude: number;
-  capacity_kg?: number;
-  installation_date?: string;
-  photo_url?: string;
-  feeder_type?: string;
-  notes?: string;
+interface FeederSubmission extends BaseFeederSubmission {
   skipApproval?: boolean; // Admin can bypass approval
 }
 
@@ -64,7 +54,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is admin for skipApproval
-    const isAdmin = user.email === 'sujalt1811@gmail.com';
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    const isAdmin = SUPER_ADMIN_EMAIL && user.email === SUPER_ADMIN_EMAIL;
     const finalStatus = (body.skipApproval && isAdmin) ? 'active' : 'pending';
 
     // Create feeder
@@ -99,6 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Auto-assign submitter as primary volunteer for this feeder
+    let volunteerAssigned = true;
     const { error: assignError } = await supabase
       .from('volunteer_feeders')
       .insert({
@@ -110,13 +102,14 @@ export async function POST(request: NextRequest) {
 
     if (assignError) {
       console.error('Error assigning volunteer to feeder:', assignError);
-      // Not critical, continue
+      volunteerAssigned = false;
     }
 
     return NextResponse.json({
       success: true,
       feeder,
-      message: 'Feeder submitted successfully! Pending admin approval.'
+      message: 'Feeder submitted successfully! Pending admin approval.',
+      volunteerAssigned
     });
 
   } catch (error) {

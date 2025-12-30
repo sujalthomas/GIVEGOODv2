@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   Droplets, Calendar, CheckCircle, Clock, User,
   Filter, Download, TrendingUp, Package, AlertTriangle, Plus, XCircle
 } from 'lucide-react';
@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import RefillLogForm from '@/components/RefillLogForm';
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 interface Refill {
   id: string;
@@ -50,7 +50,7 @@ export default function RefillsPage() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [selectedRefill, setSelectedRefill] = useState<Refill | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
-  
+
   const { user } = useGlobal();
   const router = useRouter();
 
@@ -69,7 +69,7 @@ export default function RefillsPage() {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
 
-      const { data, error} = await supabase
+      const { data, error } = await supabase
         .from('feeder_refills')
         .select(`
           *,
@@ -106,7 +106,7 @@ export default function RefillsPage() {
       });
 
       if (!response.ok) throw new Error('Failed to verify refill');
-      
+
       await fetchRefills();
     } catch (error) {
       console.error('Error verifying refill:', error);
@@ -117,8 +117,7 @@ export default function RefillsPage() {
   };
 
   const handleReject = async () => {
-    if (!selectedRefill || !rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+    if (!selectedRefill) {
       return;
     }
 
@@ -126,6 +125,9 @@ export default function RefillsPage() {
     try {
       const supabaseClient = await createSPASassClient();
       const supabase = supabaseClient.getSupabaseClient();
+
+      // Log rejection for audit trail
+      console.log(`Refill ${selectedRefill.id} rejected by admin. Reason: ${rejectionReason.trim() || 'No reason provided'}`);
 
       // Delete the refill (rejected refills are removed)
       const { error } = await supabase
@@ -192,6 +194,7 @@ export default function RefillsPage() {
     a.href = url;
     a.download = `refills_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -320,11 +323,10 @@ export default function RefillsPage() {
                 <button
                   key={filter}
                   onClick={() => setVerifiedFilter(filter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    verifiedFilter === filter
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${verifiedFilter === filter
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   {filter.charAt(0).toUpperCase() + filter.slice(1)}
                   {filter !== 'all' && (
@@ -356,9 +358,8 @@ export default function RefillsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className={`hover:shadow-lg transition-shadow ${
-                refill.verified ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-500'
-              }`}>
+              <Card className={`hover:shadow-lg transition-shadow ${refill.verified ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-yellow-500'
+                }`}>
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Refill Info */}
@@ -370,13 +371,12 @@ export default function RefillsPage() {
                           </h3>
                           <p className="text-sm text-gray-600">{refill.feeders.area_name || refill.feeders.pincode}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          refill.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${refill.verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
                           {refill.verified ? 'VERIFIED' : 'PENDING'}
                         </span>
                       </div>
-                      
+
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-gray-400" />
@@ -391,15 +391,14 @@ export default function RefillsPage() {
                           <span className="font-semibold">{refill.food_quantity_kg} kg - {refill.food_type.replace('_', ' ')}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <AlertTriangle className={`w-4 h-4 ${
-                            refill.feeder_condition === 'good' ? 'text-green-600' :
+                          <AlertTriangle className={`w-4 h-4 ${refill.feeder_condition === 'good' ? 'text-green-600' :
                             refill.feeder_condition === 'needs_cleaning' ? 'text-yellow-600' :
-                            'text-red-600'
-                          }`} />
+                              'text-red-600'
+                            }`} />
                           <span className={
                             refill.feeder_condition === 'good' ? 'text-green-600' :
-                            refill.feeder_condition === 'needs_cleaning' ? 'text-yellow-600' :
-                            'text-red-600'
+                              refill.feeder_condition === 'needs_cleaning' ? 'text-yellow-600' :
+                                'text-red-600'
                           }>
                             {refill.feeder_condition.replace('_', ' ').toUpperCase()}
                           </span>
@@ -469,7 +468,7 @@ export default function RefillsPage() {
           <DialogHeader>
             <DialogTitle>Log Refill (Admin)</DialogTitle>
           </DialogHeader>
-          <RefillLogForm 
+          <RefillLogForm
             adminMode={true}
             onSuccess={() => {
               setShowLogDialog(false);

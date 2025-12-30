@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is super admin
-    const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
-    if (user.email !== SUPER_ADMIN_EMAIL) {
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    if (!SUPER_ADMIN_EMAIL || user.email !== SUPER_ADMIN_EMAIL) {
       return NextResponse.json(
         { error: 'Forbidden - Admin access required' },
         { status: 403 }

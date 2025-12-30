@@ -33,7 +33,7 @@ export async function updateSession(request: NextRequest) {
 
     // IMPORTANT: DO NOT REMOVE auth.getUser()
 
-    let user;
+    let user: { user: import('@supabase/supabase-js').User | null } | null;
     try {
         const {data} = await supabase.auth.getUser()
         user = data

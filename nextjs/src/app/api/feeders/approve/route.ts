@@ -34,10 +34,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Check super admin
-    const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
-    if (user.email !== SUPER_ADMIN_EMAIL) {
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    if (!SUPER_ADMIN_EMAIL || user.email !== SUPER_ADMIN_EMAIL) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
+
+    // Fetch current feeder to check existing installation_date
+    const { data: existingFeeder } = await supabase
+      .from('feeders')
+      .select('installation_date')
+      .eq('id', body.feederId)
+      .single();
 
     // Update feeder status
     const updateData: {
@@ -55,8 +62,10 @@ export async function POST(request: NextRequest) {
     if (body.status === 'rejected') {
       updateData.rejection_reason = body.rejectionReason;
     } else if (body.status === 'active') {
-      // Set installation date if not already set
-      updateData.installation_date = new Date().toISOString().split('T')[0];
+      // Set installation date only if not already set
+      if (!existingFeeder?.installation_date) {
+        updateData.installation_date = new Date().toISOString().split('T')[0];
+      }
     }
 
     const { data: feeder, error: updateError } = await supabase
@@ -66,8 +75,15 @@ export async function POST(request: NextRequest) {
       .select()
       .single();
 
-    if (updateError) {
+    if (updateError || !feeder) {
       console.error('Error updating feeder:', updateError);
+      // PGRST116 means no rows matched - feeder not found
+      if (updateError?.code === 'PGRST116' || !feeder) {
+        return NextResponse.json(
+          { error: 'Feeder not found' },
+          { status: 404 }
+        );
+      }
       return NextResponse.json(
         { error: 'Failed to update feeder status' },
         { status: 500 }

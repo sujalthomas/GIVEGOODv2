@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Map, Eye, EyeOff, Download, Users, Home, TrendingUp, Navigation, Layers,
+import {
+  Map as MapIcon, Eye, EyeOff, Download, Users, Home, TrendingUp, Navigation, Layers,
   AlertCircle, Activity, X
 } from 'lucide-react';
 import { useGlobal } from '@/lib/context/GlobalContext';
@@ -17,13 +17,13 @@ const MapboxVolunteerMap = dynamic(
   { ssr: false }
 );
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 export default function AdminVolunteerMapPage() {
   const { user } = useGlobal();
   const router = useRouter();
   const { stats, volunteers, feeders, loading } = useMapData();
-  
+
   const [showCoverageZones, setShowCoverageZones] = useState(true);
   const [showConnections, setShowConnections] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
@@ -51,6 +51,7 @@ export default function AdminVolunteerMapPage() {
     a.href = url;
     a.download = `bangalore-coverage-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -70,11 +71,11 @@ export default function AdminVolunteerMapPage() {
       <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-primary-100 rounded-lg">
-            <Map className="w-5 h-5 text-primary-600" />
+            <MapIcon className="w-5 h-5 text-primary-600" />
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900">Coverage Map</h1>
-            <p className="text-xs text-gray-500">Real-time network visualization</p>
+            <p className="text-xs text-gray-500">Interactive network visualization</p>
           </div>
         </div>
 
@@ -91,7 +92,7 @@ export default function AdminVolunteerMapPage() {
             <span className="text-xs text-green-600">feeders</span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 rounded-lg border border-purple-200">
-            <Map className="w-4 h-4 text-purple-600" />
+            <MapIcon className="w-4 h-4 text-purple-600" />
             <span className="text-sm font-semibold text-purple-900">{stats.areas}</span>
             <span className="text-xs text-purple-600">areas</span>
           </div>
@@ -161,8 +162,8 @@ export default function AdminVolunteerMapPage() {
                         onClick={() => control.onChange(!control.value)}
                         className={`
                           w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all
-                          ${control.value 
-                            ? 'bg-primary-600 text-white shadow-md' 
+                          ${control.value
+                            ? 'bg-primary-600 text-white shadow-md'
                             : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                           }
                         `}
@@ -316,7 +317,7 @@ export default function AdminVolunteerMapPage() {
                       <div className="space-y-2 text-xs">
                         <div className="bg-white/10 rounded-lg p-2 backdrop-blur-sm">
                           <p className="text-blue-50 leading-relaxed">
-                            <strong className="text-white">{stats.areas}</strong> areas have active coverage. 
+                            <strong className="text-white">{stats.areas}</strong> areas have active coverage.
                             Current avg: <strong className="text-white">{stats.coverage}%</strong>
                           </p>
                         </div>

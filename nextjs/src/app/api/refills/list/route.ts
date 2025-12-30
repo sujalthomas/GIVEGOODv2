@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     if (feederId) {
       query = query.eq('feeder_id', feederId);
     }
-    if (verified !== null) {
+    if (verified !== null && verified !== '') {
       query = query.eq('verified', verified === 'true');
     }
     if (volunteerId) {

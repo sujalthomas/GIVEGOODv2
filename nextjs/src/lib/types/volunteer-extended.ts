@@ -1,4 +1,5 @@
 // Extended volunteer types
+import { FeederStatus } from './feeder';
 
 export type VolunteerStatus = 'pending' | 'approved' | 'rejected';
 
@@ -41,7 +42,7 @@ export interface MapMarkerData {
   name: string;
   area: string;
   pincode: string;
-  status: string;
+  status: VolunteerStatus | FeederStatus;
   metadata: Record<string, unknown>;
 }
 

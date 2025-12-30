@@ -22,8 +22,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Check super admin
-    const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
-    if (user.email !== SUPER_ADMIN_EMAIL) {
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    if (!SUPER_ADMIN_EMAIL || user.email !== SUPER_ADMIN_EMAIL) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
 
@@ -41,6 +41,13 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('Error verifying refill:', updateError);
+      // PGRST116 means no rows matched - refill not found
+      if (updateError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Refill not found' },
+          { status: 404 }
+        );
+      }
       return NextResponse.json(
         { error: 'Failed to verify refill' },
         { status: 500 }

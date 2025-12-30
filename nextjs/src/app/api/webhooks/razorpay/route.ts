@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Initialize Supabase client (server-side)
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.PRIVATE_SUPABASE_SERVICE_KEY!,
       {

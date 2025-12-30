@@ -2,16 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   UserCheck, Mail, MapPin, Calendar, Heart, Filter, Download,
-  CheckCircle, XCircle, Clock, AlertTriangle 
+  CheckCircle, XCircle, Clock, AlertTriangle
 } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 interface Volunteer {
   id: string;
@@ -40,7 +40,7 @@ export default function VolunteersPage() {
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   const { user } = useGlobal();
   const router = useRouter();
 
@@ -88,7 +88,7 @@ export default function VolunteersPage() {
       });
 
       if (!response.ok) throw new Error('Failed to approve volunteer');
-      
+
       await fetchVolunteers(); // Refresh list
     } catch (error) {
       console.error('Error approving volunteer:', error);
@@ -117,7 +117,7 @@ export default function VolunteersPage() {
       });
 
       if (!response.ok) throw new Error('Failed to reject volunteer');
-      
+
       setShowRejectDialog(false);
       setRejectionReason('');
       setSelectedVolunteer(null);
@@ -175,6 +175,7 @@ export default function VolunteersPage() {
     a.href = url;
     a.download = `volunteers_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -283,11 +284,10 @@ export default function VolunteersPage() {
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      statusFilter === status
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
                         ? 'bg-primary-600 text-white'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                     {status !== 'all' && (
@@ -298,18 +298,17 @@ export default function VolunteersPage() {
                   </button>
                 ))}
               </div>
-              
+
               {/* Help Type Filter */}
               <div className="flex gap-2">
                 {['all', 'build', 'refill', 'spread'].map((type) => (
                   <button
                     key={type}
                     onClick={() => setHelpTypeFilter(type)}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                      helpTypeFilter === type
+                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${helpTypeFilter === type
                         ? 'bg-secondary-600 text-white'
                         : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {type === 'all' ? 'All Types' : getHelpTypeLabel(type)}
                   </button>
@@ -337,11 +336,10 @@ export default function VolunteersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className={`hover:shadow-lg transition-shadow ${
-                volunteer.status === 'pending' ? 'border-l-4 border-l-yellow-500' :
-                volunteer.status === 'approved' ? 'border-l-4 border-l-green-500' :
-                'border-l-4 border-l-red-500'
-              }`}>
+              <Card className={`hover:shadow-lg transition-shadow ${volunteer.status === 'pending' ? 'border-l-4 border-l-yellow-500' :
+                  volunteer.status === 'approved' ? 'border-l-4 border-l-green-500' :
+                    'border-l-4 border-l-red-500'
+                }`}>
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Volunteer Info */}
@@ -351,15 +349,14 @@ export default function VolunteersPage() {
                           {volunteer.name}
                           <Heart className="w-4 h-4 text-primary-500" />
                         </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          volunteer.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          volunteer.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${volunteer.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            volunteer.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                          }`}>
                           {volunteer.status.toUpperCase()}
                         </span>
                       </div>
-                      
+
                       <div className="grid md:grid-cols-2 gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-gray-400" />

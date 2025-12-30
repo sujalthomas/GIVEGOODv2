@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createSPAClient } from '@/lib/supabase/client';
+import { createSSRSassClient } from '@/lib/supabase/server';
 
 export async function GET() {
   try {
-    const supabase = createSPAClient();
+    const supabaseClient = await createSSRSassClient();
+    const supabase = supabaseClient.getSupabaseClient();
 
     const { data: areas, error } = await supabase.rpc('get_area_stats');
 

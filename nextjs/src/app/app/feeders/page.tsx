@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
+import {
   Home, MapPin, Calendar, CheckCircle, XCircle, Clock, AlertTriangle,
   Filter, Download, Droplets, Package, Plus, TrendingUp
 } from 'lucide-react';
@@ -13,7 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import FeederSubmissionForm from '@/components/FeederSubmissionForm';
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 interface Feeder {
   id: string;
@@ -49,7 +49,7 @@ export default function FeedersPage() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [feederHealth, setFeederHealth] = useState<Record<string, number>>({});
-  
+
   const { user } = useGlobal();
   const router = useRouter();
 
@@ -85,15 +85,18 @@ export default function FeedersPage() {
         .select('feeder_id, refill_date, verified')
         .gte('refill_date', thirtyDaysAgo.toISOString());
 
-      // Calculate health score for each feeder
+      // Calculate individual feeder health score based on refill ratio
+      // Note: This differs from area-analytics.ts which calculates aggregate area health
+      // using weighted formula (60% active ratio + 40% refill frequency).
+      // Here we use pure refill ratio for individual feeder health.
       const healthScores: Record<string, number> = {};
-      (data || [] as Feeder[]).forEach((feeder) => {
+      ((data || []) as Feeder[]).forEach((feeder) => {
         if (feeder.status !== 'active') {
           healthScores[feeder.id] = 0;
           return;
         }
 
-        const feederRefills = (refills || []).filter((r: { feeder_id: string; verified: boolean | null }) => 
+        const feederRefills = (refills || []).filter((r: { feeder_id: string; verified: boolean | null }) =>
           r.feeder_id === feeder.id && r.verified === true
         );
 
@@ -126,7 +129,7 @@ export default function FeedersPage() {
       });
 
       if (!response.ok) throw new Error('Failed to approve feeder');
-      
+
       await fetchFeeders();
     } catch (error) {
       console.error('Error approving feeder:', error);
@@ -155,7 +158,7 @@ export default function FeedersPage() {
       });
 
       if (!response.ok) throw new Error('Failed to reject feeder');
-      
+
       setShowRejectDialog(false);
       setRejectionReason('');
       setSelectedFeeder(null);
@@ -210,6 +213,7 @@ export default function FeedersPage() {
     a.href = url;
     a.download = `feeders_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -331,11 +335,10 @@ export default function FeedersPage() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === status
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
                 >
                   {status === 'needs_repair' ? 'Needs Repair' : status.charAt(0).toUpperCase() + status.slice(1)}
                   {status !== 'all' && (
@@ -367,12 +370,11 @@ export default function FeedersPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className={`hover:shadow-lg transition-shadow ${
-                feeder.status === 'pending' ? 'border-l-4 border-l-yellow-500' :
+              <Card className={`hover:shadow-lg transition-shadow ${feeder.status === 'pending' ? 'border-l-4 border-l-yellow-500' :
                 feeder.status === 'active' ? 'border-l-4 border-l-green-500' :
-                feeder.status === 'needs_repair' ? 'border-l-4 border-l-red-500' :
-                'border-l-4 border-l-gray-500'
-              }`}>
+                  feeder.status === 'needs_repair' ? 'border-l-4 border-l-red-500' :
+                    'border-l-4 border-l-gray-500'
+                }`}>
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Feeder Info */}
@@ -382,16 +384,15 @@ export default function FeedersPage() {
                           {feeder.location_name}
                           <Home className="w-4 h-4 text-primary-500" />
                         </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          feeder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${feeder.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                           feeder.status === 'active' ? 'bg-green-100 text-green-800' :
-                          feeder.status === 'needs_repair' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                            feeder.status === 'needs_repair' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                          }`}>
                           {feeder.status.toUpperCase().replace('_', ' ')}
                         </span>
                       </div>
-                      
+
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <MapPin className="w-4 h-4 text-gray-400" />
@@ -452,20 +453,18 @@ export default function FeedersPage() {
                               </div>
                             )}
                           </div>
-                          
+
                           {/* Health Score */}
                           {feederHealth[feeder.id] !== undefined && (
                             <div className="flex items-center gap-2">
                               <TrendingUp className="w-4 h-4 text-gray-400" />
                               <div className="flex items-center gap-1">
-                                <div className={`w-2 h-2 rounded-full ${
-                                  feederHealth[feeder.id] >= 80 ? 'bg-green-500' :
+                                <div className={`w-2 h-2 rounded-full ${feederHealth[feeder.id] >= 80 ? 'bg-green-500' :
                                   feederHealth[feeder.id] >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}></div>
-                                <span className={`text-sm font-semibold ${
-                                  feederHealth[feeder.id] >= 80 ? 'text-green-600' :
+                                  }`}></div>
+                                <span className={`text-sm font-semibold ${feederHealth[feeder.id] >= 80 ? 'text-green-600' :
                                   feederHealth[feeder.id] >= 60 ? 'text-yellow-600' : 'text-red-600'
-                                }`}>
+                                  }`}>
                                   Health: {feederHealth[feeder.id]}%
                                 </span>
                                 <span className="text-xs text-gray-500 ml-1">
@@ -568,7 +567,7 @@ export default function FeedersPage() {
           <DialogHeader>
             <DialogTitle>Create New Feeder (Admin)</DialogTitle>
           </DialogHeader>
-          <FeederSubmissionForm 
+          <FeederSubmissionForm
             adminMode={true}
             onSuccess={() => {
               setShowCreateDialog(false);

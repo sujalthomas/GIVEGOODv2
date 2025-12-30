@@ -834,10 +834,10 @@ export default function Home() {
               Our Growing Network
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See our volunteers and feeders spread across Bangalore in real-time
+              See exactly where our volunteers and feeders are making a difference across Bangalore
             </p>
           </motion.div>
-          
+
           <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
             <Link
               href="/volunteer-map"

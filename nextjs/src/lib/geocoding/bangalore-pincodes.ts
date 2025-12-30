@@ -29,7 +29,7 @@ export function getAllBangalorePincodes(): string[] {
   return Object.keys(bangalorePincodes);
 }
 
-export function searchPincodesByArea(searchTerm: string): Array<{ pincode: string; data: PincodeData }> {
+export function searchPincodesByArea(searchTerm: string, limit?: number): Array<{ pincode: string; data: PincodeData }> {
   const results: Array<{ pincode: string; data: PincodeData }> = [];
   const lowerSearch = searchTerm.toLowerCase();
   
@@ -39,6 +39,7 @@ export function searchPincodesByArea(searchTerm: string): Array<{ pincode: strin
       data.locality.toLowerCase().includes(lowerSearch)
     ) {
       results.push({ pincode, data });
+      if (limit && results.length >= limit) break;
     }
   }
   

@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { createSPAClient } from '@/lib/supabase/client';
+import { createSSRSassClient } from '@/lib/supabase/server';
+import bangalorePincodes from '@/lib/maps/bangalore-pincodes.json';
 
 export async function GET() {
   try {
-    const supabase = createSPAClient();
+    const supabaseClient = await createSSRSassClient();
+    const supabase = supabaseClient.getSupabaseClient();
 
     // Get total approved volunteers
     const { count: volunteerCount } = await supabase
@@ -27,9 +29,8 @@ export async function GET() {
       ? new Set(uniquePincodes.map((f: { pincode: string }) => f.pincode)).size 
       : 0;
 
-    // Simple coverage calculation (can be enhanced)
-    // Updated to match our expanded pincode database (560001-560110 = 110 pincodes)
-    const totalBangalorePincodes = 110;
+    // Coverage calculation based on actual pincode database
+    const totalBangalorePincodes = Object.keys(bangalorePincodes).length;
     const coveragePercent = Math.round((areasCount / totalBangalorePincodes) * 100);
 
     return NextResponse.json({

@@ -64,18 +64,23 @@ export async function POST(request: NextRequest) {
 
     // Auto-assign if not already assigned (flexibility)
     if (!assignment) {
-      await supabase
+      const { error: assignError } = await supabase
         .from('volunteer_feeders')
         .insert({
           volunteer_id: volunteer.id,
           feeder_id: body.feeder_id,
           role: 'refiller'
         });
+      if (assignError) {
+        console.warn('Auto-assignment failed:', assignError);
+        // Continue - not critical for refill logging
+      }
     }
 
     // Check if user is admin for verifyImmediately
-    const isAdmin = user.email === 'sujalt1811@gmail.com';
-    const shouldVerify = body.verifyImmediately && isAdmin;
+    const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+    const isAdmin = SUPER_ADMIN_EMAIL && user.email === SUPER_ADMIN_EMAIL;
+    const shouldVerify = !!(body.verifyImmediately && isAdmin);
 
     // Log the refill
     const { data: refill, error: insertError } = await supabase

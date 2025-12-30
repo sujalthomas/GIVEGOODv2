@@ -8,7 +8,7 @@ import { createSPASassClient } from '@/lib/supabase/client';
 import RefillLogForm from '@/components/RefillLogForm';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 interface RecentRefill {
   id: string;
@@ -30,8 +30,10 @@ export default function LogRefillPage() {
   const [stats, setStats] = useState({ assignedFeeders: 0, totalRefills: 0, thisMonth: 0 });
   const [recentRefills, setRecentRefills] = useState<RecentRefill[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const checkVolunteerStatus = async () => {
+  useEffect(() => {
+    const checkVolunteerStatus = async () => {
       if (!user) {
         setChecking(false);
         return;
@@ -44,6 +46,13 @@ export default function LogRefillPage() {
         // Check if admin
         const adminCheck = user.email === SUPER_ADMIN_EMAIL;
         setIsAdmin(adminCheck);
+
+        // User may not have email if authenticated via certain methods
+        if (!user.email) {
+          setIsApprovedVolunteer(false);
+          setChecking(false);
+          return;
+        }
 
         // Get volunteer data
         const { data: volunteer } = await supabase
@@ -91,16 +100,16 @@ export default function LogRefillPage() {
         const { data: refills } = await supabase
           .from('feeder_refills')
           .select(`
-            id,
-            refill_date,
-            food_quantity_kg,
-            food_type,
-            verified,
-            feeders (
-              location_name,
-              area_name
-            )
-          `)
+              id,
+              refill_date,
+              food_quantity_kg,
+              food_type,
+              verified,
+              feeders (
+                location_name,
+                area_name
+              )
+            `)
           .eq('refilled_by', volunteer.id)
           .order('refill_date', { ascending: false })
           .limit(5);
@@ -113,11 +122,10 @@ export default function LogRefillPage() {
       } finally {
         setChecking(false);
       }
-  };
+    };
 
-  useEffect(() => {
     checkVolunteerStatus();
-  }, [user]);
+  }, [user, refreshKey]);
 
   if (userLoading || checking) {
     return (
@@ -212,10 +220,10 @@ export default function LogRefillPage() {
       </div>
 
       {/* Refill Form */}
-      <RefillLogForm 
+      <RefillLogForm
         adminMode={isAdmin}
         onSuccess={() => {
-          checkVolunteerStatus(); // Refresh stats
+          setRefreshKey(prev => prev + 1); // Trigger data refetch
         }}
       />
 

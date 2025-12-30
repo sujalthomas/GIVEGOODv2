@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface VolunteerData {
   id: string;
@@ -38,19 +38,15 @@ export function useMapData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchMapData();
-  }, []);
-
-  const fetchMapData = async () => {
+  const fetchMapData = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const [volunteersRes, feedersRes, statsRes] = await Promise.all([
-        fetch('/api/map/volunteers'),
-        fetch('/api/map/feeders'),
-        fetch('/api/map/stats')
+        fetch('/api/map/volunteers', { signal }),
+        fetch('/api/map/feeders', { signal }),
+        fetch('/api/map/stats', { signal })
       ]);
 
       if (!volunteersRes.ok || !feedersRes.ok || !statsRes.ok) {
@@ -66,13 +62,26 @@ export function useMapData() {
       setStats(statsData);
 
     } catch (err) {
+      // Ignore abort errors - they're expected on cleanup
+      if (err instanceof Error && err.name === 'AbortError') {
+        return;
+      }
       console.error('Error fetching map data:', err);
       setError('Failed to load map data');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  return { volunteers, feeders, stats, loading, error, refetch: fetchMapData };
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchMapData(controller.signal);
+    return () => controller.abort();
+  }, [fetchMapData]);
+
+  // Refetch without abort signal for manual refresh
+  const refetch = useCallback(() => fetchMapData(), [fetchMapData]);
+
+  return { volunteers, feeders, stats, loading, error, refetch };
 }
 

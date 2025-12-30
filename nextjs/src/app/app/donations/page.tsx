@@ -2,8 +2,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { 
-  Heart, Mail, Phone, Calendar, IndianRupee, Filter, 
+import {
+  Heart, Mail, Phone, Calendar, IndianRupee, Filter,
   Download, TrendingUp, Users, CreditCard, CheckCircle,
   Clock, XCircle, DollarSign, Target, Wallet
 } from 'lucide-react';
@@ -11,7 +11,7 @@ import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 interface Donation {
   id: string;
@@ -109,7 +109,7 @@ export default function DonationsPage() {
     const totalNetAmount = completed.reduce((sum, d) => sum + (d.net_amount_inr || d.amount_inr), 0);
     const totalFees = totalAmount - totalNetAmount;
     const avgDonation = completed.length > 0 ? totalAmount / completed.length : 0;
-    
+
     const purposeBreakdown = completed.reduce((acc, d) => {
       acc[d.purpose] = (acc[d.purpose] || 0) + 1;
       return acc;
@@ -169,7 +169,7 @@ export default function DonationsPage() {
       'Payment ID',
       'Anonymous'
     ];
-    
+
     const rows = donations.map(d => [
       d.id,
       new Date(d.created_at).toLocaleString(),
@@ -195,6 +195,7 @@ export default function DonationsPage() {
     a.href = url;
     a.download = `donations_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -379,8 +380,8 @@ export default function DonationsPage() {
             <CardContent>
               <div className="space-y-3">
                 {Object.entries(stats.purposeBreakdown).map(([purpose, count]) => {
-                  const percentage = stats.completed > 0 
-                    ? Math.round((count / stats.completed) * 100) 
+                  const percentage = stats.completed > 0
+                    ? Math.round((count / stats.completed) * 100)
                     : 0;
                   return (
                     <div key={purpose} className="space-y-1">
@@ -418,8 +419,8 @@ export default function DonationsPage() {
             <CardContent>
               <div className="space-y-3">
                 {Object.entries(stats.paymentMethods).map(([method, count]) => {
-                  const percentage = stats.completed > 0 
-                    ? Math.round((count / stats.completed) * 100) 
+                  const percentage = stats.completed > 0
+                    ? Math.round((count / stats.completed) * 100)
                     : 0;
                   return (
                     <div key={method} className="space-y-1">
@@ -457,11 +458,10 @@ export default function DonationsPage() {
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      statusFilter === status
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
@@ -516,7 +516,7 @@ export default function DonationsPage() {
                           {donation.status}
                         </span>
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                         {!donation.anonymous && donation.donor_email && (
                           <div className="flex items-center gap-2">
@@ -566,7 +566,7 @@ export default function DonationsPage() {
                         <IndianRupee className="w-6 h-6" />
                         {donation.amount_inr.toLocaleString()}
                       </div>
-                      
+
                       {/* Fee Breakdown */}
                       {donation.net_amount_inr && donation.status === 'completed' && (
                         <div className="text-xs text-gray-600 bg-green-50 rounded-lg px-3 py-2 space-y-0.5">
@@ -582,7 +582,7 @@ export default function DonationsPage() {
                           )}
                         </div>
                       )}
-                      
+
                       <span className="px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full text-sm font-medium">
                         {getPurposeLabel(donation.purpose)}
                       </span>

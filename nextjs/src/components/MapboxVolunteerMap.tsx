@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
-import { Map, Marker, Popup, Layer, Source, type MapRef } from 'react-map-gl/mapbox';
+import { Map as MapGL, Marker, Popup, Layer, Source, type MapRef } from 'react-map-gl/mapbox';
+import { calculateDistance } from '@/lib/maps/coverage-calculator';
 import { motion } from 'framer-motion';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -149,16 +150,18 @@ export default function MapboxVolunteerMap({
     const features = volunteers.flatMap(volunteer => {
       // Find nearest feeder
       const nearbyFeeders = feeders.map(feeder => {
-        // Simple distance calculation
-        const distance = Math.sqrt(
-          Math.pow(feeder.latitude - volunteer.latitude, 2) +
-          Math.pow(feeder.longitude - volunteer.longitude, 2)
+        // Use Haversine distance for accuracy
+        const distance = calculateDistance(
+          volunteer.latitude,
+          volunteer.longitude,
+          feeder.latitude,
+          feeder.longitude
         );
         return { feeder, distance };
       })
-      .filter(f => f.distance < 0.05) // ~5km radius
-      .sort((a, b) => a.distance - b.distance)
-      .slice(0, 2); // Max 2 connections per volunteer
+        .filter(f => f.distance < 5) // 5km radius
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 2); // Max 2 connections per volunteer
 
       return nearbyFeeders.map(({ feeder }) => ({
         type: 'Feature' as const,
@@ -183,14 +186,30 @@ export default function MapboxVolunteerMap({
     };
   }, [volunteers, feeders, showConnections]);
 
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+  if (!mapboxToken) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 p-6 text-center">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Map Configuration Missing</h3>
+          <p className="text-gray-600 max-w-md mx-auto">
+            The map cannot be loaded because the Mapbox access token is missing.
+            Please check your configuration.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full relative">
-      <Map
+      <MapGL
         ref={mapRef}
         {...viewState}
         onMove={evt => setViewState(evt.viewState)}
         mapStyle="mapbox://styles/mapbox/light-v11" // Light, clean style - easier to customize
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        mapboxAccessToken={mapboxToken}
         style={{ width: '100%', height: '100%' }}
         // Better UX settings
         dragRotate={false}
@@ -346,7 +365,7 @@ export default function MapboxVolunteerMap({
             <motion.div
               initial={markersLoaded ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={markersLoaded ? { duration: 0 } : { delay: index * 0.02, duration: 0.3 }}
+              transition={markersLoaded ? { duration: 0 } : { delay: Math.min(index * 0.02, 1), duration: 0.3 }}
               className="cursor-pointer hover:scale-125 transition-transform"
               style={{
                 width: '16px',
@@ -376,7 +395,7 @@ export default function MapboxVolunteerMap({
             <motion.div
               initial={markersLoaded ? { scale: 1, y: 0, opacity: 1 } : { scale: 0, y: -20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
-              transition={markersLoaded ? { duration: 0 } : { delay: (volunteers.length * 0.02) + (index * 0.03), duration: 0.4 }}
+              transition={markersLoaded ? { duration: 0 } : { delay: Math.min((volunteers.length * 0.02) + (index * 0.03), 1.5), duration: 0.4 }}
               className="cursor-pointer hover:scale-110 transition-transform"
             >
               {/* Feeder Icon (House) */}
@@ -438,9 +457,9 @@ export default function MapboxVolunteerMap({
                     key={type}
                     className="px-2 py-1 text-xs rounded-full bg-primary-100 text-primary-700"
                   >
-                    {type === 'build' ? '🔨 Builder' : 
-                     type === 'refill' ? '🥣 Refiller' : 
-                     '📢 Ambassador'}
+                    {type === 'build' ? '🔨 Builder' :
+                      type === 'refill' ? '🥣 Refiller' :
+                        '📢 Ambassador'}
                   </span>
                 ))}
               </div>
@@ -472,9 +491,8 @@ export default function MapboxVolunteerMap({
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`font-medium ${
-                    selectedFeeder.status === 'active' ? 'text-green-600' : 'text-yellow-600'
-                  }`}>
+                  <span className={`font-medium ${selectedFeeder.status === 'active' ? 'text-green-600' : 'text-yellow-600'
+                    }`}>
                     {selectedFeeder.status}
                   </span>
                 </div>
@@ -496,7 +514,7 @@ export default function MapboxVolunteerMap({
             </div>
           </Popup>
         )}
-      </Map>
+      </MapGL>
 
       {/* Map Legend - Glassmorphism */}
       <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl p-3 z-10 border border-white/20">

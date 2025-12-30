@@ -7,6 +7,7 @@ import { getTopAreas, AreaMetrics } from '@/lib/maps/area-analytics';
 export default function TopAreasPanel() {
   const [topAreas, setTopAreas] = useState<AreaMetrics[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTopAreas();
@@ -16,12 +17,34 @@ export default function TopAreasPanel() {
     try {
       const areas = await getTopAreas(6);
       setTopAreas(areas);
+      setError(null);
     } catch (error) {
       console.error('Error loading top areas:', error);
+      setError('Failed to load top areas');
     } finally {
       setLoading(false);
     }
   };
+
+  if (error) {
+    return (
+      <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-4 border border-white/20">
+        <div className="text-center py-4">
+          <p className="text-red-600 text-sm font-medium">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              loadTopAreas();
+            }}
+            className="mt-2 text-xs text-primary-600 hover:text-primary-700 underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -52,7 +75,7 @@ export default function TopAreasPanel() {
                 </div>
                 <div className="h-6 w-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full animate-pulse"></div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <div className="h-3 w-16 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
                 <div className="h-3 w-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded animate-pulse"></div>
@@ -88,16 +111,15 @@ export default function TopAreasPanel() {
                   <p className="text-xs text-gray-500 font-mono">{area.pincode}</p>
                 </div>
               </div>
-              <span 
-                className={`text-lg font-bold ${
-                  area.coveragePercent >= 80 ? 'text-green-600' :
-                  area.coveragePercent >= 50 ? 'text-yellow-600' : 'text-red-600'
-                }`}
+              <span
+                className={`text-lg font-bold ${area.coveragePercent >= 80 ? 'text-green-600' :
+                    area.coveragePercent >= 50 ? 'text-yellow-600' : 'text-red-600'
+                  }`}
               >
                 {area.coveragePercent}%
               </span>
             </div>
-            
+
             <div className="flex items-center gap-3 text-xs text-gray-600 mt-2">
               <div className="flex items-center gap-1">
                 <Users className="w-3 h-3" />
@@ -108,13 +130,12 @@ export default function TopAreasPanel() {
                 <span>{area.feederCount} feeders</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${
-                  area.healthScore >= 80 ? 'bg-green-500' :
-                  area.healthScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                }`}></div>
+                <div className={`w-2 h-2 rounded-full ${area.healthScore >= 80 ? 'bg-green-500' :
+                    area.healthScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}></div>
                 <span className={
                   area.healthScore >= 80 ? 'text-green-600 font-semibold' :
-                  area.healthScore >= 60 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold'
+                    area.healthScore >= 60 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold'
                 }>
                   {area.healthScore}%
                 </span>
