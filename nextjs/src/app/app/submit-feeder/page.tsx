@@ -78,7 +78,7 @@ export default function SubmitFeederPage() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-2xl shadow-xl p-8 text-center"
         >
-          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+          <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" aria-hidden="true" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Volunteer Approval Required
           </h2>

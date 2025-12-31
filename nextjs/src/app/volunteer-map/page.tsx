@@ -315,6 +315,7 @@ export default function PublicVolunteerMapPage() {
                     >
                       <button
                         onClick={() => setShowTopAreas(false)}
+                        aria-label="Close Top Areas panel"
                         className="absolute top-3 right-3 z-10 p-1.5 bg-gray-100/80 hover:bg-gray-200/80 rounded-lg transition-colors"
                       >
                         <X className="w-4 h-4 text-gray-600" />
@@ -336,6 +337,7 @@ export default function PublicVolunteerMapPage() {
                     >
                       <button
                         onClick={() => setShowCTA(false)}
+                        aria-label="Close Join the Movement card"
                         className="absolute top-3 right-3 z-10 p-1.5 bg-white/20 hover:bg-white/30 rounded-lg transition-colors backdrop-blur-sm"
                       >
                         <X className="w-4 h-4 text-white" />
@@ -391,8 +393,8 @@ export default function PublicVolunteerMapPage() {
               {/* Close Entire Sidebar Button - Visible on left edge */}
               <button
                 onClick={() => setShowSidebar(false)}
+                aria-label="Hide sidebar"
                 className="absolute -left-12 top-1/2 -translate-y-1/2 p-3 bg-white/95 backdrop-blur-lg rounded-l-xl shadow-2xl hover:shadow-xl transition-all border border-white/20 border-r-0 hover:scale-110"
-                title="Hide sidebar"
               >
                 <X className="w-5 h-5 text-gray-600" />
               </button>
