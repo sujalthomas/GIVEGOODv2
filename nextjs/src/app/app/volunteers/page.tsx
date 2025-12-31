@@ -10,6 +10,7 @@ import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
@@ -43,6 +44,7 @@ export default function VolunteersPage() {
 
   const { user } = useGlobal();
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     // Check if user is super admin
@@ -92,7 +94,11 @@ export default function VolunteersPage() {
       await fetchVolunteers(); // Refresh list
     } catch (error) {
       console.error('Error approving volunteer:', error);
-      alert('Failed to approve volunteer');
+      toast({
+        title: "Error",
+        description: "Failed to approve volunteer. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setActionLoading(false);
     }
@@ -100,7 +106,11 @@ export default function VolunteersPage() {
 
   const handleReject = async () => {
     if (!selectedVolunteer || !rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      toast({
+        title: "Missing Information",
+        description: "Please provide a rejection reason.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -124,7 +134,11 @@ export default function VolunteersPage() {
       await fetchVolunteers();
     } catch (error) {
       console.error('Error rejecting volunteer:', error);
-      alert('Failed to reject volunteer');
+      toast({
+        title: "Error",
+        description: "Failed to reject volunteer. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setActionLoading(false);
     }
@@ -285,8 +299,8 @@ export default function VolunteersPage() {
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -306,8 +320,8 @@ export default function VolunteersPage() {
                     key={type}
                     onClick={() => setHelpTypeFilter(type)}
                     className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${helpTypeFilter === type
-                        ? 'bg-secondary-600 text-white'
-                        : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      ? 'bg-secondary-600 text-white'
+                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                       }`}
                   >
                     {type === 'all' ? 'All Types' : getHelpTypeLabel(type)}
@@ -337,8 +351,8 @@ export default function VolunteersPage() {
               transition={{ delay: index * 0.05 }}
             >
               <Card className={`hover:shadow-lg transition-shadow ${volunteer.status === 'pending' ? 'border-l-4 border-l-yellow-500' :
-                  volunteer.status === 'approved' ? 'border-l-4 border-l-green-500' :
-                    'border-l-4 border-l-red-500'
+                volunteer.status === 'approved' ? 'border-l-4 border-l-green-500' :
+                  'border-l-4 border-l-red-500'
                 }`}>
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -350,8 +364,8 @@ export default function VolunteersPage() {
                           <Heart className="w-4 h-4 text-primary-500" />
                         </h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${volunteer.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                            volunteer.status === 'approved' ? 'bg-green-100 text-green-800' :
-                              'bg-red-100 text-red-800'
+                          volunteer.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'
                           }`}>
                           {volunteer.status.toUpperCase()}
                         </span>

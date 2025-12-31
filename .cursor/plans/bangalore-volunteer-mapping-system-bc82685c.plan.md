@@ -1,4 +1,57 @@
-<!-- bc82685c-a6c4-4251-b5ca-5ba492594566 95fbd955-09ae-40c0-a554-c620b676878c -->
+---
+name: Bangalore Volunteer & Feeder Mapping System - Complete Implementation Plan
+overview: ""
+todos:
+  - id: e345d141-3a43-4415-b5c9-93ac07e8f18b
+    content: Create database migration for volunteer approval system with pincode, status, coordinates, and review tracking
+    status: pending
+  - id: ba9b7c83-915f-45d1-b08c-a567c28c6c90
+    content: Update all Delhi/NCR references to Bangalore across homepage and components
+    status: pending
+  - id: a75e497b-dd4d-46ae-bfc1-ec8f2a17e754
+    content: Add pincode field to VolunteerForm with Bangalore validation (560xxx)
+    status: pending
+  - id: c9a863b2-81ea-445d-9877-492d83cecf93
+    content: Implement pincode geocoding service using Nominatim API and Bangalore pincode reference data
+    status: pending
+  - id: abe4b09b-e61d-4fe2-a53e-cc85efb0e89e
+    content: Create API routes for volunteer approval/rejection with geocoding trigger
+    status: pending
+  - id: a39b7439-c152-406d-b51a-8c4fd1c9f8bf
+    content: Enhance admin volunteers page with status tabs, approval actions, and enhanced volunteer cards
+    status: pending
+  - id: 85c0c4a4-9bfc-4ab9-a583-a17a7ede3b25
+    content: Install and configure Leaflet, react-leaflet, supercluster, and leaflet.heat packages
+    status: pending
+  - id: bd9ba9b8-f6a3-41f3-86b1-d017672b7c52
+    content: Build core VolunteerMap component with markers, clustering, popups, and base Leaflet setup
+    status: pending
+  - id: be4df426-b8c9-4555-993d-8bd6536efa90
+    content: Implement coverage zones, connection lines, heatmap layer, and toggle controls
+    status: pending
+  - id: 6feb01d0-b8c7-4cc6-bc72-8a1078c43793
+    content: Add Framer Motion animations for markers, zones, and layer transitions
+    status: pending
+  - id: f34dd00a-d023-4cb8-acfb-1ad1464e1c80
+    content: Create public volunteer map page showing approved volunteers only
+    status: pending
+  - id: 7b2e6d5b-135f-4e6a-8d9d-ab9fa9635d51
+    content: Create admin volunteer map page with all statuses and quick-approval actions
+    status: pending
+  - id: 7caf36e4-d624-4133-971f-189dfa9fc641
+    content: Add volunteer map links to navigation and homepage CTAs
+    status: pending
+  - id: 6847c904-87d8-4614-b09a-909122345418
+    content: Implement coverage score calculation and display on map
+    status: pending
+  - id: 292df3a7-1c65-40e3-8f9d-cf3a4230dbe6
+    content: Optimize map for mobile responsiveness and performance
+    status: pending
+  - id: b9c781f1-4286-41d0-ba3a-6cde3ce1d154
+    content: Test full workflow end-to-end, verify RLS policies, and create seed data
+    status: pending
+---
+
 # Bangalore Volunteer & Feeder Mapping System - Complete Implementation Plan
 
 ## Phase 1: Database Schema & Branding Updates
@@ -597,22 +650,3 @@ Document:
 - Mobile app
 - Export reports (PDF/CSV)
 - Automated refill reminders (cron jobs)
-
-### To-dos
-
-- [ ] Create database migration for volunteer approval system with pincode, status, coordinates, and review tracking
-- [ ] Update all Delhi/NCR references to Bangalore across homepage and components
-- [ ] Add pincode field to VolunteerForm with Bangalore validation (560xxx)
-- [ ] Implement pincode geocoding service using Nominatim API and Bangalore pincode reference data
-- [ ] Create API routes for volunteer approval/rejection with geocoding trigger
-- [ ] Enhance admin volunteers page with status tabs, approval actions, and enhanced volunteer cards
-- [ ] Install and configure Leaflet, react-leaflet, supercluster, and leaflet.heat packages
-- [ ] Build core VolunteerMap component with markers, clustering, popups, and base Leaflet setup
-- [ ] Implement coverage zones, connection lines, heatmap layer, and toggle controls
-- [ ] Add Framer Motion animations for markers, zones, and layer transitions
-- [ ] Create public volunteer map page showing approved volunteers only
-- [ ] Create admin volunteer map page with all statuses and quick-approval actions
-- [ ] Add volunteer map links to navigation and homepage CTAs
-- [ ] Implement coverage score calculation and display on map
-- [ ] Optimize map for mobile responsiveness and performance
-- [ ] Test full workflow end-to-end, verify RLS policies, and create seed data
