@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Home, AlertCircle } from 'lucide-react';
@@ -12,6 +12,14 @@ export default function SubmitFeederPage() {
   const router = useRouter();
   const [isApprovedVolunteer, setIsApprovedVolunteer] = useState(false);
   const [checking, setChecking] = useState(true);
+  const isMountedRef = useRef(true);
+
+  // Cleanup ref on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const checkVolunteerStatus = async () => {
@@ -124,7 +132,11 @@ export default function SubmitFeederPage() {
       <FeederSubmissionForm
         adminMode={false}
         onSuccess={() => {
-          setTimeout(() => router.push('/app'), 3000);
+          setTimeout(() => {
+            if (isMountedRef.current) {
+              router.push('/app');
+            }
+          }, 3000);
         }}
       />
 

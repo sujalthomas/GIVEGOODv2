@@ -83,7 +83,7 @@ export default function PublicVolunteerMapPage() {
         {/* Main Loading Screen */}
         <div className="flex-1 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
           {/* Animated background blobs */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute inset-0 opacity-20 pointer-events-none" aria-hidden="true">
             <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/40 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-500/40 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
             <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
@@ -92,7 +92,7 @@ export default function PublicVolunteerMapPage() {
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center relative z-10">
               {/* Multi-layer spinner */}
-              <div className="relative mb-6 w-24 h-24 mx-auto">
+              <div className="relative mb-6 w-24 h-24 mx-auto" aria-hidden="true">
                 {/* Outer ring */}
                 <div className="absolute inset-0 border-4 border-primary-600/20 border-t-primary-600 rounded-full animate-spin"></div>
                 {/* Middle ring */}
