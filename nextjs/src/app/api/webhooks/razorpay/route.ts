@@ -39,6 +39,18 @@ interface RazorpayWebhookEvent {
   created_at: number;
 }
 
+// Local type for donation records - used because Database types may be out of sync
+// TODO: Regenerate types with `npx supabase gen types typescript --local` when schema stabilizes
+interface DonationRecord {
+  id: string;
+  order_id: string | null;
+  payment_id: string | null;
+  status: string;
+  razorpay_event_id: string | null;
+  metadata: Record<string, unknown> | null;
+  [key: string]: unknown;
+}
+
 export async function POST(request: NextRequest) {
   // SECURITY: Apply rate limiting (high limit for webhooks to allow Razorpay retries)
   const rateLimited = applyRateLimit(request, 'webhook');
@@ -158,10 +170,7 @@ async function handlePaymentCaptured(
     .from('donations')
     .select('id, status, payment_id')
     .eq('payment_id', paymentId)
-    .single() as { 
-      data: { id: string; status: string; payment_id: string | null } | null; 
-      error: unknown 
-    };
+    .maybeSingle() as { data: DonationRecord | null; error: unknown };
 
   if (existingByPayment?.status === 'completed') {
     console.log('✅ Payment already processed (by payment_id):', paymentId);
@@ -173,7 +182,7 @@ async function handlePaymentCaptured(
     .from('donations')
     .select('id, razorpay_event_id')
     .eq('razorpay_event_id', event.entity)
-    .single();
+    .maybeSingle();
 
   if (existingByEvent) {
     console.log('✅ Event already processed (by event_id):', event.entity);
@@ -185,14 +194,7 @@ async function handlePaymentCaptured(
     .from('donations')
     .select('*')
     .eq('order_id', orderId)
-    .single() as { 
-      data: { 
-        id: string; 
-        metadata: { expected_amount?: number } | null; 
-        [key: string]: unknown 
-      } | null; 
-      error: unknown 
-    };
+    .maybeSingle() as { data: DonationRecord | null; error: unknown };
 
   if (findError || !donation) {
     console.error('❌ Donation not found for order:', orderId);

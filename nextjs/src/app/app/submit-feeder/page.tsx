@@ -15,8 +15,15 @@ export default function SubmitFeederPage() {
 
   useEffect(() => {
     const checkVolunteerStatus = async () => {
-      if (!user) {
+      // Handle unauthenticated users after loading completes
+      if (!user && !userLoading) {
+        router.push('/auth/login?redirect=/app/submit-feeder');
         setChecking(false);
+        return;
+      }
+
+      // Still loading user, wait
+      if (!user) {
         return;
       }
 
@@ -48,7 +55,7 @@ export default function SubmitFeederPage() {
     };
 
     checkVolunteerStatus();
-  }, [user]);
+  }, [user, userLoading, router]);
 
   if (userLoading || checking) {
     return (
@@ -58,8 +65,8 @@ export default function SubmitFeederPage() {
     );
   }
 
+  // User check now handled in useEffect, this is just a safety fallback
   if (!user) {
-    router.push('/auth/login?redirect=/app/submit-feeder');
     return null;
   }
 
