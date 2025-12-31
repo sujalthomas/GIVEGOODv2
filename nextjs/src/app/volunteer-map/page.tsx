@@ -17,7 +17,7 @@ const MapboxVolunteerMap = dynamic(
 );
 
 export default function PublicVolunteerMapPage() {
-  const { stats, volunteers, feeders, loading } = useMapData();
+  const { stats, volunteers, feeders, loading, error, refetch } = useMapData();
   const [showCoverageZones, setShowCoverageZones] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
@@ -26,6 +26,24 @@ export default function PublicVolunteerMapPage() {
   const [showControls, setShowControls] = useState(true);
   const [showTopAreas, setShowTopAreas] = useState(true);
   const [showCTA, setShowCTA] = useState(true);
+
+  // Error state - show retry option
+  if (error) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-center p-6 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl max-w-md">
+          <p className="text-red-600 font-semibold mb-2">Failed to load map data</p>
+          <p className="text-gray-600 text-sm mb-4">{error}</p>
+          <button
+            onClick={refetch}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Single unified loading state
   if (loading) {
