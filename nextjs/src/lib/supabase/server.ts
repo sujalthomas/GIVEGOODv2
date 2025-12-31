@@ -1,4 +1,5 @@
 import {createServerClient} from '@supabase/ssr'
+import {SupabaseClient} from '@supabase/supabase-js';
 import {cookies} from 'next/headers'
 import {ClientType, SassClient} from "@/lib/supabase/unified";
 import {Database} from "@/lib/types";
@@ -34,7 +35,9 @@ export async function createSSRClient() {
 
 export async function createSSRSassClient() {
     const client = await createSSRClient();
-    // This must be some bug that SupabaseClient is not properly recognized, so must be ignored
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new SassClient(client as any, ClientType.SERVER);
+    // createSSRClient returns SupabaseClient which matches SassClient constructor type
+    return new SassClient(
+        client as unknown as SupabaseClient<Database, "public", "public">, 
+        ClientType.SERVER
+    );
 }

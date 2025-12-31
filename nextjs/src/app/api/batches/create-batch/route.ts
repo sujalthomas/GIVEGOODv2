@@ -215,8 +215,7 @@ export async function POST(req: NextRequest) {
     const updateResults = await Promise.all(updatePromises);
     
     // Check for update errors
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateErrors = updateResults.filter((r: any) => r.error);
+    const updateErrors = updateResults.filter((r: { error: unknown }) => r.error);
     if (updateErrors.length > 0) {
       console.error('⚠️ Some donation updates failed:', updateErrors);
       // Continue anyway - batch is created, can retry updates later

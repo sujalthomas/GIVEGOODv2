@@ -826,6 +826,38 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Volunteer Map Showcase */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeInUp} className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Our Growing Network
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              See exactly where our volunteers and feeders are making a difference across Bangalore
+            </p>
+          </motion.div>
+
+          <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
+            <Link
+              href="/volunteer-map"
+              className="block max-w-4xl mx-auto bg-gradient-to-r from-primary-600 to-secondary-600 rounded-2xl p-8 text-center hover:scale-[1.02] transition-transform shadow-xl"
+            >
+              <MapPin className="w-16 h-16 text-white mx-auto mb-4" />
+              <h3 className="text-3xl font-bold text-white mb-2">
+                View Interactive Map
+              </h3>
+              <p className="text-lg text-primary-100 mb-4">
+                See exactly where our volunteers are making a difference across Bangalore
+              </p>
+              <div className="inline-flex items-center gap-2 bg-white text-primary-600 px-6 py-3 rounded-full font-semibold">
+                Explore the Map →
+              </div>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Gallery Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

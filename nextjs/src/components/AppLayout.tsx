@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import {usePathname, useRouter} from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import {
     Home,
     User,
@@ -9,22 +10,23 @@ import {
     X,
     ChevronDown,
     LogOut,
-    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity,
+    Key, Files, LucideListTodo, UserCheck, Heart, Package, Activity, MapPin, Droplets, ChevronLeft, ChevronRight, Map as MapIcon,
 } from 'lucide-react';
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
 
-const SUPER_ADMIN_EMAIL = 'sujalt1811@gmail.com';
+const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL;
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
 
 
     const { user } = useGlobal();
-    
+
     // Check if user is super admin
     const isSuperAdmin = useMemo(() => {
         return user?.email === SUPER_ADMIN_EMAIL;
@@ -51,19 +53,25 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const productName = process.env.NEXT_PUBLIC_PRODUCTNAME;
 
-    const baseNavigation = [
-        { name: 'Homepage', href: '/app', icon: Home },
-        { name: 'Example Storage', href: '/app/storage', icon: Files },
-        { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
-        { name: 'User Settings', href: '/app/user-settings', icon: User },
-    ];
-
     // Add super admin navigation items
     const navigation = useMemo(() => {
+        const baseNavigation = [
+            { name: 'Homepage', href: '/app', icon: Home },
+            { name: 'Submit Feeder', href: '/app/submit-feeder', icon: Home },
+            { name: 'Log Refill', href: '/app/log-refill', icon: Droplets },
+            { name: 'View Map', href: '/volunteer-map', icon: MapIcon },
+            { name: 'Example Storage', href: '/app/storage', icon: Files },
+            { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
+            { name: 'User Settings', href: '/app/user-settings', icon: User },
+        ];
+
         if (isSuperAdmin) {
             return [
                 ...baseNavigation,
                 { name: 'Volunteer Submissions', href: '/app/volunteers', icon: UserCheck },
+                { name: 'Volunteer Map', href: '/app/volunteer-map', icon: MapPin },
+                { name: 'Feeder Dashboard', href: '/app/feeders', icon: Home },
+                { name: 'Refill Logs', href: '/app/refills', icon: Droplets },
                 { name: 'Donation Dashboard', href: '/app/donations', icon: Heart },
                 { name: 'Anchor Batches', href: '/app/batches', icon: Package },
                 { name: 'Blockchain Stats', href: '/app/blockchain-stats', icon: Activity },
@@ -73,6 +81,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }, [isSuperAdmin]);
 
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+    const toggleCollapse = () => setSidebarCollapsed(!isSidebarCollapsed);
+
+    // Check if current page needs full-screen (no padding)
+    const isFullScreenPage = pathname === '/app/volunteer-map';
+    const contentPadding = isSidebarCollapsed ? 'lg:pl-16' : 'lg:pl-64';
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -83,12 +96,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 />
             )}
 
-            {/* Sidebar */}
-            <div className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-200 ease-in-out z-30 
-                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-
+            {/* Sidebar with Collapse */}
+            <motion.div
+                animate={{ width: isSidebarCollapsed ? 64 : 256 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className={`fixed inset-y-0 left-0 bg-white shadow-lg transform transition-transform duration-200 ease-in-out z-30 
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+            >
+                {/* Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b">
-                    <span className="text-xl font-semibold text-primary-600">{productName}</span>
+                    {!isSidebarCollapsed ? (
+                        <span className="text-xl font-semibold text-primary-600">{productName}</span>
+                    ) : (
+                        <span className="text-lg font-bold text-primary-600 mx-auto">GGC</span>
+                    )}
                     <button
                         onClick={toggleSidebar}
                         className="lg:hidden text-gray-500 hover:text-gray-700"
@@ -105,32 +126,48 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                                    isActive
-                                        ? 'bg-primary-50 text-primary-600'
-                                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                }`}
+                                title={isSidebarCollapsed ? item.name : undefined}
+                                className={`group flex items-center ${isSidebarCollapsed ? 'justify-center' : 'px-2'} py-2 text-sm font-medium rounded-md ${isActive
+                                    ? 'bg-primary-50 text-primary-600'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                    }`}
                             >
                                 <item.icon
-                                    className={`mr-3 h-5 w-5 ${
-                                        isActive ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'
-                                    }`}
+                                    className={`${isSidebarCollapsed ? '' : 'mr-3'} h-5 w-5 ${isActive ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'
+                                        }`}
                                 />
-                                {item.name}
+                                {!isSidebarCollapsed && item.name}
                             </Link>
                         );
                     })}
                 </nav>
 
-            </div>
+                {/* Collapse Toggle - Desktop Only */}
+                <div className="absolute bottom-4 left-0 right-0 px-2 hidden lg:block">
+                    <button
+                        onClick={toggleCollapse}
+                        className="w-full flex items-center justify-center py-2 text-gray-500 hover:bg-gray-50 rounded-md transition-colors"
+                        title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                    >
+                        {isSidebarCollapsed ? (
+                            <ChevronRight className="h-5 w-5" />
+                        ) : (
+                            <>
+                                <ChevronLeft className="h-5 w-5 mr-2" />
+                                <span className="text-xs">Collapse</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+            </motion.div>
 
-            <div className="lg:pl-64">
+            <div className={contentPadding}>
                 <div className="sticky top-0 z-10 flex items-center justify-between h-16 bg-white shadow-sm px-4">
                     <button
                         onClick={toggleSidebar}
                         className="lg:hidden text-gray-500 hover:text-gray-700"
                     >
-                        <Menu className="h-6 w-6"/>
+                        <Menu className="h-6 w-6" />
                     </button>
 
                     <div className="relative ml-auto">
@@ -144,7 +181,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                 </span>
                             </div>
                             <span>{user?.email || 'Loading...'}</span>
-                            <ChevronDown className="h-4 w-4"/>
+                            <ChevronDown className="h-4 w-4" />
                         </button>
 
                         {isUserDropdownOpen && (
@@ -163,7 +200,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                         }}
                                         className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                     >
-                                        <Key className="mr-3 h-4 w-4 text-gray-400"/>
+                                        <Key className="mr-3 h-4 w-4 text-gray-400" />
                                         Change Password
                                     </button>
                                     <button
@@ -173,7 +210,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                         }}
                                         className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                                     >
-                                        <LogOut className="mr-3 h-4 w-4 text-red-400"/>
+                                        <LogOut className="mr-3 h-4 w-4 text-red-400" />
                                         Sign Out
                                     </button>
                                 </div>
@@ -182,7 +219,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     </div>
                 </div>
 
-                <main className="p-4">
+                <main className={isFullScreenPage ? '' : 'p-4'}>
                     {children}
                 </main>
             </div>

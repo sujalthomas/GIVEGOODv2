@@ -7,6 +7,7 @@ import { createSPASassClient } from '@/lib/supabase/client';
 interface FormData {
   name: string;
   area: string;
+  pincode: string;
   helpType: string[];
   email: string;
 }
@@ -15,6 +16,7 @@ export default function VolunteerForm() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     area: '',
+    pincode: '',
     helpType: [],
     email: ''
   });
@@ -27,6 +29,30 @@ export default function VolunteerForm() {
     { value: 'refill', label: 'Refill feeders regularly' },
     { value: 'spread', label: 'Spread the word' }
   ];
+
+  const isBangalorePincode = (pincode: string) => {
+    return /^560\d{3}$/.test(pincode);
+  };
+
+  const [pincodeError, setPincodeError] = useState<string | null>(null);
+
+  const handlePincodeChange = (value: string) => {
+    // Allow only numbers
+    const numericValue = value.replace(/\D/g, '').slice(0, 6);
+    setFormData(prev => ({ ...prev, pincode: numericValue }));
+    
+    if (numericValue.length === 6) {
+      if (!isBangalorePincode(numericValue)) {
+        setPincodeError('Please enter a valid Bangalore pincode (560xxx)');
+      } else {
+        setPincodeError(null);
+      }
+    } else if (numericValue.length > 0) {
+      setPincodeError('Pincode must be 6 digits');
+    } else {
+      setPincodeError(null);
+    }
+  };
 
   const handleCheckboxChange = (value: string) => {
     setFormData(prev => ({
@@ -51,8 +77,11 @@ export default function VolunteerForm() {
         .insert({
           name: formData.name,
           area: formData.area,
-          email: formData.email,
-          help_types: formData.helpType
+          pincode: formData.pincode,
+          email: formData.email || null,
+          help_types: formData.helpType,
+          status: 'pending',
+          city: 'Bangalore'
         });
 
       if (insertError) {
@@ -64,7 +93,8 @@ export default function VolunteerForm() {
       // Reset form after 4 seconds
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({ name: '', area: '', helpType: [], email: '' });
+        setFormData({ name: '', area: '', pincode: '', helpType: [], email: '' });
+        setPincodeError(null);
       }, 4000);
     } catch (err) {
       console.error('Error submitting form:', err);
@@ -164,6 +194,35 @@ export default function VolunteerForm() {
       </div>
 
       <div>
+        <label htmlFor="pincode" className="block text-sm font-medium text-gray-700 mb-2">
+          Pincode * <span className="text-gray-500 text-xs">(Bangalore only)</span>
+        </label>
+        <input
+          type="text"
+          id="pincode"
+          required
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={6}
+          value={formData.pincode}
+          onChange={(e) => handlePincodeChange(e.target.value)}
+          className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
+            pincodeError ? 'border-red-500' : 'border-gray-300'
+          }`}
+          placeholder="560001"
+        />
+        {pincodeError && (
+          <p className="mt-1 text-sm text-red-600">{pincodeError}</p>
+        )}
+        {formData.pincode.length === 6 && !pincodeError && (
+          <p className="mt-1 text-sm text-green-600">✓ Valid Bangalore pincode</p>
+        )}
+        <p className="text-xs text-gray-500 mt-1">
+          Enter your 6-digit pincode (e.g., 560034 for Koramangala, 560001 for Central Bangalore)
+        </p>
+      </div>
+
+      <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
           Email *
         </label>
@@ -204,7 +263,7 @@ export default function VolunteerForm() {
 
       <button
         type="submit"
-        disabled={loading || !formData.name || !formData.area || !formData.email || formData.helpType.length === 0}
+        disabled={loading || !formData.name || !formData.area || !formData.pincode || formData.helpType.length === 0 || pincodeError !== null}
         className="w-full bg-primary-600 text-white py-4 px-6 rounded-xl font-semibold hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
       >
         {loading ? (
