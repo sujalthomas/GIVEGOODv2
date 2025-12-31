@@ -197,8 +197,10 @@ async function handlePaymentCaptured(
   if (findError || !donation) {
     console.error('❌ Donation not found for order:', orderId);
     // Create a new donation record from webhook data (fallback scenario)
-    // Note: Using 'as never' to bypass Supabase's overly strict insert types
-    // This is safe because we're providing all required fields
+    // WORKAROUND: Using 'as never' because Supabase's auto-generated types don't account for
+    // server-side inserts with service role key. The schema allows these fields, but the 
+    // generated Insert type expects client-side nullable patterns. See: https://github.com/supabase/supabase-js/issues/551
+    // TODO: Regenerate types with `npx supabase gen types typescript --local` when schema stabilizes
     const { error: insertError } = await supabase
       .from('donations')
       .insert({
@@ -240,7 +242,7 @@ async function handlePaymentCaptured(
       paymentId,
     });
     // Mark as failed due to amount mismatch
-    // Note: Using 'as never' to bypass Supabase's overly strict update types
+    // WORKAROUND: 'as never' cast - see comment at line 200 for explanation
     await supabase
       .from('donations')
       .update({
@@ -289,7 +291,7 @@ async function handlePaymentCaptured(
   });
 
   // STEP 5: Update donation to "completed" status
-  // Note: Using 'as never' to bypass Supabase's overly strict update types
+  // WORKAROUND: 'as never' cast - see comment at line 200 for explanation
   const { error: updateError } = await supabase
     .from('donations')
     .update({
@@ -341,7 +343,7 @@ async function handlePaymentFailed(
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
 
-  // Note: Using 'as never' to bypass Supabase's overly strict update types
+  // WORKAROUND: 'as never' cast - see comment at line 200 for explanation
   const { error } = await supabase
     .from('donations')
     .update({
@@ -370,7 +372,7 @@ async function handlePaymentAuthorized(
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
 
-  // Note: Using 'as never' to bypass Supabase's overly strict update types
+  // WORKAROUND: 'as never' cast - see comment at line 200 for explanation
   const { error } = await supabase
     .from('donations')
     .update({

@@ -49,8 +49,13 @@ export function useMapData() {
         fetch('/api/map/stats', { signal })
       ]);
 
-      if (!volunteersRes.ok || !feedersRes.ok || !statsRes.ok) {
-        throw new Error('Failed to fetch map data');
+      // Granular error reporting - identify which specific endpoint(s) failed
+      const errors: string[] = [];
+      if (!volunteersRes.ok) errors.push('volunteers');
+      if (!feedersRes.ok) errors.push('feeders');
+      if (!statsRes.ok) errors.push('stats');
+      if (errors.length > 0) {
+        throw new Error(`Failed to fetch: ${errors.join(', ')}`);
       }
 
       const volunteersData = await volunteersRes.json();
