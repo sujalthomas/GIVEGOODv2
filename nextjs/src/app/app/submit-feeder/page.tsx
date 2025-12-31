@@ -121,7 +121,7 @@ export default function SubmitFeederPage() {
         className="mb-6"
       >
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
-          <Home className="w-8 h-8 text-primary-600" />
+          <Home className="w-8 h-8 text-primary-600" aria-hidden="true" />
           Submit a New Feeder
         </h1>
         <p className="text-gray-600">
