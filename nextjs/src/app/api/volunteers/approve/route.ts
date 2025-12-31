@@ -70,8 +70,10 @@ export async function POST(request: NextRequest) {
 
     // If approved, trigger geocoding
     if (body.status === 'approved' && volunteer.pincode) {
+      // Derive base URL from server-only env var or request headers (not NEXT_PUBLIC_ which is exposed to browser)
+      const baseUrl = process.env.SITE_URL || request.headers.get('origin') || 'http://localhost:3000';
       // Call geocoding API in background (don't wait for it)
-      fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/volunteers/geocode`, {
+      fetch(`${baseUrl}/api/volunteers/geocode`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ volunteerId: volunteer.id, pincode: volunteer.pincode })

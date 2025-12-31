@@ -160,6 +160,9 @@ export default function AdminVolunteerMapPage() {
                       <button
                         key={control.label}
                         onClick={() => control.onChange(!control.value)}
+                        role="switch"
+                        aria-checked={control.value}
+                        aria-label={`Toggle ${control.label}`}
                         className={`
                           w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all
                           ${control.value

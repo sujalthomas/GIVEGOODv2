@@ -381,7 +381,7 @@ export default function PublicVolunteerMapPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     onClick={() => setShowCTA(true)}
-                    className="w-full bg-primary-600/90 backdrop-blur-lg rounded-xl shadow-lg p-3 text-sm font-medium text-black hover:text-white hover:bg-primary-700 transition-all"
+                    className="w-full bg-primary-600/90 backdrop-blur-lg rounded-xl shadow-lg p-3 text-sm font-medium text-white hover:bg-primary-700 transition-all"
                   >
                     Show Join CTA
                   </motion.button>
