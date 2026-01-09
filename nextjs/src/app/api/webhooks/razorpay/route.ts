@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature, fetchPaymentDetails, extractUPIReference, paiseToRupees, RazorpayPayment } from '@/lib/razorpay/client';
-import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
 import { Database } from '@/lib/types';
 import { applyRateLimit } from '@/lib/security/rateLimit';
 
@@ -106,14 +106,20 @@ export async function POST(request: NextRequest) {
     });
 
     // Initialize Supabase client with service role key (bypasses RLS)
-    // Using createClient from @supabase/supabase-js for direct service role access
-    const supabase = createClient<Database>(
+    const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.PRIVATE_SUPABASE_SERVICE_KEY!,
       {
+        cookies: {
+          getAll: () => [],
+          setAll: () => {},
+        },
         auth: {
-          autoRefreshToken: false,
           persistSession: false,
+          autoRefreshToken: false,
+        },
+        db: {
+          schema: 'public',
         },
       }
     );
@@ -157,7 +163,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentCaptured(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createClient<Database>>
+  supabase: ReturnType<typeof createServerClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const paymentId = paymentEntity.id;
@@ -340,7 +346,7 @@ async function handlePaymentCaptured(
 
 async function handlePaymentFailed(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createClient<Database>>
+  supabase: ReturnType<typeof createServerClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
@@ -369,7 +375,7 @@ async function handlePaymentFailed(
 
 async function handlePaymentAuthorized(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createClient<Database>>
+  supabase: ReturnType<typeof createServerClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
