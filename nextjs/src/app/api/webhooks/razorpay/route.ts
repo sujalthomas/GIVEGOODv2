@@ -52,6 +52,13 @@ interface DonationRecord {
 }
 
 export async function POST(request: NextRequest) {
+  // DEBUG: Check if service key is loaded (remove after debugging)
+  console.log('🔑 DEBUG - Service key check:', {
+    present: !!process.env.PRIVATE_SUPABASE_SERVICE_KEY,
+    length: process.env.PRIVATE_SUPABASE_SERVICE_KEY?.length || 0,
+    startsWithEy: process.env.PRIVATE_SUPABASE_SERVICE_KEY?.startsWith('ey') || false,
+  });
+  
   // SECURITY: Apply rate limiting (high limit for webhooks to allow Razorpay retries)
   const rateLimited = applyRateLimit(request, 'webhook');
   if (rateLimited) return rateLimited;
