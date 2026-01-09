@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature, fetchPaymentDetails, extractUPIReference, paiseToRupees, RazorpayPayment } from '@/lib/razorpay/client';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/types';
 import { applyRateLimit } from '@/lib/security/rateLimit';
 
@@ -52,13 +52,6 @@ interface DonationRecord {
 }
 
 export async function POST(request: NextRequest) {
-  // DEBUG: Check if service key is loaded (remove after debugging)
-  console.log('🔑 DEBUG - Service key check:', {
-    present: !!process.env.PRIVATE_SUPABASE_SERVICE_KEY,
-    length: process.env.PRIVATE_SUPABASE_SERVICE_KEY?.length || 0,
-    startsWithEy: process.env.PRIVATE_SUPABASE_SERVICE_KEY?.startsWith('ey') || false,
-  });
-  
   // SECURITY: Apply rate limiting (high limit for webhooks to allow Razorpay retries)
   const rateLimited = applyRateLimit(request, 'webhook');
   if (rateLimited) return rateLimited;
@@ -112,15 +105,15 @@ export async function POST(request: NextRequest) {
       order_id: event.payload?.payment?.entity?.order_id,
     });
 
-    // Initialize Supabase client (server-side)
-    const supabase = createServerClient<Database>(
+    // Initialize Supabase client with service role key (bypasses RLS)
+    // Using createClient from @supabase/supabase-js for direct service role access
+    const supabase = createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.PRIVATE_SUPABASE_SERVICE_KEY!,
       {
-        cookies: {
-          get: () => undefined,
-          set: () => {},
-          remove: () => {},
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
         },
       }
     );
@@ -164,7 +157,7 @@ export async function POST(request: NextRequest) {
 
 async function handlePaymentCaptured(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createServerClient<Database>>
+  supabase: ReturnType<typeof createClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const paymentId = paymentEntity.id;
@@ -347,7 +340,7 @@ async function handlePaymentCaptured(
 
 async function handlePaymentFailed(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createServerClient<Database>>
+  supabase: ReturnType<typeof createClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
@@ -376,7 +369,7 @@ async function handlePaymentFailed(
 
 async function handlePaymentAuthorized(
   event: RazorpayWebhookEvent, 
-  supabase: ReturnType<typeof createServerClient<Database>>
+  supabase: ReturnType<typeof createClient<Database>>
 ) {
   const paymentEntity = event.payload.payment.entity;
   const orderId = paymentEntity.order_id;
