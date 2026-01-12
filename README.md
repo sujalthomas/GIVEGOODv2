@@ -2,40 +2,8 @@
 
 A production-ready SaaS template built with Next.js 15, Supabase, and Tailwind CSS. This template provides everything you need to quickly launch your SaaS product, including authentication, user management, file storage, and more.
 
-
 > **🎉 NEW: Mobile App Now Available!** Check out [README_MOBILE.md](./README_MOBILE.md) for the complete React Native + Expo mobile app that shares the same Supabase backend!
 > https://youtube.com/shorts/qcASa0Ywsy4?feature=share
-
-
-## 🇨🇳 Chinese Documentation Available
-
-[中文文档](./README_ZH.md) | [移动端中文文档](./README_MOBILE_ZH.md)
-
-This repository includes full documentation in Simplified Chinese:
-- **README_ZH.md** - Complete Chinese translation of the main documentation
-- **README_MOBILE_ZH.md** - Complete Chinese translation of the mobile app documentation
-
-本仓库包含完整的简体中文文档：
-- **README_ZH.md** - 主文档的完整中文翻译
-- **README_MOBILE_ZH.md** - 移动应用文档的完整中文翻译
-
-## LIVE DEMO
-
-Demo is here - https://basicsass.razikus.com
-
-
-## Self promo
-Hey, don't be a code printer in AI era. Check my book
-```
-http://razikus.gumroad.com/l/dirtycode - live now!
-https://www.amazon.com/dp/B0FNR716CF - live from 01.09
-https://books.apple.com/us/book/dirty-code-but-works/id6751538660 - live from 01.09
-https://play.google.com/store/books/details?id=5UWBEQAAQBAJ - live from 01.09
-```
-
-## Deployment video
-
-Video is here - https://www.youtube.com/watch?v=kzbXavLndmE
 
 ## Migration from auth schema
 
@@ -175,18 +143,6 @@ Change the theme by updating the `NEXT_PUBLIC_THEME` environment variable.
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 
-## Need Multitenancy, Billing (Paddle) and Role Based Access Control?
-
-I have paid template as well available here:
-
-https://sasstemplate.razikus.com
-
-Basically it's the same template but with Paddle + organisations API keys + multiple organisations + Role Based Access Control
-
-For code GITHUB you can get -50% off
-
-https://razikus.gumroad.com/l/supatemplate/GITHUB
-
 ## 📝 License
 
 This project is licensed under the Apache License - see the LICENSE file for details.
@@ -194,17 +150,6 @@ This project is licensed under the Apache License - see the LICENSE file for det
 ## 💪 Support
 
 If you find this template helpful, please consider giving it a star ⭐️
-
-Or buy me a coffee!
-
-- [BuyMeACoffee](https://buymeacoffee.com/razikus)
-
-My socials:
-
-- [Twitter](https://twitter.com/Razikus_)
-- [GitHub](https://github.com/Razikus)
-- [Website](https://www.razikus.com)
-
 
 ## 🙏 Acknowledgments
 
