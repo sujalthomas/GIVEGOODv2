@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   UserCheck, Mail, MapPin, Calendar, Heart, Filter, Download,
-  CheckCircle, XCircle, Clock, AlertTriangle
+  CheckCircle, XCircle, Clock, AlertTriangle, Home
 } from 'lucide-react';
 import { createSPASassClient } from '@/lib/supabase/client';
 import { useGlobal } from '@/lib/context/GlobalContext';
@@ -30,6 +30,15 @@ interface Volunteer {
   rejection_reason: string | null;
 }
 
+interface MatchingFeeder {
+  id: string;
+  location_name: string;
+  area_name: string | null;
+  pincode: string;
+  status: string;
+  volunteer_count: number;
+}
+
 type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
 
 export default function VolunteersPage() {
@@ -39,8 +48,12 @@ export default function VolunteersPage() {
   const [helpTypeFilter, setHelpTypeFilter] = useState<string>('all');
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [matchingFeeders, setMatchingFeeders] = useState<MatchingFeeder[]>([]);
+  const [selectedFeeders, setSelectedFeeders] = useState<string[]>([]);
+  const [loadingFeeders, setLoadingFeeders] = useState(false);
 
   const { user } = useGlobal();
   const router = useRouter();
@@ -77,20 +90,71 @@ export default function VolunteersPage() {
     }
   };
 
-  const handleApprove = async (volunteerId: string) => {
+  // Open approval dialog and fetch matching feeders
+  const openApproveDialog = async (volunteer: Volunteer) => {
+    setSelectedVolunteer(volunteer);
+    setSelectedFeeders([]);
+    setMatchingFeeders([]);
+    setShowApproveDialog(true);
+
+    // Fetch feeders for this volunteer's pincode
+    if (volunteer.pincode) {
+      setLoadingFeeders(true);
+      try {
+        const response = await fetch(`/api/feeders/by-pincode?pincode=${volunteer.pincode}`);
+        if (response.ok) {
+          const data = await response.json();
+          setMatchingFeeders(data.feeders || []);
+        }
+      } catch (error) {
+        console.error('Error fetching matching feeders:', error);
+      } finally {
+        setLoadingFeeders(false);
+      }
+    }
+  };
+
+  // Toggle feeder selection
+  const toggleFeederSelection = (feederId: string) => {
+    setSelectedFeeders(prev =>
+      prev.includes(feederId)
+        ? prev.filter(id => id !== feederId)
+        : [...prev, feederId]
+    );
+  };
+
+  // Confirm approval with optional feeder assignments
+  const handleApprove = async () => {
+    if (!selectedVolunteer) return;
+
     setActionLoading(true);
     try {
       const response = await fetch('/api/volunteers/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          volunteerId,
-          status: 'approved'
+          volunteerId: selectedVolunteer.id,
+          status: 'approved',
+          feederIds: selectedFeeders.length > 0 ? selectedFeeders : undefined,
+          role: 'refiller'
         })
       });
 
       if (!response.ok) throw new Error('Failed to approve volunteer');
 
+      const result = await response.json();
+
+      toast({
+        title: "Volunteer Approved! ✅",
+        description: result.feedersAssigned > 0
+          ? `${selectedVolunteer.name} approved and assigned to ${result.feedersAssigned} feeder(s).`
+          : `${selectedVolunteer.name} has been approved.`,
+      });
+
+      setShowApproveDialog(false);
+      setSelectedVolunteer(null);
+      setSelectedFeeders([]);
+      setMatchingFeeders([]);
       await fetchVolunteers(); // Refresh list
     } catch (error) {
       console.error('Error approving volunteer:', error);
@@ -442,7 +506,7 @@ export default function VolunteersPage() {
                     {volunteer.status === 'pending' && (
                       <div className="flex gap-2 lg:flex-col">
                         <button
-                          onClick={() => handleApprove(volunteer.id)}
+                          onClick={() => openApproveDialog(volunteer)}
                           disabled={actionLoading}
                           className="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -497,6 +561,92 @@ export default function VolunteersPage() {
               className="bg-red-600 hover:bg-red-700"
             >
               {actionLoading ? 'Rejecting...' : 'Reject Application'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Approve Dialog with Feeder Assignment */}
+      <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+              Approve Volunteer
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Approving <strong>{selectedVolunteer?.name}</strong> from <strong>{selectedVolunteer?.pincode}</strong>.
+              You can optionally assign them to feeders in the same area.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="my-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <Home className="w-4 h-4" />
+              Matching Feeders in {selectedVolunteer?.pincode}
+            </h4>
+
+            {loadingFeeders ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                <span className="ml-2 text-sm text-gray-500">Finding feeders...</span>
+              </div>
+            ) : matchingFeeders.length === 0 ? (
+              <div className="bg-gray-50 rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-500">No active feeders found in this pincode.</p>
+                <p className="text-xs text-gray-400 mt-1">You can still approve without assignment.</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                {matchingFeeders.map((feeder) => (
+                  <label
+                    key={feeder.id}
+                    className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${selectedFeeders.includes(feeder.id)
+                        ? 'bg-green-50 border border-green-200'
+                        : 'hover:bg-gray-50 border border-transparent'
+                      }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedFeeders.includes(feeder.id)}
+                      onChange={() => toggleFeederSelection(feeder.id)}
+                      className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {feeder.location_name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {feeder.area_name || feeder.pincode} • {feeder.volunteer_count} volunteer(s)
+                      </p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {selectedFeeders.length > 0 && (
+              <p className="mt-2 text-xs text-green-600 font-medium">
+                ✓ {selectedFeeders.length} feeder(s) selected for assignment
+              </p>
+            )}
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setSelectedFeeders([]);
+              setMatchingFeeders([]);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleApprove}
+              disabled={actionLoading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {actionLoading ? 'Approving...' : selectedFeeders.length > 0
+                ? `Approve & Assign (${selectedFeeders.length})`
+                : 'Approve'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
